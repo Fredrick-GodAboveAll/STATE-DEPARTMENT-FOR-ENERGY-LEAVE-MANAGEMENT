@@ -1,0 +1,381 @@
+<div class="card bg-body-tertiary dark__bg-opacity-50 mb-3">
+  <div class="card-body p-3">
+    <p class="fs-10 mb-0">
+      <a href="https://prium.github.io/falcon/v3.25.0/widgets.html#!">
+        Add Employee, <strong><%= userFirstName %></strong> <%= userLastName %>
+      </a>
+    </p>
+    <span id="session-timer"><%= locals.sessionInfo ? locals.sessionInfo.timeRemaining : '1h' %> <strong>Monday, September <b>4<sup>th</sup></b></strong></span>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(../../assets/img/icons/spot-illustrations/corner-4.png);"></div>
+  <div class="card-body p-0">
+    <div class="tab-content">
+      <div class="tab-pane preview-tab-pane active" role="tabpanel" aria-labelledby="tab-dom-486eed14-77ef-40e7-9f27-73d8a8e44506" id="dom-486eed14-77ef-40e7-9f27-73d8a8e44506">
+        <div class="card shadow-none">
+          <div class="card-header">
+            <div class="row flex-between-center">
+              <div class="col-6 col-sm-auto d-flex align-items-center pe-0">
+                <h5 class="mb-0">Add Employee / Bulk Upload</h5>
+              </div>
+              <div class="col-6 col-sm-auto ms-auto text-end ps-0">
+                <div id="table-simple-pagination-replace-element">
+                  <button class="btn btn-falcon-default btn-sm" type="button" onclick="switchToSingleForm()">
+                    <span class="fas fa-user-plus" data-fa-transform="shrink-3 down-2"></span>
+                    <span class="d-none d-sm-inline-block ms-1">Single Entry</span>
+                  </button>
+                  <button class="btn btn-falcon-default btn-sm mx-2" type="button" onclick="switchToBulkUpload()">
+                    <span class="fas fa-upload" data-fa-transform="shrink-3 down-2"></span>
+                    <span class="d-none d-sm-inline-block ms-1">Bulk Upload</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Single Employee Form -->
+          <div class="card-body px-4 pt-4" id="singleEmployeeForm">
+            <h6 class="mb-3">Add Single Employee</h6>
+
+
+            <form id="employeeForm" class="row g-3 needs-validation" novalidate="">
+
+              <div class="col-md-4"><label class="form-label" for="validationCustom02">Payroll Number</label>
+                <input class="form-control" id="validationCustom02" type="number" name="payroll_number" required />
+                <div class="invalid-feedback">personal number ? </div>
+              </div>
+
+              <div class="col-md-4"><label class="form-label" for="validationCustom01">First name</label>
+                <input class="form-control" id="validationCustom01" name="first_name" type="text" required="" />
+                <div class="invalid-feedback">first name ? </div>
+              </div>
+
+
+              <div class="col-md-4"><label class="form-label" for="validationCustom02">Middle name</label>
+                <input class="form-control" id="validationCustom02" name="middle_name" type="text" required />
+                <div class="invalid-feedback">Other names ? </div>
+              </div>
+
+              <div class="col-md-4"><label class="form-label" for="validationCustom02">Last name</label>
+                <input class="form-control" id="validationCustom02" name="last_name" type="text" required />
+                <div class="invalid-feedback">Last name ? </div>
+              </div>
+
+              <div class="col-md-4"><label class="form-label" for="validationCustom02">ID Number</label>
+                <input class="form-control" id="validationCustom02" name="id _number" type="number" required />
+                <div class="invalid-feedback">Identification number ? </div>
+              </div>
+
+              <div class="col-md-4"><label class="form-label" for="validationCustom04">Gender</label>
+                <select class="form-select" name="gender" id="validationCustom04" required>
+                  <option selected="" disabled="" value="">Choose...</option>
+                  <option>Male</option>
+                  <option>Female</option>
+                </select>
+                <div class="invalid-feedback">Please select a Gender.</div>
+              </div>
+
+              <div class="col-md-4"><label class="form-label" for="validationCustom02"> Date of Birth </label>
+                <input class="form-control" id="validationCustom02" name="date_of_birth" type="date" required />
+                <div class="invalid-feedback"> born when ? </div>
+              </div>
+
+              <div class="col-md-4"><label class="form-label" for="validationCustom04">Disability</label>
+                <select class="form-select" name="disability" id="validationCustom04" required>
+                  <option selected="" disabled="" value="">Choose...</option>
+                  <option>Yes</option>
+                  <option>No</option>
+                </select>
+                <div class="invalid-feedback">Living with disability ? </div>
+              </div>
+
+              <!-- EXCEPTION OF PWD +5 YEARS BUT THE REST SHOULD AUTO GENERATE  -->
+
+              <div class="col-md-4"><label class="form-label" for="validationCustom02">Designation</label>
+                <input class="form-control" id="validationCustom02" name="designation" type="text" required />
+                <div class="invalid-feedback"> work name ? </div>
+              </div>
+
+              <div class="col-md-4"><label class="form-label" for="validationCustom04">Job Group</label>
+                <select class="form-select" name="job_group" id="validationCustom04" required>
+                  <option selected="" disabled="" value="">Choose...</option>
+                  <option>H</option>
+                  <option>P</option>
+                  <option>S</option>
+                  <option>T</option>
+                </select>
+                <div class="invalid-feedback">Please select a job group.</div>
+              </div>
+
+              <!-- AUTO DONE  -->
+              <div class="col-md-4"><label class="form-label" for="validationCustomUsername">Retirement Date</label>
+                <div class="input-group has-validation">
+                  <span class="input-group-text" id="inputGroupPrepend"> <i class="far fa-user"></i></span>
+                  <input class="form-control" id="validationCustomUsername" name="retires_on" disabled type="text" aria-describedby="inputGroupPrepend" value="25/11/2064" required="" />
+                  <div class="valid-feedback">Retires On.</div>
+                </div>
+              </div>
+              <!-- AUTO DONE  -->
+
+              <div class="col-md-4"><label class="form-label" for="validationCustom04">Employment Terms</label>
+                <select class="form-select" name="employment_terms" id="validationCustom04" required>
+                  <option selected="" disabled="" value="">Choose...</option>
+                  <option>Permanent </option>
+                  <option>Contract</option>
+                  <option>Temporary</option>
+                  <option>Intern</option>
+                  <option>Probation</option>
+                </select>
+                <div class="invalid-feedback">Please select a job group.</div>
+              </div>
+
+
+              <div class="col-md-4"><label class="form-label" for="validationCustom04">Status</label>
+                <select class="form-select" name="status" id="validationCustom04" required>
+                  <option selected="" disabled="" value="">Choose...</option>
+                  <option>Active</option>
+                  <option>Inactive</option>
+                </select>
+                <div class="invalid-feedback">in or not.</div>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label" for="validationCustom04"> Terms and Conditions </label>
+                <div class="form-check">
+                  
+                  <input class="form-check-input" name="should_agree" id="invalidCheck" type="checkbox" value="" required="" /><label class="form-check-label mb-0" for="invalidCheck">Agree to terms and conditions</label>
+                  <div class="invalid-feedback mt-0">You must agree before submitting.</div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <button class="btn btn-primary" type="submit">Submit</button>
+              </div>
+            </form>
+
+
+          </div>
+          
+          <!-- Bulk Upload Form (Hidden by default) -->
+          <div class="card-body px-4 pt-4" id="bulkUploadForm" style="display: none;">
+            <h6 class="mb-3">Bulk Upload Employees</h6>
+            <div class="alert alert-light border mb-4">
+              <div class="d-flex">
+                <span class="fas fa-info-circle text-primary fs-4 me-3"></span>
+                <div class="flex-1">
+                  <h6 class="mb-1">Upload Instructions</h6>
+                  <p class="mb-0 fs-10">Upload a CSV file with the following columns in order: Payroll Number, Full Name, ID Number, Gender, Age, Designation, Job Group, Retirement Date (YYYY-MM-DD), Employment Type, Status</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card border mb-4">
+              <div class="card-body p-3">
+                <div class="dropzone" id="bulkUploadDropzone">
+                  <div class="dz-message" data-dz-message>
+                    <span class="fas fa-cloud-upload-alt fs-4 text-400"></span>
+                    <h5 class="mb-2">Drop your CSV file here or click to upload</h5>
+                    <p class="fs-10 mb-0">Maximum file size: 5MB</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <button class="btn btn-falcon-default btn-sm w-100" type="button" onclick="downloadTemplate()">
+                  <span class="fas fa-download"></span>
+                  <span class="d-none d-sm-inline-block ms-1">Download Template</span>
+                </button>
+              </div>
+              <div class="col-md-6">
+                <button class="btn btn-falcon-primary btn-sm w-100" type="button" id="processUploadBtn" disabled>
+                  <span class="fas fa-cogs"></span>
+                  <span class="d-none d-sm-inline-block ms-1">Process Upload</span>
+                </button>
+              </div>
+            </div>
+            
+            <div class="mt-4" id="uploadPreview" style="display: none;">
+              <h6 class="mb-3">Upload Preview</h6>
+              <div class="table-responsive">
+                <table class="table table-sm table-bordered mb-0 fs-10">
+                  <thead class="bg-200">
+                    <tr>
+                      <th>Payroll No</th>
+                      <th>Full Name</th>
+                      <th>ID Number</th>
+                      <th>Gender</th>
+                      <th>Age</th>
+                      <th>Designation</th>
+                      <th>Job Group</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="previewTableBody">
+                    <!-- Preview rows will be inserted here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          
+        </div>
+      </div>
+
+      <div class="tab-pane code-tab-pane" role="tabpanel" aria-labelledby="tab-dom-da3b530b-69f1-4dd0-99e9-19f7619d14cc" id="dom-da3b530b-69f1-4dd0-99e9-19f7619d14cc">
+        <pre class="scrollbar rounded-1" style="max-height:420px">
+          <code>// Code view for reference</code>
+        </pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    <% if (locals.sessionInfo && locals.sessionInfo.totalSeconds > 0) { %>
+      let remainingSeconds = <%= locals.sessionInfo.totalSeconds %>;
+      
+      const updateTimer = () => {
+        if (remainingSeconds <= 0) {
+          alert('Your session has expired. You will be logged out.');
+          window.location.href = '/logout';
+          return;
+        }
+        
+        const hours = Math.floor(remainingSeconds / 3600);
+        const minutes = Math.floor((remainingSeconds % 3600) / 60);
+        const seconds = remainingSeconds % 60;
+        
+        let timeString;
+        if (hours > 0) {
+          timeString = `${hours}h ${minutes}m`;
+        } else if (minutes > 0) {
+          timeString = `${minutes}m`;
+        } else {
+          timeString = `${seconds}s`;
+        }
+        
+        document.getElementById('session-timer').textContent = timeString;
+        remainingSeconds--;
+      };
+      
+      updateTimer();
+      const timerInterval = setInterval(updateTimer, 1000);
+      
+      let lastActivity = Date.now();
+      const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+      
+      const updateActivity = () => {
+        const now = Date.now();
+        if (now - lastActivity > 5000) {
+          lastActivity = now;
+          remainingSeconds = 3600;
+        }
+      };
+      
+      activityEvents.forEach(event => {
+        document.addEventListener(event, updateActivity, true);
+      });
+    <% } %>
+    
+    // Form handling
+    const employeeForm = document.getElementById('employeeForm');
+    if (employeeForm) {
+      employeeForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Here you would handle the form submission
+        alert('Employee saved successfully!');
+        this.reset();
+      });
+    }
+    
+    // Simple file upload handler
+    const dropzone = document.getElementById('bulkUploadDropzone');
+    if (dropzone) {
+      dropzone.addEventListener('click', function() {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.csv';
+        fileInput.style.display = 'none';
+        fileInput.addEventListener('change', function(e) {
+          if (e.target.files.length > 0) {
+            handleFileUpload(e.target.files[0]);
+          }
+        });
+        document.body.appendChild(fileInput);
+        fileInput.click();
+        document.body.removeChild(fileInput);
+      });
+    }
+  });
+
+  function switchToSingleForm() {
+    document.getElementById('singleEmployeeForm').style.display = 'block';
+    document.getElementById('bulkUploadForm').style.display = 'none';
+  }
+
+  function switchToBulkUpload() {
+    document.getElementById('singleEmployeeForm').style.display = 'none';
+    document.getElementById('bulkUploadForm').style.display = 'block';
+  }
+
+  function downloadTemplate() {
+    // Create a simple CSV template
+    const csvContent = "Payroll Number,Full Name,ID Number,Gender,Age,Designation,Job Group,Retirement Date,Employment Type,Status\n" +
+                      "2000171800,Mr. Fredrick Wambua Muasya,30008279,M,26,Human Resource Management Assistant 3,H,2065-11-25,Permanent,Active";
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'employee_template.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }
+
+  function handleFileUpload(file) {
+    if (file && file.name.endsWith('.csv')) {
+      document.getElementById('processUploadBtn').disabled = false;
+      
+      // Show preview section
+      const previewSection = document.getElementById('uploadPreview');
+      previewSection.style.display = 'block';
+      
+      // Simulate preview data
+      const previewBody = document.getElementById('previewTableBody');
+      previewBody.innerHTML = `
+        <tr>
+          <td>2000171800</td>
+          <td>Mr. Fredrick Wambua Muasya</td>
+          <td>30008279</td>
+          <td>M</td>
+          <td>26</td>
+          <td>Human Resource Management Assistant 3</td>
+          <td>H</td>
+          <td><span class="badge badge rounded-pill badge-subtle-success">Active</span></td>
+        </tr>
+        <tr>
+          <td>2000171801</td>
+          <td>Ms. Jane Doe Smith</td>
+          <td>30008280</td>
+          <td>F</td>
+          <td>32</td>
+          <td>Finance Officer</td>
+          <td>G</td>
+          <td><span class="badge badge rounded-pill badge-subtle-success">Active</span></td>
+        </tr>
+      `;
+      
+      alert(`File "${file.name}" uploaded successfully. Ready to process.`);
+    } else {
+      alert('Please upload a CSV file only.');
+    }
+  }
+</script>

@@ -1,0 +1,589 @@
+<div class="card bg-body-tertiary dark__bg-opacity-50 mb-3">
+  <div class="card-body p-3">
+    <p class="fs-10 mb-0">
+      <a href="https://prium.github.io/falcon/v3.25.0/widgets.html#!">
+        Employee Dashboard, <strong><%= userFirstName %></strong> <%= userLastName %></a>. 
+      <span id="session-timer"><%= locals.sessionInfo ? locals.sessionInfo.timeRemaining : '1h' %></span> <strong>Monday, September <b>4<sup>th</sup></b></strong>
+    </p>
+  </div>
+</div>
+
+<!-- Summary Cards Section -->
+<div class="card mb-3">
+  <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(../../assets/img/icons/spot-illustrations/corner-4.png);"></div>
+  <div class="card-body p-0">
+    <div class="tab-content">
+      <div class="tab-pane preview-tab-pane active" role="tabpanel" aria-labelledby="tab-dom-486eed14-77ef-40e7-9f27-73d8a8e44506" id="dom-486eed14-77ef-40e7-9f27-73d8a8e44506">
+        <div class="card shadow-none">
+          <div class="card-header">
+            <div class="row flex-between-center">
+              <div class="col-6 col-sm-auto d-flex align-items-center pe-0">
+                <div class="col-auto ms-auto">
+                  <h5 class="mb-0">Employee Overview</h5>
+                </div>
+              </div>
+              <div class="col-6 col-sm-auto ms-auto text-end ps-0">
+                <div id="table-simple-pagination-replace-element">
+                  <button class="btn btn-falcon-default btn-sm" type="button" id="viewAllEmployeesBtn">
+                    <span class="fas fa-users" data-fa-transform="shrink-3 down-2"></span>
+                    <span class="d-none d-sm-inline-block ms-1">View All</span>
+                  </button>
+                  <button class="btn btn-falcon-default btn-sm mx-2" type="button" id="addEmployeeBtn">
+                    <span class="fas fa-user-plus" data-fa-transform="shrink-3 down-2"></span>
+                    <span class="d-none d-sm-inline-block ms-1">Add Employee</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Summary Cards Row -->
+          <div class="card-body px-4 pt-4 pb-3">
+            <div class="row g-3 mb-4">
+              <div class="col-md-3">
+                <div class="card border h-100">
+                  <div class="card-body p-3">
+                    <div class="d-flex align-items-center">
+                      <div class="flex-1">
+                        <h6 class="text-600 mb-1">Total Headcount</h6>
+                        <h4 class="mb-0">128</h4>
+                      </div>
+                      <div class="ms-3">
+                        <span class="fas fa-users fs-3 text-primary"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card border h-100">
+                  <div class="card-body p-3">
+                    <div class="d-flex align-items-center">
+                      <div class="flex-1">
+                        <h6 class="text-600 mb-1">New Hires (Last 30 Days)</h6>
+                        <h4 class="mb-0">5 Employees</h4>
+                      </div>
+                      <div class="ms-3">
+                        <span class="fas fa-user-plus fs-3 text-success"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card border h-100">
+                  <div class="card-body p-3">
+                    <div class="d-flex align-items-center">
+                      <div class="flex-1">
+                        <h6 class="text-600 mb-1">Largest Department</h6>
+                        <h4 class="mb-0">IT (35 Staff)</h4>
+                      </div>
+                      <div class="ms-3">
+                        <span class="fas fa-building fs-3 text-warning"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card border h-100">
+                  <div class="card-body p-3">
+                    <div class="d-flex align-items-center">
+                      <div class="flex-1">
+                        <h6 class="text-600 mb-1">Critical Open Positions</h6>
+                        <h4 class="mb-0">12 Roles Open</h4>
+                      </div>
+                      <div class="ms-3">
+                        <span class="fas fa-exclamation-triangle fs-3 text-danger"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Department Distribution -->
+            <div class="row g-3 mb-4">
+              <div class="col-lg-8">
+                <div class="card border h-100">
+                  <div class="card-header bg-light py-2">
+                    <h6 class="mb-0">Staff Distribution by Department</h6>
+                  </div>
+                  <div class="card-body p-3">
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <div class="mb-3">
+                          <div class="d-flex justify-content-between mb-1">
+                            <span class="text-600">IT & Development (35)</span>
+                            <span class="fw-bold">30%</span>
+                          </div>
+                          <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 30%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                          </div>
+                        </div>
+                        <div class="mb-3">
+                          <div class="d-flex justify-content-between mb-1">
+                            <span class="text-600">Sales & Marketing (28)</span>
+                            <span class="fw-bold">25%</span>
+                          </div>
+                          <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-info" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                          </div>
+                        </div>
+                        <div class="mb-3">
+                          <div class="d-flex justify-content-between mb-1">
+                            <span class="text-600">Finance & Admin (22)</span>
+                            <span class="fw-bold">20%</span>
+                          </div>
+                          <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                          </div>
+                        </div>
+                        <div class="mb-3">
+                          <div class="d-flex justify-content-between mb-1">
+                            <span class="text-600">Other (43)</span>
+                            <span class="fw-bold">25%</span>
+                          </div>
+                          <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-secondary" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="h-100 d-flex align-items-center">
+                          <div class="w-100">
+                            <div class="d-flex align-items-center mb-3">
+                              <span class="fas fa-circle text-primary fs-10 me-2"></span>
+                              <span class="text-600">IT & Development (30%)</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                              <span class="fas fa-circle text-info fs-10 me-2"></span>
+                              <span class="text-600">Sales & Marketing (25%)</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                              <span class="fas fa-circle text-success fs-10 me-2"></span>
+                              <span class="text-600">Finance & Admin (20%)</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                              <span class="fas fa-circle text-secondary fs-10 me-2"></span>
+                              <span class="text-600">Other (25%)</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <div class="card border h-100">
+                  <div class="card-header bg-light py-2">
+                    <h6 class="mb-0">Quick Actions</h6>
+                  </div>
+                  <div class="card-body p-3">
+                    <div class="d-grid gap-2">
+                      <button class="btn btn-falcon-default btn-sm text-start" type="button" id="quickAddEmployeeBtn">
+                        <span class="fas fa-user-plus me-2"></span>
+                        Add New Employee
+                      </button>
+                      <button class="btn btn-falcon-default btn-sm text-start" type="button" id="quickUploadBtn">
+                        <span class="fas fa-upload me-2"></span>
+                        Bulk Upload Employees
+                      </button>
+                      <button class="btn btn-falcon-default btn-sm text-start" type="button" id="quickExportBtn">
+                        <span class="fas fa-file-export me-2"></span>
+                        Export Employee Data
+                      </button>
+                      <button class="btn btn-falcon-default btn-sm text-start" type="button" id="quickReportBtn">
+                        <span class="fas fa-chart-bar me-2"></span>
+                        View Analytics Report
+                      </button>
+                      <button class="btn btn-falcon-default btn-sm text-start" type="button" id="quickAlertBtn">
+                        <span class="fas fa-bell me-2"></span>
+                        Set Hiring Alerts
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Table Section in Separate Card -->
+<div class="card mb-3">
+  <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(../../assets/img/icons/spot-illustrations/corner-1.png); background-position: right bottom;"></div>
+  <div class="card-body p-0">
+    <div class="tab-content">
+      <div class="tab-pane preview-tab-pane active" role="tabpanel" aria-labelledby="tab-dom-table-section" id="dom-table-section">
+        <div class="card shadow-none">
+          <div class="card-header">
+            <div class="row flex-between-center">
+              <div class="col-6 col-sm-auto d-flex align-items-center pe-0">
+                <div class="col-auto ms-auto">
+                  <h5 class="mb-0">Employee List</h5>
+                </div>
+              </div>
+              <div class="col-6 col-sm-auto ms-auto text-end ps-0">
+                <div class="d-none" id="table-bulk-actions">
+                  <div class="d-flex">
+                    <select class="form-select form-select-sm" aria-label="Bulk actions" id="bulkActionsSelect">
+                      <option selected="">Bulk actions</option>
+                      <option value="export">Export Selected</option>
+                      <option value="deactivate">Deactivate Selected</option>
+                      <option value="archive">Archive Selected</option>
+                      <option value="delete">Delete Selected</option>
+                    </select>
+                    <button class="btn btn-falcon-default btn-sm ms-2" type="button" id="applyBulkActions">Apply</button>
+                  </div>
+                </div>
+                <div id="table-actions-replace-element">
+                  <button class="btn btn-falcon-default btn-sm" type="button" id="newEmployeeBtn">
+                    <span class="fas fa-plus" data-fa-transform="shrink-3 down-2"></span>
+                    <span class="d-none d-sm-inline-block ms-1">New</span>
+                  </button>
+                  <button class="btn btn-falcon-default btn-sm mx-2" type="button" id="filterToggleBtn">
+                    <span class="fas fa-filter" data-fa-transform="shrink-3 down-2"></span>
+                    <span class="d-none d-sm-inline-block ms-1">Filter</span>
+                  </button>
+                  <button class="btn btn-falcon-default btn-sm" type="button" id="exportTableBtn">
+                    <span class="fas fa-external-link-alt" data-fa-transform="shrink-3 down-2"></span>
+                    <span class="d-none d-sm-inline-block ms-1">Export</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Filter Section (Hidden by Default) -->
+          <div class="card-body border-bottom" id="filterSection" style="display: none;">
+            <div class="row g-3">
+              <div class="col-md-3">
+                <label class="form-label">Payroll Number</label>
+                <input class="form-control form-control-sm" type="text" id="filterPayroll" placeholder="Enter payroll number">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Full Name</label>
+                <input class="form-control form-control-sm" type="text" id="filterName" placeholder="Enter name">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Department</label>
+                <select class="form-select form-select-sm" id="filterDepartment">
+                  <option value="">All Departments</option>
+                  <option value="IT">IT & Development</option>
+                  <option value="Sales">Sales & Marketing</option>
+                  <option value="Finance">Finance & Admin</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Status</label>
+                <select class="form-select form-select-sm" id="filterStatus">
+                  <option value="">All Status</option>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                  <option value="Retired">Retired</option>
+                </select>
+              </div>
+              <div class="col-md-2 d-flex align-items-end">
+                <div class="d-flex w-100">
+                  <button class="btn btn-falcon-default btn-sm me-2 flex-fill" type="button" id="clearFiltersBtn">
+                    <span class="fas fa-times"></span>
+                    Clear
+                  </button>
+                  <button class="btn btn-falcon-primary btn-sm flex-fill" type="button" id="applyFiltersBtn">
+                    <span class="fas fa-search"></span>
+                    Apply
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card-body px-0 pt-0">
+            <table class="table table-sm mb-0 overflow-hidden data-table fs-10" id="employeeTable"
+              data-datatables='{"responsive":true,"pagingType":"simple","lengthChange":true,"pageLength":10,"searching":true,"bDeferRender":true,"serverSide":false,"language":{"info":"_START_ to _END_ Items of _TOTAL_"}}'>
+              <thead class="bg-200">
+                <tr>
+                  <th class="text-900 text-center no-sort white-space-nowrap" data-orderable="false" style="width: 28px;">
+                    <div class="form-check mb-0 d-flex align-items-center justify-content-center">
+                      <input class="form-check-input" id="checkbox-bulk-item-select" type="checkbox" data-bulk-select='{"body":"table-simple-pagination-body","actions":"table-bulk-actions","replacedElement":"table-actions-replace-element"}' />
+                    </div>
+                  </th>
+                  <th class="text-900 sort white-space-nowrap">Payroll Number</th>
+                  <th class="text-900 sort white-space-nowrap">Full Name</th>
+                  <th class="text-900 sort white-space-nowrap">ID Number</th>
+                  <th class="text-900 sort white-space-nowrap" data-orderable="false">Gender</th>
+                  <th class="text-900 sort white-space-nowrap">Age</th>
+                  <th class="text-900 sort white-space-nowrap">Designation</th>
+                  <th class="text-900 sort white-space-nowrap">Job Group</th>
+                  <th class="text-900 sort white-space-nowrap" data-orderable="false">Status</th>
+                  <th class="text-900 sort white-space-nowrap" data-orderable="false">Retires On</th>
+                  <th class="text-900 sort white-space-nowrap" data-orderable="false">Engage Name</th>
+                  <th class="text-900 no-sort white-space-nowrap text-center" data-orderable="false">Action</th>
+                </tr>
+              </thead>
+              <tbody class="list" id="table-simple-pagination-body">
+                <!-- Sample data rows -->
+                <tr class="btn-reveal-trigger">
+                  <td class="align-middle text-center" style="width: 28px;">
+                    <div class="form-check mb-0 d-flex justify-content-center">
+                      <input class="form-check-input employee-checkbox" type="checkbox" id="employee-1" data-bulk-select-row="data-bulk-select-row" />
+                    </div>
+                  </td>
+                  <td class="align-middle">
+                    <a href="#!">2000171800</a>
+                  </td>
+                  <td class="align-middle white-space-nowrap fw-semi-bold">
+                    Mr. Fredrick Wambua Muasya
+                  </td>
+                  <td class="align-middle white-space-nowrap fw-semi-bold">30008279</td>
+                  <td class="align-middle white-space-nowrap">
+                    M
+                  </td>
+                  <td class="align-middle">26</td>
+                  <td class="align-middle white-space-nowrap">
+                    Human Resource Management Assistant 3
+                  </td>
+                  <td class="align-middle white-space-nowrap">
+                    H
+                  </td>
+                  <td class="align-middle white-space-nowrap">
+                    <span class="badge badge rounded-pill badge-subtle-success">Active
+                      <span class="ms-1 fas fa-check" data-fa-transform="shrink-2"></span>
+                    </span>
+                  </td>
+                  <td class="align-middle">25/11/2065</td>
+                  <td class="align-middle white-space-nowrap">
+                    <span class="badge badge rounded-pill badge-subtle-success">Permanent
+                      <span class="ms-1 fas fa-check" data-fa-transform="shrink-2"></span>
+                    </span>
+                  </td>
+                  <td class="align-middle white-space-nowrap text-center">
+                    <div class="dropstart font-sans-serif position-static d-inline-block">
+                      <button class="btn btn-link text-600 btn-sm dropdown-toggle btn-reveal" type="button" id="dropdown-employee-1" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
+                        <span class="fas fa-ellipsis-h fs-10"></span>
+                      </button>
+                      <div class="dropdown-menu dropdown-menu-end border py-2" aria-labelledby="dropdown-employee-1">
+                        <a class="dropdown-item" href="#!">View</a>
+                        <a class="dropdown-item" href="#!">Edit</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-warning" href="#!">Archive</a>
+                        <a class="dropdown-item text-danger" href="#!">Delete</a>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Add more sample rows as needed -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    <% if (locals.sessionInfo && locals.sessionInfo.totalSeconds > 0) { %>
+      let remainingSeconds = <%= locals.sessionInfo.totalSeconds %>;
+      
+      const updateTimer = () => {
+        if (remainingSeconds <= 0) {
+          alert('Your session has expired. You will be logged out.');
+          window.location.href = '/logout';
+          return;
+        }
+        
+        const hours = Math.floor(remainingSeconds / 3600);
+        const minutes = Math.floor((remainingSeconds % 3600) / 60);
+        const seconds = remainingSeconds % 60;
+        
+        let timeString;
+        if (hours > 0) {
+          timeString = `${hours}h ${minutes}m`;
+        } else if (minutes > 0) {
+          timeString = `${minutes}m`;
+        } else {
+          timeString = `${seconds}s`;
+        }
+        
+        document.getElementById('session-timer').textContent = timeString;
+        remainingSeconds--;
+      };
+      
+      updateTimer();
+      const timerInterval = setInterval(updateTimer, 1000);
+      
+      let lastActivity = Date.now();
+      const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+      
+      const updateActivity = () => {
+        const now = Date.now();
+        if (now - lastActivity > 5000) {
+          lastActivity = now;
+          remainingSeconds = 3600;
+        }
+      };
+      
+      activityEvents.forEach(event => {
+        document.addEventListener(event, updateActivity, true);
+      });
+    <% } %>
+    
+    // Filter functionality
+    const filterToggleBtn = document.getElementById('filterToggleBtn');
+    const filterSection = document.getElementById('filterSection');
+    const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+    const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+    const employeeTable = document.getElementById('employeeTable');
+    
+    let isFilterVisible = false;
+    
+    if (filterToggleBtn) {
+      filterToggleBtn.addEventListener('click', function() {
+        isFilterVisible = !isFilterVisible;
+        if (isFilterVisible) {
+          filterSection.style.display = 'block';
+          filterToggleBtn.innerHTML = '<span class="fas fa-filter" data-fa-transform="shrink-3 down-2"></span><span class="d-none d-sm-inline-block ms-1">Hide Filter</span>';
+        } else {
+          filterSection.style.display = 'none';
+          filterToggleBtn.innerHTML = '<span class="fas fa-filter" data-fa-transform="shrink-3 down-2"></span><span class="d-none d-sm-inline-block ms-1">Filter</span>';
+          clearFilters(); // Clear filters when hiding
+        }
+      });
+    }
+    
+    if (clearFiltersBtn) {
+      clearFiltersBtn.addEventListener('click', clearFilters);
+    }
+    
+    if (applyFiltersBtn) {
+      applyFiltersBtn.addEventListener('click', applyFilters);
+    }
+    
+    function clearFilters() {
+      document.getElementById('filterPayroll').value = '';
+      document.getElementById('filterName').value = '';
+      document.getElementById('filterDepartment').value = '';
+      document.getElementById('filterStatus').value = '';
+      
+      // Reset table to show all rows
+      const rows = employeeTable.querySelectorAll('tbody tr');
+      rows.forEach(row => {
+        row.style.display = '';
+      });
+      
+      // Update count
+      updateRowCount();
+    }
+    
+    function applyFilters() {
+      const payrollFilter = document.getElementById('filterPayroll').value.toLowerCase();
+      const nameFilter = document.getElementById('filterName').value.toLowerCase();
+      const departmentFilter = document.getElementById('filterDepartment').value;
+      const statusFilter = document.getElementById('filterStatus').value;
+      
+      const rows = employeeTable.querySelectorAll('tbody tr');
+      let visibleCount = 0;
+      
+      rows.forEach(row => {
+        const payrollCell = row.cells[1].textContent.toLowerCase();
+        const nameCell = row.cells[2].textContent.toLowerCase();
+        const statusCell = row.cells[8].textContent;
+        
+        let matches = true;
+        
+        if (payrollFilter && !payrollCell.includes(payrollFilter)) {
+          matches = false;
+        }
+        
+        if (nameFilter && !nameCell.includes(nameFilter)) {
+          matches = false;
+        }
+        
+        if (statusFilter && statusCell !== statusFilter && !statusCell.includes(statusFilter)) {
+          matches = false;
+        }
+        
+        row.style.display = matches ? '' : 'none';
+        if (matches) visibleCount++;
+      });
+      
+      // Show filter results message
+      const tableInfo = employeeTable.querySelector('.dataTables_info');
+      if (tableInfo) {
+        tableInfo.textContent = `Showing ${visibleCount} filtered employees`;
+      }
+    }
+    
+    function updateRowCount() {
+      const visibleRows = employeeTable.querySelectorAll('tbody tr:not([style*="display: none"])');
+      const tableInfo = employeeTable.querySelector('.dataTables_info');
+      if (tableInfo) {
+        tableInfo.textContent = `Showing ${visibleRows.length} employees`;
+      }
+    }
+    
+    // Bulk actions functionality
+    const bulkActionsSelect = document.getElementById('bulkActionsSelect');
+    const applyBulkActions = document.getElementById('applyBulkActions');
+    
+    if (applyBulkActions) {
+      applyBulkActions.addEventListener('click', function() {
+        const selectedAction = bulkActionsSelect.value;
+        const selectedEmployees = document.querySelectorAll('.employee-checkbox:checked');
+        
+        if (selectedEmployees.length === 0) {
+          alert('Please select at least one employee');
+          return;
+        }
+        
+        if (selectedAction === 'export') {
+          alert(`Exporting ${selectedEmployees.length} selected employees...`);
+        } else if (selectedAction === 'deactivate') {
+          if (confirm(`Deactivate ${selectedEmployees.length} selected employees?`)) {
+            alert('Employees deactivated successfully');
+          }
+        } else if (selectedAction === 'archive') {
+          if (confirm(`Archive ${selectedEmployees.length} selected employees?`)) {
+            alert('Employees archived successfully');
+          }
+        } else if (selectedAction === 'delete') {
+          if (confirm(`Delete ${selectedEmployees.length} selected employees? This action cannot be undone.`)) {
+            alert('Employees deleted successfully');
+          }
+        }
+      });
+    }
+    
+    // Quick action buttons
+    const quickButtons = ['addEmployeeBtn', 'quickAddEmployeeBtn', 'newEmployeeBtn'];
+    quickButtons.forEach(btnId => {
+      const btn = document.getElementById(btnId);
+      if (btn) {
+        btn.addEventListener('click', function() {
+          alert('Opening Add Employee Form...');
+          // You would redirect to your add employee page here
+          // window.location.href = '/add-employee';
+        });
+      }
+    });
+    
+    // Export button
+    const exportButtons = ['exportTableBtn', 'quickExportBtn'];
+    exportButtons.forEach(btnId => {
+      const btn = document.getElementById(btnId);
+      if (btn) {
+        btn.addEventListener('click', function() {
+          alert('Exporting employee data to CSV...');
+        });
+      }
+    });
+  });
+</script>
