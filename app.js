@@ -17,7 +17,7 @@ const bodyParser = require('body-parser');
 const expressLayouts = require('express-ejs-layouts');
 
 // Import application modules
-const { initializeDatabase } = require('./database');
+const database = require('./database'); // Updated to use modular database
 const { SESSION_CONFIG } = require('./session');
 const constants = require('./config/constants');
 const routes = require('./routes/index');
@@ -30,12 +30,37 @@ const { errorHandler, notFoundHandler } = require('./middleware/error.middleware
 // =============================================
 // DATABASE INITIALIZATION
 // =============================================
-initializeDatabase()
+database.initializeDatabase()
   .then(function() {
     console.log('✅ Database setup completed successfully');
+    
+    // Display database status
+    database.db.getStatus().then(status => {
+      console.log('\n📊 Database Status Report:');
+      console.log('='.repeat(50));
+      console.log(`📁 Database: ${status.databasePath || './auth.db'}`);
+      console.log(`🔗 Connected: ${status.connected ? '✅ Yes' : '❌ No'}`);
+      console.log(`🔄 Initialized: ${status.initialized ? '✅ Yes' : '❌ No'}`);
+      
+      if (status.tables && status.tables.length > 0) {
+        console.log('\n📋 Tables Summary:');
+        status.tables.forEach(table => {
+          console.log(`   ${table.table.padEnd(20)}: ${table.records} records`);
+        });
+      }
+      console.log('='.repeat(50) + '\n');
+    }).catch(err => {
+      console.log('⚠️ Could not get database status:', err.message);
+    });
   })
   .catch(function(err) {
     console.error('❌ Database setup failed:', err);
+    console.error('\n🔧 Troubleshooting steps:');
+    console.error('   1. Check if SQLite3 is installed');
+    console.error('   2. Check write permissions in the current directory');
+    console.error('   3. Check if another process is using the database');
+    console.error('   4. Try deleting auth.db and restarting');
+    console.error('='.repeat(60));
     process.exit(1); // Exit if database fails
   });
 
@@ -43,7 +68,7 @@ initializeDatabase()
 // EXPRESS APPLICATION SETUP
 // =============================================
 const app = express();
-const PORT = constants.PORT;
+const PORT = constants.PORT || 3000;
 
 // =============================================
 // MIDDLEWARE CONFIGURATION
@@ -86,6 +111,11 @@ app.use(function(req, res, next) {
   // Set active menu items based on URL
   res.locals.activePath = req.path;
   
+  // Make database available for debugging (remove in production)
+  if (process.env.NODE_ENV !== 'production') {
+    res.locals.dbStatus = database.db.getStatus ? database.db.getStatus() : null;
+  }
+  
   next();
 });
 
@@ -93,6 +123,74 @@ app.use(function(req, res, next) {
 // ROUTES
 // =============================================
 app.use('/', routes);
+
+// =============================================
+// HEALTH CHECK ENDPOINT
+// =============================================
+app.get('/health', async function(req, res) {
+  try {
+    const status = await database.db.getStatus();
+    res.json({
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      database: status.connected ? 'Connected' : 'Disconnected',
+      tables: status.tables ? status.tables.length : 0,
+      uptime: process.uptime(),
+      memory: process.memoryUsage()
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'ERROR',
+      error: error.message
+    });
+  }
+});
+
+// =============================================
+// DATABASE DEBUG ENDPOINTS (REMOVE IN PRODUCTION)
+// =============================================
+if (process.env.NODE_ENV !== 'production') {
+  app.get('/debug/db-status', async function(req, res) {
+    try {
+      const status = await database.db.getStatus();
+      res.json(status);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get('/debug/db-tables', async function(req, res) {
+    try {
+      const db = database.connection.getConnection();
+      
+      // Get all tables and their row counts
+      const tables = await database.connection.all(
+        "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
+      );
+      
+      const tableData = [];
+      for (const table of tables) {
+        const count = await database.connection.get(`SELECT COUNT(*) as count FROM ${table.name}`);
+        const schema = await database.connection.all(`PRAGMA table_info(${table.name})`);
+        
+        tableData.push({
+          name: table.name,
+          count: count.count,
+          columns: schema.map(col => ({
+            name: col.name,
+            type: col.type,
+            notnull: col.notnull,
+            pk: col.pk
+          }))
+        });
+      }
+      
+      res.json(tableData);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+}
 
 // =============================================
 // ERROR HANDLING
@@ -107,14 +205,15 @@ app.use(errorHandler);
 // =============================================
 // SERVER STARTUP
 // =============================================
-app.listen(PORT, function() {
+const server = app.listen(PORT, function() {
   console.log('='.repeat(60));
   console.log(`🚀 ${constants.APP_NAME} v${constants.APP_VERSION}`);
   console.log('='.repeat(60));
   console.log(`📍 Server running on: http://localhost:${PORT}`);
   console.log(`📁 Views directory: ${path.join(__dirname, 'views')}`);
+  console.log(`📊 Database: ./auth.db`);
   console.log(`⚡ Node.js version: ${process.version}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log('='.repeat(60));
   console.log('📋 Available routes:');
   console.log('   /                    - Login page');
@@ -124,5 +223,47 @@ app.listen(PORT, function() {
   console.log('   /holidays            - Holidays management');
   console.log('   /register            - Employee list');
   console.log('   /api/*               - API endpoints');
+  console.log('   /health              - Health check endpoint');
+  
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('   /debug/db-status     - Database status (dev only)');
+    console.log('   /debug/db-tables     - Database tables info (dev only)');
+  }
+  
   console.log('='.repeat(60));
 });
+
+// =============================================
+// GRACEFUL SHUTDOWN
+// =============================================
+process.on('SIGTERM', gracefulShutdown);
+process.on('SIGINT', gracefulShutdown);
+
+function gracefulShutdown() {
+  console.log('\n🔄 Received shutdown signal, closing gracefully...');
+  
+  server.close(async function() {
+    console.log('✅ HTTP server closed');
+    
+    try {
+      await database.db.close();
+      console.log('✅ Database connection closed');
+    } catch (err) {
+      console.error('❌ Error closing database:', err);
+    }
+    
+    console.log('👋 Goodbye!');
+    process.exit(0);
+  });
+
+  // Force shutdown after 5 seconds
+  setTimeout(function() {
+    console.error('❌ Could not close gracefully, forcing shutdown');
+    process.exit(1);
+  }, 5000);
+}
+
+// =============================================
+// EXPORT FOR TESTING
+// =============================================
+module.exports = { app, server, database };

@@ -1,273 +1,238 @@
 // =============================================
-// AUTHENTICATION CONTROLLER - COMPLETE FIXED
+// AUTHENTICATION CONTROLLER - ASYNC/AWAIT FIX
 // =============================================
 
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const { db } = require('../database');  // KEEP THIS IMPORT
+const { db } = require('../database'); // KEEP THIS IMPORT
 const emailService = require('../services/email.service');
 const validators = require('../utils/validators');
 const constants = require('../config/constants');
 
 const authController = {
   // ==================== GET ROUTES ====================
-  
-  getLogin: function(req, res) {
+  getLogin: (req, res) => {
     if (req.session.userId) return res.redirect('/dashboard');
     res.render('auth/login', { layout: 'layouts/auth' });
   },
 
-  getRegister: function(req, res) {
+  getRegister: (req, res) => {
     if (req.session.userId) return res.redirect('/dashboard');
     res.render('auth/register', { layout: 'layouts/auth' });
   },
 
-  getForgotPassword: function(req, res) {
+  getForgotPassword: (req, res) => {
     res.render('auth/forgot-password', { layout: 'layouts/auth' });
   },
 
-  getResetPassword: function(req, res) {
+  getResetPassword: async (req, res) => {
     const token = req.params.token;
     const now = new Date().toISOString();
-    
-    db.get(
-      'SELECT * FROM resets WHERE token = ? AND expires > ?',
-      [token, now],
-      function(err, reset) {
-        if (err || !reset) {
-          req.flash('error_msg', 'Invalid or expired reset token');
-          return res.redirect('/forgot-pass');
-        }
-        
-        res.render('auth/reset-password', {
-          layout: 'layouts/auth',
-          token: token
-        });
+
+    try {
+      const reset = await db.connection.get(
+        'SELECT * FROM resets WHERE token = ? AND expires > ?',
+        [token, now]
+      );
+
+      if (!reset) {
+        req.flash('error_msg', 'Invalid or expired reset token');
+        return res.redirect('/forgot-pass');
       }
-    );
+
+      res.render('auth/reset-password', {
+        layout: 'layouts/auth',
+        token,
+      });
+    } catch (err) {
+      console.error('Reset token error:', err);
+      req.flash('error_msg', 'Something went wrong');
+      res.redirect('/forgot-pass');
+    }
   },
 
-  getCheckMail: function(req, res) {
+  getCheckMail: (req, res) => {
     res.render('auth/check-mail', { layout: 'layouts/auth' });
   },
 
-  logout: function(req, res) {
-    req.session.destroy(function(err) {
+  logout: (req, res) => {
+    req.session.destroy((err) => {
       if (err) console.error('Session destruction error:', err);
       res.redirect('/');
     });
   },
 
   // ==================== POST ROUTES ====================
-  
-  postRegister: function(req, res) {
+  postRegister: async (req, res) => {
     const { first_name, last_name, email, password, confirm_password } = req.body;
-    
-    // Input validation
+
+    // --- Validation ---
     if (!first_name || !last_name || !email || !password || !confirm_password) {
       req.flash('error_msg', 'All fields are required');
       return res.redirect('/sign-up');
     }
-    
-    // Trim inputs
+
     const trimmedFirstName = first_name.trim();
     const trimmedLastName = last_name.trim();
     const trimmedEmail = email.trim().toLowerCase();
-    
-    // Name length validation
+
     if (trimmedFirstName.length < 2 || trimmedFirstName.length > 50) {
-      req.flash('error_msg', 'First name must be between 2 and 50 characters');
+      req.flash('error_msg', 'First name must be 2-50 chars');
       return res.redirect('/sign-up');
     }
-    
+
     if (trimmedLastName.length < 2 || trimmedLastName.length > 50) {
-      req.flash('error_msg', 'Last name must be between 2 and 50 characters');
+      req.flash('error_msg', 'Last name must be 2-50 chars');
       return res.redirect('/sign-up');
     }
-    
-    // Password confirmation
+
     if (password !== confirm_password) {
       req.flash('error_msg', 'Passwords do not match');
       return res.redirect('/sign-up');
     }
-    
-    // Email validation
+
     if (!validators.isValidEmail(trimmedEmail)) {
-      req.flash('error_msg', 'Please enter a valid email address');
-      return res.redirect('/sign-up');
-    }
-    
-    // Password strength validation
-    if (password.length < 8) {
-      req.flash('error_msg', 'Password must be at least 8 characters long');
-      return res.redirect('/sign-up');
-    }
-    
-    // Additional password strength checks
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasLowerCase = /[a-z]/.test(password);
-    const hasNumbers = /\d/.test(password);
-    
-    if (!hasUpperCase || !hasLowerCase || !hasNumbers) {
-      req.flash('error_msg', 'Password must contain uppercase, lowercase, and numeric characters');
+      req.flash('error_msg', 'Invalid email address');
       return res.redirect('/sign-up');
     }
 
-    // Hash password and create user
-    bcrypt.hash(password, 12, function(err, hashedPassword) {
-      if (err) {
-        console.error('Password hashing error:', err);
-        req.flash('error_msg', 'Registration failed. Please try again.');
-        return res.redirect('/sign-up');
-      }
-      
-      db.run(
-        'INSERT INTO users (first_name, last_name, email, password, created_at) VALUES (?, ?, ?, ?, datetime("now"))',
-        [trimmedFirstName, trimmedLastName, trimmedEmail, hashedPassword],
-        function(err) {
-          if (err) {
-            console.error('Database error:', err);
-            
-            if (err.code === 'SQLITE_CONSTRAINT' && err.message.includes('email')) {
-              req.flash('error_msg', 'An account with this email already exists');
-            } else {
-              req.flash('error_msg', 'Registration failed. Please try again.');
-            }
-            return res.redirect('/sign-up');
-          }
-          
-          req.session.userId = this.lastID;
-          req.session.userEmail = trimmedEmail;
-          req.flash('success_msg', 'Registration successful! Welcome to your dashboard.');
-          res.redirect('/dashboard');
-        }
+    if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
+      req.flash(
+        'error_msg',
+        'Password must be at least 8 chars and contain uppercase, lowercase, and number'
       );
-    });
+      return res.redirect('/sign-up');
+    }
+
+    try {
+      const hashedPassword = await bcrypt.hash(password, 12);
+
+      const result = await db.connection.execute(
+        'INSERT INTO users (first_name, last_name, email, password, created_at) VALUES (?, ?, ?, ?, datetime("now"))',
+        [trimmedFirstName, trimmedLastName, trimmedEmail, hashedPassword]
+      );
+
+      req.session.userId = result.lastID;
+      req.session.userEmail = trimmedEmail;
+      req.flash('success_msg', 'Registration successful! Welcome.');
+      res.redirect('/dashboard');
+    } catch (err) {
+      console.error('Registration DB error:', err);
+
+      if (err.message.includes('UNIQUE constraint failed: users.email')) {
+        req.flash('error_msg', 'Email already exists');
+      } else {
+        req.flash('error_msg', 'Registration failed. Try again');
+      }
+
+      res.redirect('/sign-up');
+    }
   },
 
-  postLogin: function(req, res) {
+  postLogin: async (req, res) => {
     const { email, password } = req.body;
-    
-    db.get('SELECT * FROM users WHERE email = ?', [email], function(err, user) {
-      if (err) {
-        console.error('Login error:', err);
-        req.flash('error_msg', 'Login failed');
-        return res.redirect('/');
-      }
-      
+
+    try {
+      const user = await db.connection.get('SELECT * FROM users WHERE email = ?', [email]);
+
       if (!user) {
         req.flash('error_msg', 'Invalid credentials');
         return res.redirect('/');
       }
-      
-      bcrypt.compare(password, user.password, function(err, result) {
-        if (err || !result) {
-          req.flash('error_msg', 'Invalid credentials');
-          return res.redirect('/');
-        }
-        
-        req.session.userId = user.id;
-        req.session.userEmail = user.email;
-        
-        // NOTE: Removed last_login update since table doesn't have this column
-        // If you want to add it, update database.js first
-        
-        req.flash('success_msg', `Welcome back, ${user.first_name}!`);
-        
-        // Save session and redirect
-        req.session.save(function(err) {
-          if (err) {
-            console.error('Session save error:', err);
-          }
-          res.redirect('/dashboard');
-        });
+
+      const valid = await bcrypt.compare(password, user.password);
+      if (!valid) {
+        req.flash('error_msg', 'Invalid credentials');
+        return res.redirect('/');
+      }
+
+      req.session.userId = user.id;
+      req.session.userEmail = user.email;
+      req.flash('success_msg', `Welcome back, ${user.first_name}!`);
+
+      req.session.save((err) => {
+        if (err) console.error('Session save error:', err);
+        res.redirect('/dashboard');
       });
-    });
+    } catch (err) {
+      console.error('Login error:', err);
+      req.flash('error_msg', 'Login failed');
+      res.redirect('/');
+    }
   },
 
-  postForgotPassword: function(req, res) {
+  postForgotPassword: async (req, res) => {
     const { email } = req.body;
     const token = crypto.randomBytes(32).toString('hex');
     const expires = new Date(Date.now() + 3600000).toISOString();
 
-    db.get('SELECT * FROM users WHERE email = ?', [email], function(err, user) {
-      if (err || !user) {
-        req.flash('success_msg', 'If registered, you\'ll receive a reset link');
+    try {
+      const user = await db.connection.get('SELECT * FROM users WHERE email = ?', [email]);
+      if (!user) {
+        req.flash('success_msg', 'If registered, you will receive a reset link');
         return res.redirect('/forgot-pass');
       }
 
-      db.run('DELETE FROM resets WHERE email = ?', [email], function() {
-        db.run(
-          'INSERT INTO resets (email, token, expires) VALUES (?, ?, ?)',
-          [email, token, expires],
-          function(err) {
-            if (err) {
-              console.error('Token save error:', err);
-              req.flash('error_msg', 'Password reset failed');
-              return res.redirect('/forgot-pass');
-            }
-            
-            const resetLink = `http://localhost:${constants.PORT}/reset-password/${token}`;
-            emailService.sendResetEmail(email, resetLink);
-            
-            res.redirect('/check-mail');
-          }
-        );
-      });
-    });
+      await db.connection.execute('DELETE FROM resets WHERE email = ?', [email]);
+      await db.connection.execute(
+        'INSERT INTO resets (email, token, expires) VALUES (?, ?, ?)',
+        [email, token, expires]
+      );
+
+      const resetLink = `http://localhost:${constants.PORT}/reset-password/${token}`;
+      emailService.sendResetEmail(email, resetLink);
+
+      res.redirect('/check-mail');
+    } catch (err) {
+      console.error('Forgot password error:', err);
+      req.flash('error_msg', 'Failed to generate reset link');
+      res.redirect('/forgot-pass');
+    }
   },
 
-  postResetPassword: function(req, res) {
+  postResetPassword: async (req, res) => {
     const { password, confirm_password } = req.body;
     const token = req.params.token;
-    
+
     if (password !== confirm_password) {
       req.flash('error_msg', 'Passwords do not match');
       return res.redirect(`/reset-password/${token}`);
     }
-    
+
     if (password.length < 8) {
       req.flash('error_msg', 'Password must be at least 8 characters');
       return res.redirect(`/reset-password/${token}`);
     }
 
-    const now = new Date().toISOString();
-    db.get(
-      'SELECT * FROM resets WHERE token = ? AND expires > ?',
-      [token, now],
-      function(err, reset) {
-        if (err || !reset) {
-          req.flash('error_msg', 'Invalid or expired token');
-          return res.redirect('/forgot-pass');
-        }
-        
-        bcrypt.hash(password, 12, function(err, hashedPassword) {
-          if (err) {
-            console.error('Hashing error:', err);
-            req.flash('error_msg', 'Password reset failed');
-            return res.redirect(`/reset-password/${token}`);
-          }
-          
-          db.run(
-            'UPDATE users SET password = ? WHERE email = ?',
-            [hashedPassword, reset.email],
-            function(err) {
-              if (err) {
-                console.error('Password reset error:', err);
-                req.flash('error_msg', 'Password reset failed');
-                return res.redirect(`/reset-password/${token}`);
-              }
-              
-              db.run('DELETE FROM resets WHERE email = ?', [reset.email]);
-              
-              req.flash('success_msg', 'Password updated! Please login');
-              res.redirect('/');
-            }
-          );
-        });
+    try {
+      const now = new Date().toISOString();
+      const reset = await db.connection.get(
+        'SELECT * FROM resets WHERE token = ? AND expires > ?',
+        [token, now]
+      );
+
+      if (!reset) {
+        req.flash('error_msg', 'Invalid or expired token');
+        return res.redirect('/forgot-pass');
       }
-    );
-  }
+
+      const hashedPassword = await bcrypt.hash(password, 12);
+
+      await db.connection.execute(
+        'UPDATE users SET password = ? WHERE email = ?',
+        [hashedPassword, reset.email]
+      );
+
+      await db.connection.execute('DELETE FROM resets WHERE email = ?', [reset.email]);
+
+      req.flash('success_msg', 'Password updated! Please login');
+      res.redirect('/');
+    } catch (err) {
+      console.error('Reset password error:', err);
+      req.flash('error_msg', 'Failed to reset password');
+      res.redirect(`/reset-password/${token}`);
+    }
+  },
 };
 
 module.exports = authController;

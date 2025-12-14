@@ -1,12 +1,31 @@
-
 leave-management-system/
 ├── 📄 app.js                    (Main entry point - modular)
 ├── 📄 package.json              (Dependencies)
-├── 📄 database.js              (Database setup with last_login column)
+├── 📄 database.js              (Database compatibility wrapper)
 ├── 📄 session.js               (Session configuration)
 ├── 📄 .env                     (Environment variables)
 ├── 📄 .gitignore               (Git ignore file)
 ├── 📄 migrate-database.js      (Database migration script - optional)
+│
+├── 📂 database/                ⬅️ NEW: MODULAR DATABASE STRUCTURE
+│   ├── 📄 index.js             (Main database entry point)
+│   ├── 📄 connection.js        (Database connection setup)
+│   ├── 📄 migrations.js        (Table creation functions)
+│   ├── 📄 seed.js              (Sample data insertion)
+│   │
+│   ├── 📂 repositories/        ⬅️ NEW: Data access layer
+│   │   ├── 📄 UserRepository.js
+│   │   ├── 📄 HolidayRepository.js
+│   │   ├── 📄 LeaveTypeRepository.js
+│   │   ├── 📄 EmployeeRepository.js
+│   │   └── 📄 ResetRepository.js
+│   │
+│   └── 📂 schemas/             ⬅️ NEW: SQL queries organized by model
+│       ├── 📄 user.schema.js
+│       ├── 📄 holiday.schema.js
+│       ├── 📄 leavetype.schema.js
+│       ├── 📄 employee.schema.js
+│       └── 📄 reset.schema.js
 │
 ├── 📂 config/                  (Configuration files)
 │   ├── 📄 constants.js         (App constants)
