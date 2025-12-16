@@ -522,7 +522,7 @@
       const data = Object.fromEntries(formData.entries());
       
       try {
-        const response = await fetch('/holidays', {
+        const response = await fetch('/api/holidays', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -559,7 +559,7 @@
         const holidayId = this.getAttribute('data-id');
         
         try {
-          const response = await fetch(`/holidays/${holidayId}`);
+          const response = await fetch(`/api/holidays/${holidayId}`);
           const result = await response.json();
           
           if (result.success) {
@@ -602,7 +602,7 @@
       const holidayId = data.id;
       
       try {
-        const response = await fetch(`/holidays/${holidayId}`, {
+        const response = await fetch(`/api/holidays/${holidayId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -642,7 +642,7 @@
 
     async function deleteHoliday(id) {
       try {
-        const response = await fetch(`/holidays/${id}`, {
+        const response = await fetch(`/api/holidays/${id}`, {
           method: 'DELETE'
         });
         
@@ -666,7 +666,7 @@
         const holidayId = this.getAttribute('data-id');
         
         try {
-          const response = await fetch(`/holidays/${holidayId}`);
+          const response = await fetch(`/api/holidays/${holidayId}`);
           const result = await response.json();
           
           if (result.success) {

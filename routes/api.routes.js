@@ -10,6 +10,7 @@ router.post('/holidays', apiController.addHoliday);
 router.delete('/holidays/:id', apiController.deleteHoliday);
 router.put('/holidays/:id', apiController.updateHoliday);
 router.get('/holidays/:id', apiController.getHoliday);
+router.get('/holidays/search', apiController.searchHolidays);  // Add this line
 
 // Leave Types API
 router.post('/leave_types', apiController.addLeaveType);
@@ -22,5 +23,7 @@ router.post('/employees', apiController.addEmployee);
 router.delete('/employees/:id', apiController.deleteEmployee);
 router.put('/employees/:id', apiController.updateEmployee);
 router.get('/employees/:id', apiController.getEmployee);
+router.get('/employees/payroll/:payroll', apiController.getEmployeeByPayroll);
+router.get('/employees/statistics', apiController.getEmployeeStatistics);
 
 module.exports = router;
