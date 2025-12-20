@@ -1,70 +1,79 @@
 leave-management-system/
-├── 📄 app.js                    (Main entry point - modular)
-├── 📄 package.json              (Dependencies)
-├── 📄 database.js              (Database compatibility wrapper)
-├── 📄 session.js               (Session configuration)
-├── 📄 .env                     (Environment variables)
-├── 📄 .gitignore               (Git ignore file)
-├── 📄 migrate-database.js      (Database migration script - optional)
+├── 📄 app.js
+├── 📄 package.json
+├── 📄 database.js
+├── 📄 session.js
+├── 📄 .env
+├── 📄 .gitignore
 │
-├── 📂 database/                ⬅️ NEW: MODULAR DATABASE STRUCTURE
-│   ├── 📄 index.js             (Main database entry point)
-│   ├── 📄 connection.js        (Database connection setup)
-│   ├── 📄 migrations.js        (Table creation functions)
-│   ├── 📄 seed.js              (Sample data insertion)
+├── 📂 database/
+│   ├── 📄 index.js                    # Main database entry point
+│   ├── 📄 connection.js               # Database connection setup
+│   ├── 📄 migrations.js               # RENAMED: Migration runner (executes migration files)
+│   ├── 📄 seed.js                     # Sample data insertion
+│   ├── 📄 schema-manager.js           # NEW: Manages schema creation from schemas/ folder
 │   │
-│   ├── 📂 repositories/        ⬅️ NEW: Data access layer
+│   ├── 📂 repositories/               # Data access layer
 │   │   ├── 📄 UserRepository.js
 │   │   ├── 📄 HolidayRepository.js
 │   │   ├── 📄 LeaveTypeRepository.js
-│   │   ├── 📄 EmployeeRepository.js
+│   │   ├── 📄 EmployeeRepository.js   # WILL UPDATE for new columns
 │   │   └── 📄 ResetRepository.js
 │   │
-│   └── 📂 schemas/             ⬅️ NEW: SQL queries organized by model
-│       ├── 📄 user.schema.js
-│       ├── 📄 holiday.schema.js
-│       ├── 📄 leavetype.schema.js
-│       ├── 📄 employee.schema.js
-│       └── 📄 reset.schema.js
+│   ├── 📂 schemas/                    # SQL queries organized by model
+│   │   ├── 📄 user.schema.js
+│   │   ├── 📄 holiday.schema.js
+│   │   ├── 📄 leavetype.schema.js
+│   │   ├── 📄 employee.schema.js      # UPDATED with date_of_birth & disability
+│   │   └── 📄 reset.schema.js
+│   │
+│   └── 📂 migrations/                 # NEW: Migration files folder
+│       ├── 📄 001_create_users_table.js
+│       ├── 📄 002_create_holidays_table.js
+│       ├── 📄 003_create_leavetypes_table.js
+│       ├── 📄 004_create_employees_table.js
+│       ├── 📄 005_create_resets_table.js
+│       ├── 📄 006_add_employee_columns.js       # NEW: date_of_birth & disability
+│       └── 📄 migration-template.js
 │
-├── 📂 config/                  (Configuration files)
-│   ├── 📄 constants.js         (App constants)
-│   └── 📄 email.config.js      (Email configuration)
+├── 📂 config/
+│   ├── 📄 constants.js
+│   └── 📄 email.config.js
 │
-├── 📂 routes/                  (All route definitions)
-│   ├── 📄 index.js             (Main router aggregator)
-│   ├── 📄 auth.routes.js       (Authentication routes)
-│   ├── 📄 dashboard.routes.js  (Dashboard routes)
-│   ├── 📄 leave.routes.js      (Leave management routes)
-│   ├── 📄 employee.routes.js   (Employee management routes)
-│   ├── 📄 api.routes.js        (API endpoints)
-│   └── 📄 app.routes.js        (Calendar, Chat apps)
+├── 📂 routes/
+│   ├── 📄 index.js
+│   ├── 📄 auth.routes.js
+│   ├── 📄 dashboard.routes.js
+│   ├── 📄 leave.routes.js
+│   ├── 📄 employee.routes.js          # WILL ADD: POST /employees/add route
+│   ├── 📄 api.routes.js
+│   └── 📄 app.routes.js
 │
-├── 📂 controllers/             (Business logic - COMPLETE)
-│   ├── 📄 auth.controller.js   ✅ FIXED (removed last_login issue)
+├── 📂 controllers/
+│   ├── 📄 auth.controller.js
 │   ├── 📄 dashboard.controller.js
 │   ├── 📄 leave.controller.js
-│   ├── 📄 employee.controller.js
+│   ├── 📄 employee.controller.js      # WILL ADD: addEmployee function
 │   ├── 📄 api.controller.js
 │   └── 📄 app.controller.js
 │
-├── 📂 middleware/              (Custom middleware)
-│   ├── 📄 auth.middleware.js   (Login protection)
-│   ├── 📄 flash.middleware.js  (Flash messages)
-│   ├── 📄 user.middleware.js   (Attach user info to views)
-│   └── 📄 error.middleware.js  (Error handling)
+├── 📂 middleware/
+│   ├── 📄 auth.middleware.js
+│   ├── 📄 flash.middleware.js
+│   ├── 📄 user.middleware.js
+│   └── 📄 error.middleware.js
 │
-├── 📂 services/                (Business services)
-│   └── 📄 email.service.js     (Email sending)
+├── 📂 services/
+│   └── 📄 email.service.js
 │
-├── 📂 utils/                   (Helper functions)
-│   ├── 📄 validators.js        (Input validation)
-│   ├── 📄 dateHelpers.js       (Date utilities)
-│   └── 📄 fileHelpers.js       (File operations)
+├── 📂 utils/
+│   ├── 📄 validators.js               # WILL ADD: employee validation
+│   ├── 📄 dateHelpers.js              # WILL UPDATE: date calculations
+│   └── 📄 fileHelpers.js
 │
-├── 📂 public/                  (Static assets - YOUR EXISTING FILES)
+├── 📂 public/
 │   ├── 📂 css/
-│   ├── 📂 js/
+│   ├── 📂 js/                         # WILL ADD: employee-form.js for AJAX
 │   └── 📂 images/
 │
 └── 📂 views/                   (EJS templates - YOUR EXISTING STRUCTURE)

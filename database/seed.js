@@ -166,64 +166,28 @@ class DatabaseSeeder {
         try {
             const sampleEmployees = [
                 { 
+                    payroll_number: '1983077337',
+                    full_name: 'MR EG JMA',
+                    id_number: '164',
+                    gender: 'M',
+                    age: 53,
+                    designation: 'Deputy Director - HRM & Development',
+                    job_group: 'P',
+                    status: '0 - Active',
+                    retirement_date: '04/11/2026',
+                    employment_status: 'Permanent'
+                },
+                { 
                     payroll_number: '2000171800',
                     full_name: 'Mr. Fredrick Wambua Muasya',
                     id_number: '30008279',
-                    gender: 'Male',
+                    gender: 'M',
                     age: 26,
                     designation: 'Human Resource Management Assistant 3',
                     job_group: 'H',
-                    employment_status: 'Permanent',
-                    retirement_date: '2065-11-25',
-                    status: 'Active'
-                },
-                { 
-                    payroll_number: '2000171801',
-                    full_name: 'Ms. Sarah Wanjiku Kimani',
-                    id_number: '12345678',
-                    gender: 'Female',
-                    age: 35,
-                    designation: 'Senior Software Engineer',
-                    job_group: 'G',
-                    employment_status: 'Permanent',
-                    retirement_date: '2058-03-20',
-                    status: 'Active'
-                },
-                { 
-                    payroll_number: '2000171802',
-                    full_name: 'Mr. James Mwangi Kariuki',
-                    id_number: '23456789',
-                    gender: 'Male',
-                    age: 42,
-                    designation: 'Sales Manager',
-                    job_group: 'F',
-                    employment_status: 'Permanent',
-                    retirement_date: '2046-07-10',
-                    status: 'Active'
-                },
-                { 
-                    payroll_number: '2000171803',
-                    full_name: 'Ms. Grace Akinyi Odhiambo',
-                    id_number: '34567890',
-                    gender: 'Female',
-                    age: 29,
-                    designation: 'Finance Officer',
-                    job_group: 'H',
-                    employment_status: 'Permanent',
-                    retirement_date: '2059-11-25',
-                    status: 'Active'
-                },
-                { 
-                    payroll_number: '2000171804',
-                    full_name: 'Mr. Peter Kamau Njoroge',
-                    id_number: '45678901',
-                    gender: 'Male',
-                    age: 38,
-                    designation: 'System Administrator',
-                    job_group: 'G',
-                    employment_status: 'Contract',
-                    retirement_date: '2050-02-14',
-                    status: 'Active'
+                    status: '0 - Active',
+                    retirement_date: '25/11/2065',
+                    employment_status: 'Permanent'
                 }
             ];
 
@@ -242,9 +206,9 @@ class DatabaseSeeder {
                             employee.age, 
                             employee.designation, 
                             employee.job_group,
-                            employee.employment_status, 
+                            employee.status,        // New order: status comes before retirement_date
                             employee.retirement_date, 
-                            employee.status
+                            employee.employment_status  // New order: employment_status comes last
                         ]
                     );
                     inserted++;
