@@ -1,112 +1,126 @@
-// database/migrations.js
+// database/migrations.js - CORRECTED VERSION
+const fs = require('fs').promises;
+const path = require('path');
 const connection = require('./connection');
-const schemas = require('./schemas');
 
-class DatabaseMigrations {
+class MigrationRunner {
     constructor() {
-        this.connection = connection;
-        this.tables = [
-            { name: 'users', schema: schemas.user.CREATE_TABLE },
-            { name: 'resets', schema: schemas.reset.CREATE_TABLE },
-            { name: 'profiles', schema: schemas.reset.CREATE_PROFILES_TABLE },
-            { name: 'holidays', schema: schemas.holiday.CREATE_TABLE },
-            { name: 'leave_types', schema: schemas.leavetype.CREATE_TABLE },
-            { name: 'employees', schema: schemas.employee.CREATE_TABLE }
-        ];
+        this.migrationsDir = path.join(__dirname, 'migrations');
+        this.migrationsTable = 'migrations';
     }
 
     async createTables() {
+        console.log('🚀 Running database migrations...\n');
+        
         try {
-            await this.connection.connect();
-            const db = this.connection.getConnection();
+            // Connect FIRST
+            await connection.connect();
+            console.log('✅ Connected to database for migrations\n');
             
-            console.log('🔄 Creating database tables...');
+            // STEP 1: CREATE MIGRATIONS TABLE FIRST - THIS IS CRITICAL!
+            await connection.execute(`
+                CREATE TABLE IF NOT EXISTS migrations (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT UNIQUE NOT NULL,
+                    executed_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            `);
+            console.log('✅ Created migrations table (or it already exists)\n');
             
-            for (const table of this.tables) {
-                await this.connection.execute(table.schema);
-                console.log(`✅ Created table: ${table.name}`);
+            // STEP 2: Get all migration files
+            const files = await fs.readdir(this.migrationsDir);
+            const migrationFiles = files
+                .filter(file => file.endsWith('.js') && file !== 'migration-template.js')
+                .sort();
+            
+            console.log(`📊 Found ${migrationFiles.length} migration files\n`);
+            
+            // STEP 3: Get already executed migrations
+            // Use try-catch in case migrations table has issues
+            let executed = [];
+            try {
+                executed = await connection.all(`SELECT name FROM migrations`);
+                console.log(`📊 Already executed: ${executed.length} migrations\n`);
+            } catch (error) {
+                console.log('⚠️  Could not read migrations table, assuming empty');
+                executed = [];
             }
             
-            console.log('✅ All tables created successfully');
-            return true;
-        } catch (error) {
-            console.error('❌ Error creating tables:', error.message);
-            throw error;
-        }
-    }
-
-    async dropTables() {
-        try {
-            await this.connection.connect();
-            const db = this.connection.getConnection();
+            const executedNames = executed.map(row => row.name);
             
-            console.log('🔄 Dropping database tables...');
-            
-            // Drop in reverse order to respect foreign key constraints
-            const tables = this.tables.reverse();
-            
-            for (const table of tables) {
-                await this.connection.execute(`DROP TABLE IF EXISTS ${table.name}`);
-                console.log(`✅ Dropped table: ${table.name}`);
+            // STEP 4: Run pending migrations
+            let runCount = 0;
+            for (const file of migrationFiles) {
+                if (!executedNames.includes(file)) {
+                    console.log(`📋 Running: ${file}`);
+                    
+                    try {
+                        const migration = require(path.join(this.migrationsDir, file));
+                        await migration.up(connection);
+                        
+                        await connection.execute(
+                            `INSERT INTO migrations (name) VALUES (?)`,
+                            [file]
+                        );
+                        
+                        console.log(`✅ Completed: ${file}\n`);
+                        runCount++;
+                    } catch (error) {
+                        console.error(`❌ Failed to run ${file}:`, error.message);
+                        throw error;
+                    }
+                } else {
+                    console.log(`⏭️  Skipping: ${file} (already executed)\n`);
+                }
             }
             
-            console.log('✅ All tables dropped successfully');
-            return true;
+            console.log(`🎉 Migration complete! Ran ${runCount} new migration(s)`);
+            
         } catch (error) {
-            console.error('❌ Error dropping tables:', error.message);
+            console.error('❌ Migration failed:', error.message);
             throw error;
-        }
-    }
-
-    async resetDatabase() {
-        try {
-            console.log('🔄 Resetting database...');
-            await this.dropTables();
-            await this.createTables();
-            console.log('✅ Database reset completed');
-            return true;
-        } catch (error) {
-            console.error('❌ Error resetting database:', error.message);
-            throw error;
-        }
-    }
-
-    async checkTableExists(tableName) {
-        try {
-            await this.connection.connect();
-            const result = await this.connection.get(
-                "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
-                [tableName]
-            );
-            return result !== null;
-        } catch (error) {
-            console.error('❌ Error checking table:', error.message);
-            return false;
         }
     }
 
     async getDatabaseInfo() {
         try {
-            await this.connection.connect();
-            const tables = await this.connection.all(
-                "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
-            );
-            
-            const info = [];
-            for (const table of tables) {
-                const count = await this.connection.get(`SELECT COUNT(*) as count FROM ${table.name}`);
-                info.push({
-                    table: table.name,
-                    records: count.count
-                });
+            // Ensure connection
+            if (!connection.isConnected) {
+                await connection.connect();
             }
             
-            return info;
+            const tables = await connection.all(`
+                SELECT name FROM sqlite_master 
+                WHERE type='table' AND name NOT LIKE 'sqlite_%'
+                ORDER BY name
+            `);
+            
+            // For each table, get the row count
+            const tableInfo = [];
+            for (const table of tables) {
+                try {
+                    const countResult = await connection.get(`SELECT COUNT(*) as count FROM ${table.name}`);
+                    tableInfo.push({
+                        name: table.name,
+                        count: countResult.count
+                    });
+                } catch (countError) {
+                    // If we can't count, just add the table name
+                    tableInfo.push({
+                        name: table.name,
+                        count: 0
+                    });
+                }
+            }
+            
+            return tableInfo;
         } catch (error) {
-            console.error('❌ Error getting database info:', error.message);
-            throw error;
+            console.error('❌ Error in getDatabaseInfo:', error.message);
+            return [];
         }
     }
 }
 
-module.exports = new DatabaseMigrations();
+// Create and export the runner
+const migrationRunner = new MigrationRunner();
+module.exports = migrationRunner;

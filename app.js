@@ -45,7 +45,9 @@ database.initializeDatabase()
       if (status.tables && status.tables.length > 0) {
         console.log('\n📋 Tables Summary:');
         status.tables.forEach(table => {
-          console.log(`   ${table.table.padEnd(20)}: ${table.records} records`);
+          const tableName = table.name || 'unknown';
+          const recordCount = table.count || 0;
+          console.log(`   ${tableName.padEnd(20)}: ${recordCount} records`);
         });
       }
       console.log('='.repeat(50) + '\n');
@@ -161,7 +163,10 @@ if (process.env.NODE_ENV !== 'production') {
 
   app.get('/debug/db-tables', async function(req, res) {
     try {
-      const db = database.connection.getConnection();
+      // Ensure connection
+      if (!database.connection.isConnected) {
+        await database.connection.connect();
+      }
       
       // Get all tables and their row counts
       const tables = await database.connection.all(

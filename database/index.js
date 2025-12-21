@@ -31,28 +31,41 @@ class Database {
         this.initialized = false;
     }
 
+    // In database/index.js, check this part of the initialize() method:
     async initialize() {
         if (this.initialized) return true;
 
         console.log('🔄 Initializing database...');
         await this.connection.connect();
         await this.migrations.createTables();
-        await this.seeder.seedAll();
+        
+        // This should call seedAll() on the seeder instance
+        await this.seeder.seedAll();  // NOT this.seeder.seedAll()() or similar
 
         this.initialized = true;
         console.log('✅ Database initialization completed');
         return true;
     }
 
-    // 🔥 REQUIRED BY test-database.js
     async getStatus() {
-        const tables = await this.migrations.getDatabaseInfo();
-        return {
-            connected: this.connection.isConnected,
-            initialized: this.initialized,
-            databasePath: this.connection.dbPath,
-            tables
-        };
+        try {
+            const tables = await this.migrations.getDatabaseInfo();
+            return {
+                connected: this.connection.isConnected,
+                initialized: this.initialized,
+                databasePath: this.connection.dbPath,
+                tables: tables || []
+            };
+        } catch (error) {
+            console.error('⚠️ Could not get database status:', error.message);
+            return {
+                connected: this.connection.isConnected,
+                initialized: this.initialized,
+                databasePath: this.connection.dbPath,
+                tables: [],
+                error: error.message
+            };
+        }
     }
 
     async close() {
