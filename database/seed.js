@@ -16,6 +16,7 @@ class DatabaseSeeder {
             await this.seedUsers();
             await this.seedHolidays();
             await this.seedLeaveTypes();
+            await this.seedDepartments();  // NEW: Add departments
             await this.seedEmployees();
             
             console.log('✅ Database seeding completed');
@@ -173,6 +174,70 @@ class DatabaseSeeder {
             console.log(`✅ Seeded ${leaveTypes.length} leave types`);
         } catch (error) {
             console.log('⏭️ Leave types table not ready for seeding yet:', error.message);
+        }
+    }
+
+    async seedDepartments() {
+        try {
+            const existing = await connection.get('SELECT COUNT(*) as count FROM departments');
+            
+            if (existing.count > 0) {
+                console.log('⚠️ Departments table already has data, skipping department seeding');
+                return;
+            }
+            
+            console.log('🏢 Seeding sample departments...');
+            
+            const departments = [
+                {
+                    name: 'Human Resources',
+                    code: 'HR',
+                    description: 'Handles recruitment, employee relations, and benefits',
+                    status: 'Active'
+                },
+                {
+                    name: 'Information Technology',
+                    code: 'IT',
+                    description: 'Manages technology infrastructure and support',
+                    status: 'Active'
+                },
+                {
+                    name: 'Finance',
+                    code: 'FIN',
+                    description: 'Handles accounting, budgeting, and financial reporting',
+                    status: 'Active'
+                },
+                {
+                    name: 'Operations',
+                    code: 'OPS',
+                    description: 'Manages day-to-day business operations',
+                    status: 'Active'
+                },
+                {
+                    name: 'Marketing',
+                    code: 'MKT',
+                    description: 'Responsible for brand promotion and customer acquisition',
+                    status: 'Active'
+                },
+                {
+                    name: 'Sales',
+                    code: 'SAL',
+                    description: 'Handles customer acquisition and revenue generation',
+                    status: 'Active'
+                }
+            ];
+            
+            for (const dept of departments) {
+                await connection.execute(
+                    `INSERT INTO departments (name, code, description, status) 
+                     VALUES (?, ?, ?, ?)`,
+                    [dept.name, dept.code, dept.description, dept.status]
+                );
+            }
+            
+            console.log(`✅ Seeded ${departments.length} departments`);
+        } catch (error) {
+            console.log('⏭️ Departments table not ready for seeding yet:', error.message);
         }
     }
 

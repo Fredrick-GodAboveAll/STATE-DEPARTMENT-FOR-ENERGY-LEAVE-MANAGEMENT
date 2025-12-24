@@ -10,6 +10,7 @@ const HolidayRepository = require('./repositories/HolidayRepository');
 const LeaveTypeRepository = require('./repositories/LeaveTypeRepository');
 const EmployeeRepository = require('./repositories/EmployeeRepository');
 const ResetRepository = require('./repositories/ResetRepository');
+const DepartmentRepository = require('./repositories/DepartmentRepository');  // ADD THIS LINE
 
 // Schemas
 const schemas = require('./schemas');
@@ -26,12 +27,12 @@ class Database {
         this.leaveTypes = LeaveTypeRepository;
         this.employees = EmployeeRepository;
         this.resets = ResetRepository;
+        this.departments = DepartmentRepository;  // ADD THIS LINE
 
         this.schemas = schemas;
         this.initialized = false;
     }
 
-    // In database/index.js, check this part of the initialize() method:
     async initialize() {
         if (this.initialized) return true;
 
@@ -91,6 +92,7 @@ module.exports = {
     leaveTypes: LeaveTypeRepository,
     employees: EmployeeRepository,
     resets: ResetRepository,
+    departments: DepartmentRepository,  // ADD THIS LINE
 
     // Core modules
     connection,

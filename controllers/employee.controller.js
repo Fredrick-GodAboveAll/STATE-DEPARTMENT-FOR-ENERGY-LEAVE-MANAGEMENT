@@ -1,7 +1,4 @@
-// =============================================
-// EMPLOYEE MANAGEMENT CONTROLLER - UPDATED FOR CSV FORMAT
-// =============================================
-
+// employee.controller.js - COMPLETE FIXED VERSION
 const { db } = require('../database');
 
 const employeeController = {
@@ -10,7 +7,6 @@ const employeeController = {
    */
   getEmployees: async function(req, res) {
     try {
-      // Get current user using repository pattern
       const user = await db.users.findById(req.session.userId);
       
       if (!user) {
@@ -18,44 +14,27 @@ const employeeController = {
         return res.redirect('/');
       }
       
-      // Use the repository methods that actually exist
       const employees = await db.employees.findAll();
       const statistics = await db.employees.getStatistics();
       
-      // Calculate additional statistics based on new CSV format
       const totalEmployees = employees ? employees.length : 0;
+      const activeEmployees = employees ? employees.filter(emp => emp.status && emp.status.includes('Active')).length : 0;
+      const retiredEmployees = employees ? employees.filter(emp => emp.status && emp.status.includes('Retired')).length : 0;
+      const inactiveEmployees = employees ? employees.filter(emp => emp.status && emp.status.includes('Inactive')).length : 0;
       
-      // Count active employees (status contains "Active")
-      const activeEmployees = employees ? employees.filter(function(emp) {
-        return emp.status && emp.status.includes('Active');
-      }).length : 0;
-      
-      // Count retired employees (status contains "Retired")
-      const retiredEmployees = employees ? employees.filter(function(emp) {
-        return emp.status && emp.status.includes('Retired');
-      }).length : 0;
-      
-      // Count inactive employees (status contains "Inactive")
-      const inactiveEmployees = employees ? employees.filter(function(emp) {
-        return emp.status && emp.status.includes('Inactive');
-      }).length : 0;
-      
-      // Group by employment status for progress bars (from employment_status column)
       const employmentStats = {};
       if (employees) {
-        employees.forEach(function(emp) {
+        employees.forEach(emp => {
           const status = emp.employment_status || 'Unassigned';
           employmentStats[status] = (employmentStats[status] || 0) + 1;
         });
       }
       
-      // Calculate percentages for progress bars
       const employmentPercentages = {};
-      Object.keys(employmentStats).forEach(function(status) {
+      Object.keys(employmentStats).forEach(status => {
         employmentPercentages[status] = Math.round((employmentStats[status] / totalEmployees) * 100);
       });
       
-      // Calculate gender distribution
       const genderStats = {
         male: employees ? employees.filter(emp => emp.gender === 'M').length : 0,
         female: employees ? employees.filter(emp => emp.gender === 'F').length : 0
@@ -68,13 +47,13 @@ const employeeController = {
         userLastName: user.last_name,
         userEmail: user.email,
         employees: employees || [],
-        totalEmployees: totalEmployees,
-        activeEmployees: activeEmployees,
-        retiredEmployees: retiredEmployees,
-        inactiveEmployees: inactiveEmployees,
-        employmentStats: employmentStats,
-        employmentPercentages: employmentPercentages,
-        genderStats: genderStats,
+        totalEmployees,
+        activeEmployees,
+        retiredEmployees,
+        inactiveEmployees,
+        employmentStats,
+        employmentPercentages,
+        genderStats,
         statistics: statistics || {}
       });
     } catch (error) {
@@ -85,11 +64,10 @@ const employeeController = {
   },
 
   /**
-   * Display add employee form page
+   * Display add employee form page - THIS IS YOUR UPLOAD PAGE!
    */
   getAddEmployee: async function(req, res) {
     try {
-      // Get current user using repository pattern
       const user = await db.users.findById(req.session.userId);
       
       if (!user) {
@@ -99,7 +77,7 @@ const employeeController = {
       
       res.render('employees/add-employee', {
         activeShow: 'employees',
-        activePage: 'add-employee',
+        activePage: 'add-employees', // This matches your sidebar!
         userFirstName: user.first_name,
         userLastName: user.last_name,
         userEmail: user.email
@@ -112,10 +90,11 @@ const employeeController = {
   },
 
   /**
-   * Display bulk upload page
+   * Handle bulk upload CSV - FIXED: ONLY redirects, NEVER renders
    */
-  getBulkUpload: async function(req, res) {
+  postBulkUpload: async function(req, res) {
     try {
+      // Get user for session
       const user = await db.users.findById(req.session.userId);
       
       if (!user) {
@@ -123,48 +102,25 @@ const employeeController = {
         return res.redirect('/');
       }
       
-      res.render('employees/bulk-upload', {
-        activeShow: 'employees',
-        activePage: 'bulk-upload',
-        userFirstName: user.first_name,
-        userLastName: user.last_name,
-        userEmail: user.email
-      });
-    } catch (error) {
-      console.error('Error loading bulk upload page:', error);
-      req.flash('error_msg', 'Error loading page');
-      res.redirect('/employees/register');
-    }
-  },
-
-  /**
-   * Handle bulk upload CSV
-   */
-  postBulkUpload: async function(req, res) {
-    try {
       if (!req.files || !req.files.csvFile) {
         req.flash('error_msg', 'No CSV file uploaded');
-        return res.redirect('/employees/bulk-upload');
+        return res.redirect('/employees/add-employee'); // REDIRECT, don't render!
       }
       
       const csvFile = req.files.csvFile;
       
-      // Validate file type
       if (!csvFile.name.endsWith('.csv')) {
         req.flash('error_msg', 'Please upload a CSV file');
-        return res.redirect('/employees/bulk-upload');
+        return res.redirect('/employees/add-employee'); // REDIRECT, don't render!
       }
       
-      // Parse CSV file
       const employeesData = await parseCSV(csvFile.data.toString());
       
-      // Validate CSV structure
       if (!validateCSVStructure(employeesData)) {
         req.flash('error_msg', 'Invalid CSV format. Please check the column headers.');
-        return res.redirect('/employees/bulk-upload');
+        return res.redirect('/employees/add-employee'); // REDIRECT, don't render!
       }
       
-      // Process and insert employees
       const result = await db.employees.bulkInsert(employeesData);
       
       if (result.errorCount > 0) {
@@ -173,11 +129,13 @@ const employeeController = {
         req.flash('success_msg', `Successfully uploaded ${result.successCount} employees.`);
       }
       
-      res.redirect('/employees/register');
+      // SUCCESS: Redirect to employee list
+      return res.redirect('/employees/register'); // REDIRECT, don't render!
+      
     } catch (error) {
       console.error('Error processing bulk upload:', error);
-      req.flash('error_msg', 'Error processing CSV file');
-      res.redirect('/employees/bulk-upload');
+      req.flash('error_msg', 'Error processing CSV file: ' + error.message);
+      return res.redirect('/employees/add-employee'); // REDIRECT, don't render!
     }
   }
 };
@@ -200,7 +158,6 @@ async function parseCSV(csvData) {
     
     headers.forEach((header, index) => {
       if (values[index] !== undefined) {
-        // Map CSV headers to database column names
         switch(header) {
           case 'Payroll Number':
             employee.payroll_number = values[index];
@@ -236,7 +193,6 @@ async function parseCSV(csvData) {
       }
     });
     
-    // Only add if we have required fields
     if (employee.payroll_number && employee.full_name && employee.id_number) {
       employees.push(employee);
     }

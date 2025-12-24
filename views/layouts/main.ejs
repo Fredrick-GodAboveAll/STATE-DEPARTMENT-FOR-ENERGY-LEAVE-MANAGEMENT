@@ -554,7 +554,7 @@
                   </a>
                   <ul class="nav collapse <%= (typeof activeShow !== 'undefined' && activeShow === 'dashboard') ? 'show' : '' %>" id="dashboard">
                     <li class="nav-item">
-                      <a class="nav-link <%= activePage === 'dashboard' ? 'active' : '' %>" href="/dashboard">
+                      <a class="nav-link <%= (typeof activePage !== 'undefined' && activePage === 'dashboard') ? 'active' : '' %>" href="/dashboard">
                         <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Default</span></div>
                       </a><!-- more inner pages--></li>
 

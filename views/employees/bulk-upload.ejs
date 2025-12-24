@@ -18,21 +18,24 @@
       <div class="card-body">
         <!-- File Upload FORM -->
         <!-- Change this line in add-employee.ejs -->
-<form action="/bulk-upload" method="POST" enctype="multipart/form-data">
-          <div class="text-center p-4 border-dashed rounded-3 bg-light">
-            <span class="fas fa-file-csv fa-3x text-primary mb-3"></span>
-            <h5 class="mb-3">Upload Employee CSV</h5>
-            
-            <input type="file" name="csvFile" id="csvFile" class="form-control" accept=".csv" required>
-            
-            <div class="mt-3">
-              <button type="submit" class="btn btn-primary" id="uploadBtn">
-                <span class="fas fa-upload me-2"></span>
-                Upload & Import
-              </button>
-            </div>
-          </div>
-        </form>
+
+<!-- CRITICAL FIX: Change form action from /bulk-upload to /employees/bulk-upload -->
+
+<form action="/employees/bulk-upload" method="POST" enctype="multipart/form-data" id="uploadForm">
+  <div class="text-center p-4 border-dashed rounded-3 bg-light">
+    <span class="fas fa-file-csv fa-3x text-primary mb-3"></span>
+    <h5 class="mb-3">Upload Employee CSV</h5>
+    
+    <input type="file" name="csvFile" id="csvFile" class="form-control" accept=".csv" required>
+    
+    <div class="mt-3">
+      <button type="submit" class="btn btn-primary" id="uploadBtn">
+        <span class="fas fa-upload me-2"></span>
+        Upload & Import
+      </button>
+    </div>
+  </div>
+</form>
 
         <!-- Simple Progress (for form submission) -->
         <div class="mt-3" id="progress" style="display: none;">
@@ -83,20 +86,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Show progress indicator
-    progress.style.display = 'block';
+    if (progress) {
+      progress.style.display = 'block';
+    }
     document.getElementById('uploadBtn').disabled = true;
     document.getElementById('uploadBtn').innerHTML = 
       '<span class="fas fa-sync-alt fa-spin me-2"></span>Processing...';
-  });
-  
-  // View sample data button (keep your existing code)
-  document.getElementById('viewSampleBtn').addEventListener('click', function() {
-    alert(`CSV Sample Format (10 columns):
-
-Payroll Number,Full Name,ID Number,Gender,Age,Designation,Job Group,Employment Status,ROD,Engage Name
-1983077337,"MR JULIUS ODHIAMBO MBOGAH",111111111,M,63,"Deputy Director - HRM & Development",R,"0 - Active",04/11/2026,Permanent
-2000171800,"MR FREDRICK WAMBUA MUASYA",222222222,M,45,"Senior Human Resource Officer",JG6,"0 - Active",15/08/2035,Permanent
-EMP003,"MS JANE MWENDE",333333333,F,32,"IT Manager",JG5,"0 - Active",30/11/2040,Contract`);
   });
 });
 </script>
