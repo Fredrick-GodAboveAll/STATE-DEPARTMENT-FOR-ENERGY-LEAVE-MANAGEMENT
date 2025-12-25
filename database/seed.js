@@ -129,35 +129,11 @@ class DatabaseSeeder {
             
             const leaveTypes = [
                 {
-                    leave_name: 'Annual Leave',
+                    leave_name: 'Test',
                     color: 'primary',
-                    entitled_days: 21,
+                    entitled_days: 1,
                     gender_restriction: 'All',
-                    description: 'Paid annual vacation leave',
-                    status: 'Active'
-                },
-                {
-                    leave_name: 'Sick Leave',
-                    color: 'danger',
-                    entitled_days: 10,
-                    gender_restriction: 'All',
-                    description: 'Medical leave with doctor\'s note',
-                    status: 'Active'
-                },
-                {
-                    leave_name: 'Maternity Leave',
-                    color: 'success',
-                    entitled_days: 90,
-                    gender_restriction: 'Female',
-                    description: 'Leave for new mothers',
-                    status: 'Active'
-                },
-                {
-                    leave_name: 'Paternity Leave',
-                    color: 'info',
-                    entitled_days: 14,
-                    gender_restriction: 'Male',
-                    description: 'Leave for new fathers',
+                    description: 'this is a test leave type',
                     status: 'Active'
                 }
             ];
@@ -266,34 +242,6 @@ class DatabaseSeeder {
                     employment_status: 'Permanent',
                     date_of_birth: '1988-05-15',
                     disability: 'None'
-                },
-                {
-                    payroll_number: '2000171800',
-                    full_name: 'Mr. Fredrick Wambua Muasya',
-                    id_number: '222222222',
-                    gender: 'M',
-                    age: 32,
-                    designation: 'Senior Developer',
-                    job_group: 'JG5',
-                    status: 'Active',
-                    retirement_date: '2042-06-30',
-                    employment_status: 'Permanent',
-                    date_of_birth: '1991-08-22',
-                    disability: 'None'
-                },
-                {
-                    payroll_number: 'EMP003',
-                    full_name: 'Jane Smith',
-                    id_number: '333333333',
-                    gender: 'F',
-                    age: 28,
-                    designation: 'HR Specialist',
-                    job_group: 'JG4',
-                    status: 'Active',
-                    retirement_date: '2045-03-15',
-                    employment_status: 'Contract',
-                    date_of_birth: '1995-11-30',
-                    disability: 'Visual Impairment'
                 }
             ];
             

@@ -1,0 +1,13 @@
+leave_name,color,entitled_days,gender_restriction,description,status
+Annual Vacation,primary,25,All,Main annual vacation leave,Active
+Medical Leave,success,20,All,For medical treatment and recovery,Active
+Maternity,primary,120,Female,Maternity leave for mothers,Active
+Parental Leave,info,30,All,Leave for new parents regardless of gender,Active
+Casual,secondary,10,All,For personal or casual needs,Active
+Compassionate,danger,5,All,For family emergencies or bereavement,Active
+Wedding,primary,10,All,For own wedding arrangements,Active
+Examination,dark,15,All,For taking important exams,Active
+Sabbatical,warning,365,All,Extended leave for research or travel,Active
+Religious,secondary,2,All,Leave for religious observances,Active
+Quarantine,danger,14,All,Mandatory quarantine leave,Active
+Blood Donation,success,1,All,Leave for blood donation,Active

@@ -382,6 +382,227 @@ const leaveController = {
         message: 'Error searching leave types'
       });
     }
+  },
+
+  /**
+   * NEW: Bulk upload leave types from CSV
+   */
+  bulkUploadLeaveTypes: async function(req, res) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'No CSV file uploaded'
+        });
+      }
+
+      const fs = require('fs');
+      const path = require('path');
+      const Papa = require('papaparse');
+
+      // Read the uploaded file
+      const filePath = req.file.path;
+      const csvData = fs.readFileSync(filePath, 'utf8');
+
+      // Parse CSV
+      const results = Papa.parse(csvData, {
+        header: true,
+        skipEmptyLines: true,
+        transformHeader: (header) => {
+          if (!header) return '';
+          return header.trim().toLowerCase().replace(/\s+/g, '_');
+        }
+      });
+
+      if (results.errors.length > 0) {
+        // Clean up uploaded file
+        fs.unlinkSync(filePath);
+        
+        return res.status(400).json({
+          success: false,
+          message: 'CSV parsing error',
+          errors: results.errors
+        });
+      }
+
+      const leaveTypes = results.data;
+      const totalRecords = leaveTypes.length;
+      
+      if (totalRecords === 0) {
+        fs.unlinkSync(filePath);
+        return res.status(400).json({
+          success: false,
+          message: 'CSV file is empty'
+        });
+      }
+
+      // Validate required columns
+      const requiredColumns = ['leave_name', 'entitled_days'];
+      const csvHeaders = Object.keys(leaveTypes[0] || {});
+      
+      for (const column of requiredColumns) {
+        if (!csvHeaders.includes(column)) {
+          fs.unlinkSync(filePath);
+          return res.status(400).json({
+            success: false,
+            message: `Missing required column: ${column}. Please use the template file.`
+          });
+        }
+      }
+
+      const processedResults = {
+        success: [],
+        failed: [],
+        total: totalRecords
+      };
+
+      // Get all existing leave types for duplicate check
+      const allLeaveTypes = await db.leaveTypes.findAll();
+      
+      // Process each record
+      for (const [index, record] of leaveTypes.entries()) {
+        try {
+          // Skip empty rows
+          if (!record.leave_name && !record.entitled_days) {
+            continue;
+          }
+
+          // Validate record
+          if (!record.leave_name || !record.entitled_days) {
+            throw new Error('Missing required fields: leave_name and entitled_days are required');
+          }
+
+          // Convert entitled_days to number
+          const entitledDays = parseInt(record.entitled_days);
+          if (isNaN(entitledDays) || entitledDays < 0) {
+            throw new Error('entitled_days must be a non-negative number');
+          }
+
+          // Prepare leave type data
+          const leaveData = {
+            leave_name: record.leave_name.toString().trim(),
+            color: record.color || 'primary',
+            entitled_days: entitledDays,
+            gender_restriction: record.gender_restriction || 'All',
+            description: record.description || '',
+            status: record.status || 'Active'
+          };
+
+          // Validate gender_restriction
+          const validGenders = ['All', 'Male', 'Female', 'Other', 'None'];
+          if (leaveData.gender_restriction && !validGenders.includes(leaveData.gender_restriction)) {
+            throw new Error(`Invalid gender_restriction. Must be one of: ${validGenders.join(', ')}`);
+          }
+
+          // Validate status
+          const validStatuses = ['Active', 'Inactive', 'Archived'];
+          if (leaveData.status && !validStatuses.includes(leaveData.status)) {
+            throw new Error(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
+          }
+
+          // Check for duplicate leave name
+          const duplicate = allLeaveTypes.find(
+            lt => lt.leave_name.toLowerCase() === leaveData.leave_name.toLowerCase()
+          );
+
+          if (duplicate) {
+            throw new Error(`Leave type '${leaveData.leave_name}' already exists`);
+          }
+
+          // Create leave type
+          const newLeaveType = await db.leaveTypes.create(leaveData);
+          
+          processedResults.success.push({
+            row: index + 2, // +2 because of header row and 0-index
+            data: leaveData,
+            result: newLeaveType
+          });
+
+        } catch (error) {
+          processedResults.failed.push({
+            row: index + 2,
+            data: record,
+            error: error.message
+          });
+        }
+      }
+
+      // Clean up uploaded file
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+
+      // Prepare response
+      const successCount = processedResults.success.length;
+      const failedCount = processedResults.failed.length;
+
+      res.json({
+        success: true,
+        message: `Bulk upload completed. Success: ${successCount}, Failed: ${failedCount}`,
+        summary: {
+          total: processedResults.total,
+          success: successCount,
+          failed: failedCount
+        },
+        details: {
+          success: processedResults.success,
+          failed: processedResults.failed
+        }
+      });
+
+    } catch (error) {
+      console.error('Error in bulk upload:', error);
+      
+      // Clean up file if it exists
+      if (req.file && req.file.path) {
+        const fs = require('fs');
+        try {
+          if (fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+          }
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+      }
+
+      res.status(500).json({
+        success: false,
+        message: error.message || 'Error processing CSV file'
+      });
+    }
+  },
+
+  /**
+   * NEW: Download CSV template
+   */
+  downloadTemplate: function(req, res) {
+    try {
+      const template = `leave_name,color,entitled_days,gender_restriction,description,status
+Annual Leave,primary,21,All,Annual leave with pay,Active
+Sick Leave,success,14,All,Sick leave with pay,Active
+Maternity Leave,danger,180,Female,Maternity leave,Active
+Paternity Leave,warning,7,Male,Paternity leave,Active
+Casual Leave,info,7,All,Casual leave,Active
+Bereavement Leave,secondary,3,All,Bereavement leave,Active
+
+# Instructions:
+# 1. Required fields: leave_name, entitled_days
+# 2. Optional fields: color, gender_restriction, description, status
+# 3. gender_restriction: All, Male, Female, Other, or None
+# 4. status: Active, Inactive, or Archived
+# 5. entitled_days must be a number (0 or greater)
+# 6. Remove this instruction row before uploading`;
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=leave_types_template.csv');
+      res.send(template);
+    } catch (error) {
+      console.error('Error downloading template:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error downloading template'
+      });
+    }
   }
 };
 
