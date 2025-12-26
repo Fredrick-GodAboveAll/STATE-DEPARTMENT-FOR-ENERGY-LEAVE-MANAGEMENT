@@ -108,6 +108,9 @@ leave-management-system/
     │
     ├── 📂 leave_management/    (Leave management)
     │   └── 📄 holidays.ejs
+        └── 📄 leave_bulk.ejs
+    │   └── 📄 leave_limits.ejs
+
     │
     └── 📂 user/                (User settings)
         ├── 📄 profile.ejs

@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js",
-    "dev": "nodemon app.js"
+    "start": "node app.js"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +20,7 @@
     "express-ejs-layouts": "^2.5.1",
     "express-session": "^1.17.3",
     "https": "^1.0.0",
+    "list.js": "^2.3.1",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^7.0.5",
     "papaparse": "^5.5.3",
@@ -32,9 +31,5 @@
   "devDependencies": {
     "nodemon": "^3.1.11"
   },
-  "description": "",
-  "engines": {
-    "node": ">=13.0.0",
-    "npm": ">=6.0.0"
-  }
+  "description": ""
 }

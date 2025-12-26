@@ -62,4 +62,10 @@ router.get('/leave_types/search', leaveController.searchLeaveTypes);
 router.post('/leave_types/bulk-upload', upload.single('csvFile'), leaveController.bulkUploadLeaveTypes);
 router.get('/leave_types/template', leaveController.downloadTemplate);
 
+// NEW: Leave limits page
+router.get('/leave_limits', leaveController.getLeaveLimits);
+
+// NEW: Bulk leave import page
+router.get('/leave_bulk', leaveController.getLeaveBulk);
+
 module.exports = router;

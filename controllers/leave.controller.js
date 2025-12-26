@@ -572,6 +572,66 @@ const leaveController = {
     }
   },
 
+  // Add after your existing functions, before module.exports:
+
+/**
+ * NEW: Display leave limits management page
+ */
+getLeaveLimits: async function(req, res) {
+  try {
+    // Get user info
+    const user = await db.connection.get('SELECT email, first_name, last_name FROM users WHERE id = ?', [req.session.userId]);
+    
+    if (!user) {
+      req.flash('error_msg', 'User not found');
+      return res.redirect('/');
+    }
+    
+    // Render leave limits page
+    res.render('leave_management/leave_limits', {
+      activeShow: 'leave_types', // This keeps the "leave items" dropdown open
+      activePage: 'leave_limits', // This highlights the "Limits" menu item
+      userFirstName: user.first_name,
+      userLastName: user.last_name,
+      userEmail: user.email,
+      pageTitle: 'Leave Limits'
+    });
+  } catch (error) {
+    console.error('Error loading leave limits page:', error);
+    req.flash('error_msg', 'Error loading leave limits page');
+    res.redirect('/dashboard');
+  }
+},
+
+/**
+ * NEW: Display bulk leave import page
+ */
+getLeaveBulk: async function(req, res) {
+  try {
+    // Get user info
+    const user = await db.connection.get('SELECT email, first_name, last_name FROM users WHERE id = ?', [req.session.userId]);
+    
+    if (!user) {
+      req.flash('error_msg', 'User not found');
+      return res.redirect('/');
+    }
+    
+    // Render bulk leave page
+    res.render('leave_management/leave_bulk', {
+      activeShow: 'leave_types', // This keeps the "leave items" dropdown open
+      activePage: 'leave_bulk', // This highlights the "Bulk Leave Import" menu item
+      userFirstName: user.first_name,
+      userLastName: user.last_name,
+      userEmail: user.email,
+      pageTitle: 'Bulk Leave Import'
+    });
+  } catch (error) {
+    console.error('Error loading bulk leave page:', error);
+    req.flash('error_msg', 'Error loading bulk leave page');
+    res.redirect('/dashboard');
+  }
+},
+
   /**
    * NEW: Download CSV template
    */
