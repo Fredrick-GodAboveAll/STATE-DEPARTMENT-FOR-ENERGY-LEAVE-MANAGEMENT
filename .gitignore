@@ -69,3 +69,8 @@ temp/
 *.pem
 *.key
 *.crt
+
+# ===============================
+# Uploads directory (for bulk uploads)
+# ===============================
+uploads/

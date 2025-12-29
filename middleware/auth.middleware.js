@@ -1,3 +1,4 @@
+// middleware/auth.middleware.js
 // This file contains authentication and authorization middleware
 // Purpose: Protect routes and check user permissions
 
@@ -22,30 +23,33 @@ function requireAdmin(req, res, next) {
 }
 
 // Middleware to attach user info to all views
-function attachUserInfo(req, res, next) {
+async function attachUserInfo(req, res, next) {
   if (req.session.userId) {
-    // REMOVED THE 'role' COLUMN FROM THE QUERY
-    db.connection.get(
-      'SELECT id, email, first_name, last_name FROM users WHERE id = ?',
-      [req.session.userId]
-    )
-      .then(user => {
-        if (user) {
-          res.locals.user = user;
-          res.locals.userFirstName = user.first_name;
-          res.locals.userLastName = user.last_name;
-          res.locals.userName = `${user.first_name} ${user.last_name}`;
-        }
-        next();
-      })
-      .catch(err => {
-        console.error('Error in attachUserInfo:', err);
-        // Continue even if there's an error getting user info
-        next();
-      });
-  } else {
-    next();
+    try {
+      // Ensure connection is open
+      if (!db.connection.isConnected) {
+        await db.connection.connect();
+      }
+      
+      // REMOVED THE 'role' COLUMN FROM THE QUERY
+      const user = await db.connection.get(
+        'SELECT id, email, first_name, last_name FROM users WHERE id = ?',
+        [req.session.userId]
+      );
+      
+      if (user) {
+        req.user = user;
+        res.locals.user = user;
+        res.locals.userFirstName = user.first_name;
+        res.locals.userLastName = user.last_name;
+        res.locals.userName = `${user.first_name} ${user.last_name}`;
+      }
+    } catch (err) {
+      console.error('Error in attachUserInfo:', err.message);
+      // Don't crash the app on user lookup error
+    }
   }
+  next();
 }
 
 module.exports = {

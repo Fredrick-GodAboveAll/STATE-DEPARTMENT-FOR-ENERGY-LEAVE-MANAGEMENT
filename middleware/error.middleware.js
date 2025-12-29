@@ -11,7 +11,12 @@ function errorHandler(err, req, res, next) {
   });
   
   // Check if it's a static file request (ends with .html, .css, .js, etc.)
-  const staticFileExtensions = ['.html', '.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.ico', '.svg', '.woff', '.woff2', '.ttf', '.eot'];
+const staticFileExtensions = [
+  '.html', '.css', '.js', '.png', '.jpg', '.jpeg', '.gif', 
+  '.ico', '.svg', '.woff', '.woff2', '.ttf', '.eot', 
+  '.map', '.json'  // <--- ADD THESE TWO HERE
+];
+  
   const isStaticFile = staticFileExtensions.some(function(ext) {
     return req.path.toLowerCase().endsWith(ext);
   });

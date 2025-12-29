@@ -1,63 +1,14 @@
+<div class="card bg-body-tertiary dark__bg-opacity-50 mb-3">
+  <div class="card-body p-3">
+    <p class="fs-10 mb-0">
+      <a href="https://prium.github.io/falcon/v3.25.0/widgets.html#!">
+       department structure, <strong><%= userFirstName %></strong> <%= userLastName %>
+      </a>
+    </p>
+    <span id="session-timer"><%= locals.sessionInfo ? locals.sessionInfo.timeRemaining : '1h' %> <strong>Monday, September <b>4<sup>th</sup></b></strong></span>
+  </div>
+</div>
 
-
-           <div class="card bg-body-tertiary dark__bg-opacity-50 mb-3">
-            <div class="card-body p-3">
-                <p class="fs-10 mb-0">
-                <a href="https://prium.github.io/falcon/v3.25.0/widgets.html#!">
-                    
-                Departments structre, <strong> <%= userFirstName %></strong> <%= userLastName %></a>. 
-                <span id="session-timer"><%= locals.sessionInfo ? locals.sessionInfo.timeRemaining : '1h' %> <strong>Monday, September <b>4<sup>th</sup></b> </strong></p>
-            
-                </div>
-            </div>
-
-<div class="card">
-            
-            <div class="card-body pt-0">
-              <div class="tab-content">
-                <div class="tab-pane preview-tab-pane active show" role="tabpanel" aria-labelledby="tab-dom-3c400699-089e-4790-a8cf-7107e31a4946" id="dom-3c400699-089e-4790-a8cf-7107e31a4946">
-                  <div class="table-responsive scrollbar">
-                    <table class="table table-hover table-striped overflow-hidden">
-                      <thead>
-                        <tr>
-                          <th scope="col">Name</th>
-                          <th scope="col">Email</th>
-                          <th scope="col">Phone</th>
-                          <th scope="col">Address</th>
-                          <th scope="col">Status</th>
-                          <th class="text-end" scope="col">Amount</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr class="align-middle">
-                          <td class="text-nowrap">
-                            <div class="d-flex align-items-center">
-                              <div class="avatar avatar-xl">
-                                <img class="rounded-circle" src="../assets/img/team/4.jpg" alt="">
-                              </div>
-                              <div class="ms-2">Ricky Antony</div>
-                            </div>
-                          </td>
-                          <td class="text-nowrap">ricky@example.com</td>
-                          <td class="text-nowrap">(201) 200-1851</td>
-                          <td class="text-nowrap">2392 Main Avenue, Penasauka</td>
-                          <td><span class="badge badge rounded-pill d-block p-2 badge-subtle-success">Completed<svg class="svg-inline--fa fa-check fa-w-16 ms-1" data-fa-transform="shrink-2" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="check" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg="" style="transform-origin: 0.5em 0.5em;"><g transform="translate(256 256)"><g transform="translate(0, 0)  scale(0.875, 0.875)  rotate(0 0 0)"><path fill="currentColor" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z" transform="translate(-256 -256)"></path></g></g></svg><!-- <span class="ms-1 fas fa-check" data-fa-transform="shrink-2"></span> Font Awesome fontawesome.com --></span></td>
-                          <td class="text-end">$99</td>
-                        </tr>
-                        
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                <div class="tab-pane code-tab-pane" role="tabpanel" aria-labelledby="tab-dom-63063e7a-b374-4f82-a162-28bd96fe37f8" id="dom-63063e7a-b374-4f82-a162-28bd96fe37f8">
-                    <div class="card">
-                        <h2>hi</h2>
-                    </div>
-                </div>
-              </div>
-            </div>
-          </div>
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
@@ -111,12 +62,3 @@
     <% } %>
   });
 </script>
-
-             
-
-
-
-
-
-
-

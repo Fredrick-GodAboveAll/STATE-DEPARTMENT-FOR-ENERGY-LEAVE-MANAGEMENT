@@ -10,6 +10,7 @@ const HolidayRepository = require('./repositories/HolidayRepository');
 const LeaveTypeRepository = require('./repositories/LeaveTypeRepository');
 const EmployeeRepository = require('./repositories/EmployeeRepository');
 const ResetRepository = require('./repositories/ResetRepository');
+const DepartmentRepository = require('./repositories/DepartmentRepository');  // ADD THIS LINE
 
 // Schemas
 const schemas = require('./schemas');
@@ -26,6 +27,7 @@ class Database {
         this.leaveTypes = LeaveTypeRepository;
         this.employees = EmployeeRepository;
         this.resets = ResetRepository;
+        this.departments = DepartmentRepository;  // ADD THIS LINE
 
         this.schemas = schemas;
         this.initialized = false;
@@ -37,22 +39,34 @@ class Database {
         console.log('🔄 Initializing database...');
         await this.connection.connect();
         await this.migrations.createTables();
-        await this.seeder.seedAll();
+        
+        // This should call seedAll() on the seeder instance
+        await this.seeder.seedAll();  // NOT this.seeder.seedAll()() or similar
 
         this.initialized = true;
         console.log('✅ Database initialization completed');
         return true;
     }
 
-    // 🔥 REQUIRED BY test-database.js
     async getStatus() {
-        const tables = await this.migrations.getDatabaseInfo();
-        return {
-            connected: this.connection.isConnected,
-            initialized: this.initialized,
-            databasePath: this.connection.dbPath,
-            tables
-        };
+        try {
+            const tables = await this.migrations.getDatabaseInfo();
+            return {
+                connected: this.connection.isConnected,
+                initialized: this.initialized,
+                databasePath: this.connection.dbPath,
+                tables: tables || []
+            };
+        } catch (error) {
+            console.error('⚠️ Could not get database status:', error.message);
+            return {
+                connected: this.connection.isConnected,
+                initialized: this.initialized,
+                databasePath: this.connection.dbPath,
+                tables: [],
+                error: error.message
+            };
+        }
     }
 
     async close() {
@@ -78,6 +92,7 @@ module.exports = {
     leaveTypes: LeaveTypeRepository,
     employees: EmployeeRepository,
     resets: ResetRepository,
+    departments: DepartmentRepository,  // ADD THIS LINE
 
     // Core modules
     connection,

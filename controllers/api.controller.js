@@ -1,27 +1,8 @@
 // =============================================
-// API CONTROLLER
-// Handles: All AJAX API endpoints
+// API CONTROLLER - UPDATED to use new repositories
 // =============================================
 
-const { 
-  // Holiday functions
-  deleteHoliday,
-  insertHoliday,
-  updateHoliday,
-  getHolidayById,
-  // Leave Types functions
-  insertLeaveType,
-  updateLeaveType,
-  deleteLeaveType,
-  getLeaveTypeById,
-  // Employee functions
-  insertEmployee,
-  updateEmployee,
-  deleteEmployee,
-  getEmployeeById,
-  getEmployeeByPayroll,
-  getEmployeeStatistics
-} = require('../database');
+const { db } = require('../database');
 
 const apiController = {
   // ============== HOLIDAYS API ==============
@@ -42,23 +23,24 @@ const apiController = {
         holiday_name,
         holiday_date,
         holiday_type,
-        year,
-        recurring: recurring === 'true' ? 1 : 0,
+        year: parseInt(year),
+        recurring: recurring === 'true' || recurring === 1 ? 1 : 0,
         description,
         created_by: req.session.userId
       };
       
-      const holidayId = await insertHoliday(holidayData);
+      const newHoliday = await db.holidays.create(holidayData);
       
       res.json({ 
         success: true, 
         message: 'Holiday added successfully',
-        holidayId 
+        holidayId: newHoliday.id,
+        holiday: newHoliday
       });
       
     } catch (error) {
       console.error('Error adding holiday:', error);
-      res.status(500).json({ success: false, message: 'Error adding holiday' });
+      res.status(500).json({ success: false, message: error.message || 'Error adding holiday' });
     }
   },
 
@@ -79,22 +61,22 @@ const apiController = {
         holiday_name,
         holiday_date,
         holiday_type,
-        year,
-        recurring: recurring === 'true' ? 1 : 0,
+        year: parseInt(year),
+        recurring: recurring === 'true' || recurring === 1 ? 1 : 0,
         description
       };
       
-      const result = await updateHoliday(id, holidayData);
+      const updatedHoliday = await db.holidays.update(id, holidayData);
       
-      if (result > 0) {
-        res.json({ success: true, message: 'Holiday updated successfully' });
+      if (updatedHoliday) {
+        res.json({ success: true, message: 'Holiday updated successfully', holiday: updatedHoliday });
       } else {
-        res.json({ success: false, message: 'Holiday not found' });
+        res.json({ success: false, message: 'Holiday not found or could not be updated' });
       }
       
     } catch (error) {
       console.error('Error updating holiday:', error);
-      res.status(500).json({ success: false, message: 'Error updating holiday' });
+      res.status(500).json({ success: false, message: error.message || 'Error updating holiday' });
     }
   },
 
@@ -103,16 +85,17 @@ const apiController = {
    */
   deleteHoliday: async function(req, res) {
     try {
-      const result = await deleteHoliday(req.params.id);
+      const { id } = req.params;
+      const deleted = await db.holidays.delete(id);
       
-      if (result > 0) {
+      if (deleted) {
         res.json({ success: true, message: 'Holiday deleted successfully' });
       } else {
         res.json({ success: false, message: 'Holiday not found' });
       }
     } catch (error) {
       console.error('Error deleting holiday:', error);
-      res.status(500).json({ success: false, message: 'Error deleting holiday' });
+      res.status(500).json({ success: false, message: error.message || 'Error deleting holiday' });
     }
   },
 
@@ -121,16 +104,52 @@ const apiController = {
    */
   getHoliday: async function(req, res) {
     try {
-      const holiday = await getHolidayById(req.params.id);
+      const { id } = req.params;
+      const holiday = await db.holidays.findById(id);
       
       if (holiday) {
+        // Format date for frontend (YYYY-MM-DD)
+        if (holiday.holiday_date) {
+          const date = new Date(holiday.holiday_date);
+          holiday.formatted_date = date.toISOString().split('T')[0];
+        }
+        
         res.json({ success: true, holiday });
       } else {
         res.json({ success: false, message: 'Holiday not found' });
       }
     } catch (error) {
       console.error('Error fetching holiday:', error);
-      res.status(500).json({ success: false, message: 'Error fetching holiday' });
+      res.status(500).json({ success: false, message: error.message || 'Error fetching holiday' });
+    }
+  },
+
+  /**
+   * Search holidays
+   */
+  searchHolidays: async function(req, res) {
+    try {
+      const { query } = req.query;
+      
+      if (!query || query.trim().length < 2) {
+        return res.json({
+          success: true,
+          holidays: []
+        });
+      }
+
+      const results = await db.holidays.search(query);
+      
+      res.json({
+        success: true,
+        holidays: results
+      });
+    } catch (error) {
+      console.error('Error searching holidays:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error searching holidays'
+      });
     }
   },
 
@@ -157,17 +176,18 @@ const apiController = {
         status: status || 'Active'
       };
       
-      const leaveId = await insertLeaveType(leaveData);
+      const newLeaveType = await db.leaveTypes.create(leaveData);
       
       res.json({ 
         success: true, 
         message: 'Leave type added successfully',
-        leaveId 
+        leaveId: newLeaveType.id,
+        leaveType: newLeaveType
       });
       
     } catch (error) {
       console.error('Error adding leave type:', error);
-      res.status(500).json({ success: false, message: 'Error adding leave type' });
+      res.status(500).json({ success: false, message: error.message || 'Error adding leave type' });
     }
   },
 
@@ -193,17 +213,17 @@ const apiController = {
         status: status || 'Active'
       };
       
-      const result = await updateLeaveType(id, leaveData);
+      const updatedLeaveType = await db.leaveTypes.update(id, leaveData);
       
-      if (result > 0) {
-        res.json({ success: true, message: 'Leave type updated successfully' });
+      if (updatedLeaveType) {
+        res.json({ success: true, message: 'Leave type updated successfully', leaveType: updatedLeaveType });
       } else {
-        res.json({ success: false, message: 'Leave type not found' });
+        res.json({ success: false, message: 'Leave type not found or could not be updated' });
       }
       
     } catch (error) {
       console.error('Error updating leave type:', error);
-      res.status(500).json({ success: false, message: 'Error updating leave type' });
+      res.status(500).json({ success: false, message: error.message || 'Error updating leave type' });
     }
   },
 
@@ -212,16 +232,17 @@ const apiController = {
    */
   deleteLeaveType: async function(req, res) {
     try {
-      const result = await deleteLeaveType(req.params.id);
+      const { id } = req.params;
+      const deleted = await db.leaveTypes.delete(id);
       
-      if (result > 0) {
+      if (deleted) {
         res.json({ success: true, message: 'Leave type deleted successfully' });
       } else {
         res.json({ success: false, message: 'Leave type not found' });
       }
     } catch (error) {
       console.error('Error deleting leave type:', error);
-      res.status(500).json({ success: false, message: 'Error deleting leave type' });
+      res.status(500).json({ success: false, message: error.message || 'Error deleting leave type' });
     }
   },
 
@@ -230,7 +251,8 @@ const apiController = {
    */
   getLeaveType: async function(req, res) {
     try {
-      const leaveType = await getLeaveTypeById(req.params.id);
+      const { id } = req.params;
+      const leaveType = await db.leaveTypes.findById(id);
       
       if (leaveType) {
         res.json({ success: true, leaveType });
@@ -239,7 +261,7 @@ const apiController = {
       }
     } catch (error) {
       console.error('Error fetching leave type:', error);
-      res.status(500).json({ success: false, message: 'Error fetching leave type' });
+      res.status(500).json({ success: false, message: error.message || 'Error fetching leave type' });
     }
   },
 
@@ -273,7 +295,7 @@ const apiController = {
         status: status || 'Active'
       };
       
-      const employeeId = await insertEmployee(employeeData);
+      const employeeId = await db.employees.create(employeeData);
       
       res.json({ 
         success: true, 
@@ -283,7 +305,7 @@ const apiController = {
       
     } catch (error) {
       console.error('Error adding employee:', error);
-      res.status(500).json({ success: false, message: 'Error adding employee' });
+      res.status(500).json({ success: false, message: error.message || 'Error adding employee' });
     }
   },
 
@@ -316,9 +338,9 @@ const apiController = {
         status: status || 'Active'
       };
       
-      const result = await updateEmployee(id, employeeData);
+      const result = await db.employees.update(id, employeeData);
       
-      if (result > 0) {
+      if (result) {
         res.json({ success: true, message: 'Employee updated successfully' });
       } else {
         res.json({ success: false, message: 'Employee not found' });
@@ -326,7 +348,7 @@ const apiController = {
       
     } catch (error) {
       console.error('Error updating employee:', error);
-      res.status(500).json({ success: false, message: 'Error updating employee' });
+      res.status(500).json({ success: false, message: error.message || 'Error updating employee' });
     }
   },
 
@@ -335,16 +357,17 @@ const apiController = {
    */
   deleteEmployee: async function(req, res) {
     try {
-      const result = await deleteEmployee(req.params.id);
+      const { id } = req.params;
+      const deleted = await db.employees.delete(id);
       
-      if (result > 0) {
+      if (deleted) {
         res.json({ success: true, message: 'Employee deleted successfully' });
       } else {
         res.json({ success: false, message: 'Employee not found' });
       }
     } catch (error) {
       console.error('Error deleting employee:', error);
-      res.status(500).json({ success: false, message: 'Error deleting employee' });
+      res.status(500).json({ success: false, message: error.message || 'Error deleting employee' });
     }
   },
 
@@ -353,7 +376,8 @@ const apiController = {
    */
   getEmployee: async function(req, res) {
     try {
-      const employee = await getEmployeeById(req.params.id);
+      const { id } = req.params;
+      const employee = await db.employees.findById(id);
       
       if (employee) {
         res.json({ success: true, employee });
@@ -362,7 +386,7 @@ const apiController = {
       }
     } catch (error) {
       console.error('Error fetching employee:', error);
-      res.status(500).json({ success: false, message: 'Error fetching employee' });
+      res.status(500).json({ success: false, message: error.message || 'Error fetching employee' });
     }
   },
 
@@ -371,7 +395,8 @@ const apiController = {
    */
   getEmployeeByPayroll: async function(req, res) {
     try {
-      const employee = await getEmployeeByPayroll(req.params.payroll);
+      const { payroll } = req.params;
+      const employee = await db.employees.findByPayroll(payroll);
       
       if (employee) {
         res.json({ success: true, employee });
@@ -380,7 +405,7 @@ const apiController = {
       }
     } catch (error) {
       console.error('Error fetching employee:', error);
-      res.status(500).json({ success: false, message: 'Error fetching employee' });
+      res.status(500).json({ success: false, message: error.message || 'Error fetching employee' });
     }
   },
 
@@ -389,12 +414,12 @@ const apiController = {
    */
   getEmployeeStatistics: async function(req, res) {
     try {
-      const statistics = await getEmployeeStatistics();
+      const statistics = await db.employees.getStatistics();
       
       res.json({ success: true, statistics });
     } catch (error) {
       console.error('Error fetching employee statistics:', error);
-      res.status(500).json({ success: false, message: 'Error fetching employee statistics' });
+      res.status(500).json({ success: false, message: error.message || 'Error fetching employee statistics' });
     }
   }
 };

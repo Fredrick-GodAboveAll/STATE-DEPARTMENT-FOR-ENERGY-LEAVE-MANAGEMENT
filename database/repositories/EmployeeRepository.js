@@ -14,7 +14,7 @@ class EmployeeRepository {
             
             const {
                 payroll_number, full_name, id_number, gender, age, designation, job_group,
-                employment_status, retirement_date, status
+                status, retirement_date, employment_status
             } = employeeData;
             
             const result = await this.connection.execute(
@@ -27,15 +27,25 @@ class EmployeeRepository {
                     age || null, 
                     designation, 
                     job_group || null,
-                    employment_status || 'Permanent', 
+                    status || '0 - Active', 
                     retirement_date || null, 
-                    status || 'Active'
+                    employment_status || 'Permanent'
                 ]
             );
             
             return { id: result.lastID, ...employeeData };
         } catch (error) {
             console.error('EmployeeRepository.create error:', error.message);
+            
+            // Handle duplicate error
+            if (error.message.includes('UNIQUE constraint failed')) {
+                if (error.message.includes('payroll_number')) {
+                    throw new Error(`Duplicate payroll number: ${employeeData.payroll_number}`);
+                } else if (error.message.includes('id_number')) {
+                    throw new Error(`Duplicate ID number: ${employeeData.id_number}`);
+                }
+            }
+            
             throw error;
         }
     }
@@ -73,6 +83,20 @@ class EmployeeRepository {
         }
     }
 
+    async findByIdNumber(idNumber) {
+        try {
+            await this.connection.connect();
+            const employee = await this.connection.get(
+                `SELECT * FROM employees WHERE id_number = ?`,
+                [idNumber]
+            );
+            return employee;
+        } catch (error) {
+            console.error('EmployeeRepository.findByIdNumber error:', error.message);
+            throw error;
+        }
+    }
+
     async findByStatus(status) {
         try {
             await this.connection.connect();
@@ -90,7 +114,7 @@ class EmployeeRepository {
             
             const {
                 payroll_number, full_name, id_number, gender, age, designation, job_group,
-                employment_status, retirement_date, status
+                status, retirement_date, employment_status
             } = employeeData;
             
             const result = await this.connection.execute(
@@ -103,9 +127,9 @@ class EmployeeRepository {
                     age || null, 
                     designation, 
                     job_group || null,
-                    employment_status || 'Permanent', 
+                    status || '0 - Active', 
                     retirement_date || null, 
-                    status || 'Active', 
+                    employment_status || 'Permanent', 
                     id
                 ]
             );
@@ -195,7 +219,9 @@ class EmployeeRepository {
     async getActiveEmployees() {
         try {
             await this.connection.connect();
-            const employees = await this.findByStatus('Active');
+            const employees = await this.connection.all(
+                `SELECT * FROM employees WHERE status LIKE '%Active%' ORDER BY full_name`
+            );
             return employees;
         } catch (error) {
             console.error('EmployeeRepository.getActiveEmployees error:', error.message);
@@ -209,9 +235,12 @@ class EmployeeRepository {
             const sql = `
                 SELECT * FROM employees 
                 WHERE retirement_date IS NOT NULL 
-                AND retirement_date >= date('now')
-                AND status = 'Active'
-                ORDER BY retirement_date 
+                AND retirement_date != ''
+                AND status LIKE '%Active%'
+                ORDER BY 
+                    substr(retirement_date, 7, 4) || '-' || 
+                    substr(retirement_date, 4, 2) || '-' || 
+                    substr(retirement_date, 1, 2)
                 LIMIT ?
             `;
             
@@ -232,7 +261,15 @@ class EmployeeRepository {
                 throw new Error('Employee not found');
             }
             
-            const newStatus = employee.status === 'Active' ? 'Inactive' : 'Active';
+            let newStatus;
+            if (employee.status && employee.status.includes('Active')) {
+                newStatus = employee.status.replace('Active', 'Inactive');
+            } else if (employee.status && employee.status.includes('Inactive')) {
+                newStatus = employee.status.replace('Inactive', 'Active');
+            } else {
+                newStatus = '0 - Active';
+            }
+            
             await this.connection.execute(
                 `UPDATE employees SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
                 [newStatus, id]
@@ -241,6 +278,58 @@ class EmployeeRepository {
             return { ...employee, status: newStatus };
         } catch (error) {
             console.error('EmployeeRepository.toggleStatus error:', error.message);
+            throw error;
+        }
+    }
+
+    // Bulk insert method for CSV upload
+    async bulkInsert(employeesData) {
+        try {
+            await this.connection.connect();
+            
+            const insertedIds = [];
+            const errors = [];
+            
+            for (const employeeData of employeesData) {
+                try {
+                    const {
+                        payroll_number, full_name, id_number, gender, age, designation, job_group,
+                        status, retirement_date, employment_status
+                    } = employeeData;
+                    
+                    const result = await this.connection.execute(
+                        this.schema.INSERT_EMPLOYEE,
+                        [
+                            payroll_number, 
+                            full_name, 
+                            id_number, 
+                            gender || null, 
+                            age || null, 
+                            designation, 
+                            job_group || null,
+                            status || '0 - Active', 
+                            retirement_date || null, 
+                            employment_status || 'Permanent'
+                        ]
+                    );
+                    
+                    insertedIds.push(result.lastID);
+                } catch (error) {
+                    errors.push({
+                        employee: employeeData,
+                        error: error.message
+                    });
+                }
+            }
+            
+            return {
+                successCount: insertedIds.length,
+                errorCount: errors.length,
+                insertedIds,
+                errors
+            };
+        } catch (error) {
+            console.error('EmployeeRepository.bulkInsert error:', error.message);
             throw error;
         }
     }
