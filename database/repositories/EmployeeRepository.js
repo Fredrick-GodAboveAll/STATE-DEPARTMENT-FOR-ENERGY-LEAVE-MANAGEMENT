@@ -36,6 +36,16 @@ class EmployeeRepository {
             return { id: result.lastID, ...employeeData };
         } catch (error) {
             console.error('EmployeeRepository.create error:', error.message);
+            
+            // Handle duplicate error
+            if (error.message.includes('UNIQUE constraint failed')) {
+                if (error.message.includes('payroll_number')) {
+                    throw new Error(`Duplicate payroll number: ${employeeData.payroll_number}`);
+                } else if (error.message.includes('id_number')) {
+                    throw new Error(`Duplicate ID number: ${employeeData.id_number}`);
+                }
+            }
+            
             throw error;
         }
     }
@@ -69,6 +79,20 @@ class EmployeeRepository {
             return employee;
         } catch (error) {
             console.error('EmployeeRepository.findByPayroll error:', error.message);
+            throw error;
+        }
+    }
+
+    async findByIdNumber(idNumber) {
+        try {
+            await this.connection.connect();
+            const employee = await this.connection.get(
+                `SELECT * FROM employees WHERE id_number = ?`,
+                [idNumber]
+            );
+            return employee;
+        } catch (error) {
+            console.error('EmployeeRepository.findByIdNumber error:', error.message);
             throw error;
         }
     }
@@ -146,7 +170,7 @@ class EmployeeRepository {
                 GROUP BY gender
             `);
             
-            // Get employment status distribution (now from employment_status column)
+            // Get employment status distribution
             const employmentStats = await this.connection.all(`
                 SELECT employment_status, COUNT(*) as count 
                 FROM employees 
@@ -195,7 +219,6 @@ class EmployeeRepository {
     async getActiveEmployees() {
         try {
             await this.connection.connect();
-            // Changed to search for status containing 'Active' (like '0 - Active')
             const employees = await this.connection.all(
                 `SELECT * FROM employees WHERE status LIKE '%Active%' ORDER BY full_name`
             );
@@ -209,8 +232,6 @@ class EmployeeRepository {
     async getUpcomingRetirements(limit = 5) {
         try {
             await this.connection.connect();
-            // Note: retirement_date is now in TEXT format (dd/mm/yyyy)
-            // We need to convert to date for comparison
             const sql = `
                 SELECT * FROM employees 
                 WHERE retirement_date IS NOT NULL 
@@ -240,7 +261,6 @@ class EmployeeRepository {
                 throw new Error('Employee not found');
             }
             
-            // Toggle between '0 - Active' and '1 - Inactive' or similar
             let newStatus;
             if (employee.status && employee.status.includes('Active')) {
                 newStatus = employee.status.replace('Active', 'Inactive');
@@ -262,7 +282,7 @@ class EmployeeRepository {
         }
     }
 
-    // NEW: Method for bulk insert from CSV
+    // Bulk insert method for CSV upload
     async bulkInsert(employeesData) {
         try {
             await this.connection.connect();

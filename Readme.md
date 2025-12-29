@@ -114,4 +114,8 @@ leave-management-system/
     │
     └── 📂 user/                (User settings)
         ├── 📄 profile.ejs
-        └── 📄 settings.ejs
+        └── 📄 settings.
+        
+
+
+        

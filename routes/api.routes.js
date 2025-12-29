@@ -2,17 +2,30 @@
 const express = require('express');
 const router = express.Router();
 const apiController = require('../controllers/api.controller');
-const departmentController = require('../controllers/department.controller'); // ADD THIS
+const departmentController = require('../controllers/department.controller');
+const holidaysController = require('../controllers/holidaysController');
 const { requireLogin } = require('../middleware/auth.middleware');
+const upload = require('../middleware/multer'); // ADD THIS LINE
 
 router.use(requireLogin);
 
 // Holidays API
-router.post('/holidays', apiController.addHoliday);
-router.delete('/holidays/:id', apiController.deleteHoliday);
-router.put('/holidays/:id', apiController.updateHoliday);
-router.get('/holidays/:id', apiController.getHoliday);
-router.get('/holidays/search', apiController.searchHolidays);
+router.get('/holidays', holidaysController.getAllHolidays);
+router.post('/holidays', holidaysController.createHoliday);
+router.get('/holidays/search', holidaysController.searchHolidays);
+router.get('/holidays/statistics', holidaysController.getHolidayStatistics);
+router.get('/holidays/upcoming', holidaysController.getUpcomingHolidays);
+router.get('/holidays/export', holidaysController.exportHolidaysToCSV);
+router.get('/holidays/year/:year', holidaysController.getHolidaysByYear);
+router.get('/holidays/month/:yearMonth', holidaysController.getHolidaysByMonth);
+router.get('/holidays/type/:type/year/:year', holidaysController.getHolidaysByTypeAndYear);
+router.get('/holidays/:id', holidaysController.getHolidayById);
+router.put('/holidays/:id', holidaysController.updateHoliday);
+router.delete('/holidays/:id', holidaysController.deleteHoliday);
+
+// Holidays Bulk Upload Routes - ADD THESE 2 LINES
+router.get('/holidays/template', holidaysController.downloadTemplate);
+router.post('/holidays/bulk-upload', upload.single('csvFile'), holidaysController.bulkUploadHolidays);
 
 // Leave Types API
 router.post('/leave_types', apiController.addLeaveType);
@@ -28,7 +41,7 @@ router.get('/employees/:id', apiController.getEmployee);
 router.get('/employees/payroll/:payroll', apiController.getEmployeeByPayroll);
 router.get('/employees/statistics', apiController.getEmployeeStatistics);
 
-// Departments API - ADD ALL THESE LINES
+// Departments API
 router.get('/departments', departmentController.getDepartmentsAPI);
 router.get('/departments/:id', departmentController.getDepartmentByIdAPI);
 router.post('/departments', departmentController.createDepartmentAPI);

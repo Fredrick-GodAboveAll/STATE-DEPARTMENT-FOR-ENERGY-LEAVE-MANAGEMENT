@@ -230,17 +230,17 @@ class DatabaseSeeder {
             
             const employees = [
                 {
-                    payroll_number: '1983077337',
-                    full_name: 'MR EG JMA',
+                    payroll_number: '111',
+                    full_name: 'Test staff',
                     id_number: '111111111',
                     gender: 'M',
-                    age: 35,
+                    age: 60,
                     designation: 'Manager',
-                    job_group: 'JG6',
+                    job_group: 'JG2',
                     status: 'Active',
-                    retirement_date: '2040-12-31',
+                    retirement_date: '2070-12-31',
                     employment_status: 'Permanent',
-                    date_of_birth: '1988-05-15',
+                    date_of_birth: '2000-05-15',
                     disability: 'None'
                 }
             ];

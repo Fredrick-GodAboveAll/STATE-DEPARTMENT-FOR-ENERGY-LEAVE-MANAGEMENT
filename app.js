@@ -22,6 +22,9 @@ const { SESSION_CONFIG } = require('./session');
 const constants = require('./config/constants');
 const routes = require('./routes/index');
 
+// Import controllers
+const holidaysController = require('./controllers/holidaysController'); // ADD THIS
+
 // Import middleware
 const flashMiddleware = require('./middleware/flash.middleware');
 const { attachUserInfo } = require('./middleware/auth.middleware');
@@ -121,13 +124,23 @@ app.use(function(req, res, next) {
   next();
 });
 
-
-
-
 // =============================================
 // ROUTES
 // =============================================
 app.use('/', routes);
+
+// =============================================
+// HOLIDAYS PAGE ROUTE (ADD THIS SECTION)
+// =============================================
+app.get('/holidays', function(req, res, next) {
+  // Check if user is logged in
+  if (!req.session.userId) {
+    return res.redirect('/?error=Please login to access holidays page');
+  }
+  
+  // Use the holidays controller to render the page
+  holidaysController.renderHolidaysPage(req, res);
+});
 
 // =============================================
 // HEALTH CHECK ENDPOINT

@@ -1,114 +1,64 @@
-<!-- views/employees/add-employee.ejs -->
 <div class="card bg-body-tertiary dark__bg-opacity-50 mb-3">
   <div class="card-body p-3">
     <p class="fs-10 mb-0">
-      <a href="/employees">
-        Bulk Upload Employees, <strong><%= userFirstName %></strong> <%= userLastName %>
+      <a href="https://prium.github.io/falcon/v3.25.0/widgets.html#!">
+        Staff Overview, <strong><%= userFirstName %></strong> <%= userLastName %>
       </a>
     </p>
+    <span id="session-timer"><%= locals.sessionInfo ? locals.sessionInfo.timeRemaining : '1h' %> <strong>Monday, September <b>4<sup>th</sup></b></strong></span>
   </div>
 </div>
 
-<div class="row">
-  <div class="col-lg-8">
-    <div class="card mb-3">
-      <div class="card-header">
-        <h5 class="mb-0">Upload CSV File</h5>
-      </div>
-      <div class="card-body">
-        <!-- File Upload FORM -->
-        <!-- Change this line in add-employee.ejs -->
-<form action="/bulk-upload" method="POST" enctype="multipart/form-data">
-          <div class="text-center p-4 border-dashed rounded-3 bg-light">
-            <span class="fas fa-file-csv fa-3x text-primary mb-3"></span>
-            <h5 class="mb-3">Upload Employee CSV</h5>
-            
-            <input type="file" name="csvFile" id="csvFile" class="form-control" accept=".csv" required>
-            
-            <div class="mt-3">
-              <button type="submit" class="btn btn-primary" id="uploadBtn">
-                <span class="fas fa-upload me-2"></span>
-                Upload & Import
-              </button>
-            </div>
-          </div>
-        </form>
-
-        <!-- Simple Progress (for form submission) -->
-        <div class="mt-3" id="progress" style="display: none;">
-          <div class="alert alert-info">
-            <div class="d-flex align-items-center">
-              <span class="fas fa-sync-alt fa-spin me-2"></span>
-              <div>
-                Uploading and processing CSV file...
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-lg-4">
-    <div class="card">
-      <div class="card-header">
-        <h5 class="mb-0">CSV Format</h5>
-      </div>
-      <div class="card-body">
-        <!-- Same format table as before... -->
-        <!-- Keep your existing format table here -->
-      </div>
-    </div>
-  </div>
-</div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const form = document.getElementById('uploadForm');
-  const progress = document.getElementById('progress');
-  
-  form.addEventListener('submit', function(e) {
-    const fileInput = document.getElementById('csvFile');
-    
-    if (!fileInput.files[0]) {
-      e.preventDefault();
-      alert('Please select a CSV file first');
-      return;
-    }
-    
-    if (!fileInput.files[0].name.endsWith('.csv')) {
-      e.preventDefault();
-      alert('Please upload a CSV file');
-      return;
-    }
-    
-    // Show progress indicator
-    progress.style.display = 'block';
-    document.getElementById('uploadBtn').disabled = true;
-    document.getElementById('uploadBtn').innerHTML = 
-      '<span class="fas fa-sync-alt fa-spin me-2"></span>Processing...';
+  document.addEventListener('DOMContentLoaded', () => {
+    <% if (locals.sessionInfo && locals.sessionInfo.totalSeconds > 0) { %>
+      let remainingSeconds = <%= locals.sessionInfo.totalSeconds %>;
+      
+      const updateTimer = () => {
+        if (remainingSeconds <= 0) {
+          alert('Your session has expired. You will be logged out.');
+          window.location.href = '/logout';
+          return;
+        }
+        
+        const hours = Math.floor(remainingSeconds / 3600);
+        const minutes = Math.floor((remainingSeconds % 3600) / 60);
+        const seconds = remainingSeconds % 60;
+        
+        let timeString;
+        if (hours > 0) {
+          timeString = `${hours}h ${minutes}m`;
+        } else if (minutes > 0) {
+          timeString = `${minutes}m`;
+        } else {
+          timeString = `${seconds}s`;
+        }
+        
+        document.getElementById('session-timer').textContent = timeString;
+        remainingSeconds--;
+      };
+      
+      // Update timer every second
+      updateTimer();
+      const timerInterval = setInterval(updateTimer, 1000);
+      
+      // Reset timer on activity (rolling session)
+      let lastActivity = Date.now();
+      const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+      
+      const updateActivity = () => {
+        const now = Date.now();
+        if (now - lastActivity > 5000) { // Only update if 5+ seconds since last activity
+          lastActivity = now;
+          remainingSeconds = 3600; // Reset to 1 hour
+        }
+      };
+      
+      // Add activity listeners
+      activityEvents.forEach(event => {
+        document.addEventListener(event, updateActivity, true);
+      });
+    <% } %>
   });
-  
-  // View sample data button (keep your existing code)
-  document.getElementById('viewSampleBtn').addEventListener('click', function() {
-    alert(`CSV Sample Format (10 columns):
-
-Payroll Number,Full Name,ID Number,Gender,Age,Designation,Job Group,Employment Status,ROD,Engage Name
-1983077337,"MR JULIUS ODHIAMBO MBOGAH",111111111,M,63,"Deputy Director - HRM & Development",R,"0 - Active",04/11/2026,Permanent
-2000171800,"MR FREDRICK WAMBUA MUASYA",222222222,M,45,"Senior Human Resource Officer",JG6,"0 - Active",15/08/2035,Permanent
-EMP003,"MS JANE MWENDE",333333333,F,32,"IT Manager",JG5,"0 - Active",30/11/2040,Contract`);
-  });
-});
 </script>
-
-<style>
-.border-dashed {
-  border: 2px dashed #dee2e6;
-  cursor: pointer;
-}
-
-.border-dashed:hover {
-  border-color: #0d6efd;
-  background-color: rgba(13, 110, 253, 0.05);
-}
-</style>

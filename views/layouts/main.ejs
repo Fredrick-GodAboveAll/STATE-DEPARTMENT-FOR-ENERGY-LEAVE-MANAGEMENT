@@ -689,7 +689,8 @@
                         <div class="d-flex align-items-center"><span class="nav-link-text ps-1"> overview</span></div>
                       </a><!-- more inner pages-->
                     </li>
-                    <li class="nav-item"><a class="nav-link <%= activePage === 'd-structure' ? 'active' : '' %>" href="/d-structure">
+                    <li class="nav-item">
+                      <a class="nav-link <%= activePage === 'd-structure' ? 'active' : '' %>" href="/d-structure">
                         <div class="d-flex align-items-center"><span class="nav-link-text ps-1"> Org Structure</span></div>
                       </a><!-- more inner pages-->
                     </li>
@@ -698,13 +699,13 @@
 
                   </ul>
                  
-                  
+            
 
                   <!-- parent pages-->
-                  <a class="nav-link" href="../../../app/kanban.html" role="button">
+                  <a class="nav-link <%= activePage === 'employee-bulk' ? 'active' : '' %>" href="/employee-bulk" role="button">
                     <div class="d-flex align-items-center"><span class="nav-link-icon">
                       <span class="fas fa-upload"></span>
-                    </span><span class="nav-link-text ps-1">Bulk Import</span></div>
+                    </span><span class="nav-link-text ps-1">Bulk Employee Import</span></div>
                   </a>
                  
                   
