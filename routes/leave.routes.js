@@ -68,4 +68,7 @@ router.get('/leave_limits', leaveController.getLeaveLimits);
 // NEW: Bulk leave import page
 router.get('/leave_bulk', leaveController.getLeaveBulk);
 
+// NEW: Leave applications page
+router.get('/leave_applications', leaveController.getLeaveApplications);
+
 module.exports = router;

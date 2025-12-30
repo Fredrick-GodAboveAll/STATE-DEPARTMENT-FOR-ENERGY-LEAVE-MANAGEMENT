@@ -160,7 +160,7 @@ const apiController = {
    */
   addLeaveType: async function(req, res) {
     try {
-      const { leave_name, color, entitled_days, gender_restriction, description, status } = req.body;
+      const { leave_name, color, entitled_days, gender_restriction, description, status, carry_forward_days } = req.body;
       
       // Validation
       if (!leave_name || !entitled_days) {
@@ -173,6 +173,7 @@ const apiController = {
         entitled_days: parseInt(entitled_days),
         gender_restriction: gender_restriction || 'All',
         description,
+        carry_forward_days: (carry_forward_days === '' || typeof carry_forward_days === 'undefined') ? null : parseInt(carry_forward_days),
         status: status || 'Active'
       };
       
@@ -197,7 +198,7 @@ const apiController = {
   updateLeaveType: async function(req, res) {
     try {
       const { id } = req.params;
-      const { leave_name, color, entitled_days, gender_restriction, description, status } = req.body;
+      const { leave_name, color, entitled_days, gender_restriction, description, status, carry_forward_days } = req.body;
       
       // Validation
       if (!leave_name || !entitled_days) {
@@ -210,6 +211,7 @@ const apiController = {
         entitled_days: parseInt(entitled_days),
         gender_restriction: gender_restriction || 'All',
         description,
+        carry_forward_days: (carry_forward_days === '' || typeof carry_forward_days === 'undefined') ? null : parseInt(carry_forward_days),
         status: status || 'Active'
       };
       

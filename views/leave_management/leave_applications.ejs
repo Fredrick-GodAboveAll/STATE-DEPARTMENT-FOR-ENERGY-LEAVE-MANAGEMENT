@@ -1,0 +1,257 @@
+<div class="d-flex mb-4 mt-3">
+  <span class="fa-stack me-2 ms-n1">
+    <i class="fas fa-circle fa-stack-2x text-300"></i>
+    <i class="fa-inverse fa-stack-1x text-primary fas fa-calendar-alt"></i>
+  </span>
+
+  <div class="col">
+    <h5 class="mb-0 text-primary position-relative">
+      <span class="bg-200 dark__bg-1100 pe-3">Leave Applications</span>
+      <span class="border position-absolute top-50 translate-middle-y w-100 start-0 z-n1"></span>
+    </h5>
+    <p class="mb-0">Record and manage employee leave requests</p>
+  </div>
+</div>
+
+<!-- Leave Summary Cards -->
+<div class="row mb-4">
+  <div class="col-md-3 col-6">
+    <div class="card border-start border-3 border-primary h-100">
+      <div class="card-body p-3">
+        <div class="d-flex align-items-center">
+          <div class="flex-1">
+            <h6 class="text-600 mb-1">Total Applications</h6>
+            <h4 class="mb-0">45</h4>
+          </div>
+          <div class="ms-2">
+            <span class="fas fa-file-alt text-primary fa-2x"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-3 col-6">
+    <div class="card border-start border-3 border-warning h-100">
+      <div class="card-body p-3">
+        <div class="d-flex align-items-center">
+          <div class="flex-1">
+            <h6 class="text-600 mb-1">Capacity</h6>
+            <h4 class="mb-0">220</h4>
+          </div>
+          <div class="ms-2">
+            <span class="fas fa-clock text-warning fa-2x"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-3 col-6">
+    <div class="card border-start border-3 border-success h-100">
+      <div class="card-body p-3">
+        <div class="d-flex align-items-center">
+          <div class="flex-1">
+            <h6 class="text-600 mb-1">On Leave</h6>
+            <h4 class="mb-0">10</h4>
+          </div>
+          <div class="ms-2">
+            <span class="fas fa-check-circle text-success fa-2x"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-3 col-6">
+    <div class="card border-start border-3 border-danger h-100">
+      <div class="card-body p-3">
+        <div class="d-flex align-items-center">
+          <div class="flex-1">
+            <h6 class="text-600 mb-1">Revoked</h6>
+            <h4 class="mb-0">1</h4>
+          </div>
+          <div class="ms-2">
+            <span class="fas fa-times-circle text-danger fa-2x"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <!-- Leave Applications Table -->
+  <div class="col-xxl-12">
+    <div class="card mb-3">
+      <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(../../assets/img/icons/spot-illustrations/corner-4.png);"></div>
+      <div class="card-body p-0">
+        <div class="tab-content">
+          <div class="tab-pane preview-tab-pane active" role="tabpanel">
+            <div class="card shadow-none">
+              <div class="card-header">
+                <div class="row flex-between-center">
+                  <div class="col-6 col-sm-auto d-flex align-items-center pe-0">
+                    <h5 class="mb-0">All Leave Applications</h5>
+                  </div>
+                  <div class="col-6 col-sm-auto ms-auto text-end ps-0">
+                    <button class="btn btn-falcon-primary btn-sm" type="button">
+                      <span class="fas fa-plus" data-fa-transform="shrink-3 down-2"></span>
+                      <span class="d-none d-sm-inline-block ms-1">New Leave</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-0 pt-0">
+                <table class="table table-sm mb-0 overflow-hidden data-table fs-10 leave-table" 
+                  data-datatables='{"responsive":true,"pagingType":"simple","lengthChange":true,"pageLength":10,"searching":true,"bDeferRender":true,"serverSide":false,"language":{"info":"_START_ to _END_ of _TOTAL_ applications","search":"Search applications:","searchPlaceholder":"Search by name, type..."},"order":[[1,"asc"]]}'>
+                  <thead class="bg-200">
+                    <tr>
+                      <th class="text-900 no-sort white-space-nowrap" data-orderable="false" width="30">
+                        <div class="form-check mb-0 d-flex align-items-center">
+                          <input class="form-check-input" id="checkbox-bulk-item-select" type="checkbox" data-bulk-select='{"body":"table-simple-pagination-body","actions":"table-simple-pagination-actions","replacedElement":"table-simple-pagination-replace-element"}' />
+                        </div>
+                      </th>
+                      
+                      <th class="text-900 sort white-space-nowrap">Personal No.</th>
+                      <th class="text-900 sort white-space-nowrap">Employee</th>
+                      <th class="text-900 sort white-space-nowrap">Department</th>
+                      <th class="text-900 sort white-space-nowrap">Leave Type</th>
+                      <th class="text-900 sort white-space-nowrap">Start Date</th>
+                      <th class="text-900 sort white-space-nowrap">End Date</th>
+                      <th class="text-900 sort white-space-nowrap">Duration</th>
+                  
+                      <th class="text-900 sort white-space-nowrap">Applied On</th>
+                      <th class="text-900 sort white-space-nowrap">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody class="list" id="table-simple-pagination-body">
+                    <!-- Sample Data 1 -->
+                    <tr class="btn-reveal-trigger">
+                      <td class="align-middle" style="width: 28px;">
+                        <div class="form-check mb-0">
+                          <input class="form-check-input" type="checkbox" id="leave-1" data-bulk-select-row="data-bulk-select-row" />
+                        </div>
+                      </td>
+
+                      <td class="align-middle white-space-nowrap">
+                        <span class="fw-semi-bold">EMP001</span>
+                      </td>
+
+                      <td class="align-middle white-space-nowrap">
+                        <div class="d-flex align-items-center">
+                          
+                          <span class="fw-semi-bold">John Smith</span>
+                        </div>
+                      </td>
+                      
+                      <td class="align-middle white-space-nowrap">
+                        <span class="fw-semi-bold">IT</span>
+                      </td>
+                      <td class="align-middle white-space-nowrap">
+                        <span class="badge badge-subtle-primary rounded-pill">Annual Leave</span>
+                      </td>
+                      <td class="align-middle white-space-nowrap">
+                        <span class="fw-semi-bold">24th March, 2024</span>
+                      </td>
+                      <td class="align-middle white-space-nowrap">
+                        <span class="fw-semi-bold">24th March, 2024</span>
+                      </td>
+                      <td class="align-middle white-space-nowrap">
+                        <span class="badge badge-subtle-info rounded-pill">5 days</span>
+                      </td>
+                    
+                      <td class="align-middle white-space-nowrap">
+                        <span class="text-500">24th March, 2024</span>
+                      </td>
+
+                      <td class="align-middle white-space-nowrap text-end">
+                        <div class="dropstart font-sans-serif position-static d-inline-block"><button class="btn btn-link text-600 btn-sm dropdown-toggle btn-reveal float-end" type="button" id="dropdown-recent-purchase-table-13" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10"></span></button>
+                          <div class="dropdown-menu dropdown-menu-end border py-2" aria-labelledby="dropdown-recent-purchase-table-13"><a class="dropdown-item" href="#!">View</a><a class="dropdown-item" href="#!">Edit</a><a class="dropdown-item" href="#!">Refund</a>
+                            <div class="dropdown-divider"></div><a class="dropdown-item text-warning" href="#!">Archive</a><a class="dropdown-item text-danger" href="#!">Delete</a>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    
+                    
+                    <!-- Sample Data 2 -->
+                    <tr class="btn-reveal-trigger">
+                      <td class="align-middle" style="width: 28px;">
+                        <div class="form-check mb-0">
+                          <input class="form-check-input" type="checkbox" id="leave-3" data-bulk-select-row="data-bulk-select-row" />
+                        </div>
+                      </td>
+
+                      <td class="align-middle white-space-nowrap">
+                        <span class="fw-semi-bold">EMP003</span>
+                      </td>
+
+                      <td class="align-middle white-space-nowrap">
+                        <div class="d-flex align-items-center">
+                          
+                          <span class="fw-semi-bold">Robert Johnson</span>
+                        </div>
+                      </td>
+                      
+                      <td class="align-middle white-space-nowrap">
+                        <span class="fw-semi-bold">Marketing</span>
+                      </td>
+                      <td class="align-middle white-space-nowrap">
+                        <span class="badge badge-subtle-danger rounded-pill">Emergency Leave</span>
+                      </td>
+                      <td class="align-middle white-space-nowrap">
+                        <span class="fw-semi-bold">24th March, 2024</span>
+                      </td>
+                      <td class="align-middle white-space-nowrap">
+                        <span class="fw-semi-bold">24th March, 2024</span>
+                      </td>
+                      <td class="align-middle white-space-nowrap">
+                        <span class="badge badge-subtle-info rounded-pill">1 day</span>
+                      </td>
+                      
+                      <td class="align-middle white-space-nowrap">
+                        <span class="text-500">24th March, 2024</span>
+                      </td>
+
+                      <td class="align-middle white-space-nowrap text-end">
+                        <div class="dropstart font-sans-serif position-static d-inline-block"><button class="btn btn-link text-600 btn-sm dropdown-toggle btn-reveal float-end" type="button" id="dropdown-recent-purchase-table-13" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10"></span></button>
+                          <div class="dropdown-menu dropdown-menu-end border py-2" aria-labelledby="dropdown-recent-purchase-table-13"><a class="dropdown-item" href="#!">View</a><a class="dropdown-item" href="#!">Edit</a><a class="dropdown-item" href="#!">Refund</a>
+                            <div class="dropdown-divider"></div><a class="dropdown-item text-warning" href="#!">Archive</a><a class="dropdown-item text-danger" href="#!">Delete</a>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Simple session timer - similar to original
+  document.addEventListener('DOMContentLoaded', () => {
+    // Simple timer display - just show static time
+    const timerElement = document.createElement('div');
+    timerElement.className = 'text-end text-500 fs-9 mb-2';
+    timerElement.innerHTML = '<i class="fas fa-clock me-1"></i>Session active';
+    
+    // Add to card header or appropriate place
+    const cardHeader = document.querySelector('.card-header');
+    if (cardHeader) {
+      const timerContainer = document.createElement('div');
+      timerContainer.className = 'col-12';
+      timerContainer.appendChild(timerElement);
+      
+      const headerRow = cardHeader.querySelector('.row');
+      if (headerRow) {
+        headerRow.parentNode.insertBefore(timerContainer, headerRow.nextSibling);
+      }
+    }
+  });
+</script>

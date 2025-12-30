@@ -20,7 +20,7 @@ const leaveController = {
           // FIXED: Use db.leaveTypes.findAll() instead of getAllLeaveTypes()
           const leaveTypes = await db.leaveTypes.findAll();
           
-          res.render('dashboard/leave_types', {
+          res.render('leave_management/leave_types', {
             activeShow: 'leave_types',
             activePage: 'leave_types',
             userFirstName: user.first_name,
@@ -166,6 +166,14 @@ const leaveController = {
         });
       }
 
+      // Validate carry_forward_days if provided
+      if (typeof req.body.carry_forward_days !== 'undefined' && req.body.carry_forward_days !== '') {
+        const cf = parseInt(req.body.carry_forward_days);
+        if (isNaN(cf) || cf < 0) {
+          return res.status(400).json({ success: false, message: 'carry_forward_days must be a non-negative number' });
+        }
+      }
+
       // Check if leave type with same name already exists
       const existingLeaveTypes = await db.leaveTypes.findAll();
       const duplicate = existingLeaveTypes.find(
@@ -185,6 +193,7 @@ const leaveController = {
         entitled_days: parseInt(entitled_days),
         gender_restriction: gender_restriction || 'All',
         description: description || '',
+        carry_forward_days: (typeof req.body.carry_forward_days !== 'undefined' && req.body.carry_forward_days !== '') ? parseInt(req.body.carry_forward_days) : null,
         status: status || 'Active'
       });
 
@@ -214,6 +223,7 @@ const leaveController = {
         entitled_days,
         gender_restriction,
         description,
+        carry_forward_days,
         status
       } = req.body;
 
@@ -226,11 +236,27 @@ const leaveController = {
         });
       }
 
+      // Validate carry_forward_days if provided
+      if (typeof req.body.carry_forward_days !== 'undefined' && req.body.carry_forward_days !== '') {
+        const cf = parseInt(req.body.carry_forward_days);
+        if (isNaN(cf) || cf < 0) {
+          return res.status(400).json({ success: false, message: 'carry_forward_days must be a non-negative number' });
+        }
+      }
+
+      // Determine updated values (allow partial updates)
+      const newName = (typeof leave_name !== 'undefined' && leave_name !== null && leave_name !== '') ? leave_name.trim() : existingLeaveType.leave_name;
+      const newColor = color || existingLeaveType.color || 'primary';
+      const newEntitledDays = (typeof entitled_days !== 'undefined' && entitled_days !== '') ? parseInt(entitled_days) : existingLeaveType.entitled_days;
+      const newGender = gender_restriction || existingLeaveType.gender_restriction || 'All';
+      const newDescription = (typeof description !== 'undefined') ? description : existingLeaveType.description;
+      const newCarryForward = (typeof carry_forward_days !== 'undefined' && carry_forward_days !== '') ? parseInt(carry_forward_days) : existingLeaveType.carry_forward_days;
+      const newStatus = status || existingLeaveType.status || 'Active';
+
       // Check if another leave type has the same name (excluding current one)
       const allLeaveTypes = await db.leaveTypes.findAll();
       const duplicate = allLeaveTypes.find(
-        lt => lt.id !== parseInt(id) && 
-              lt.leave_name.toLowerCase() === leave_name.toLowerCase()
+        lt => lt.id !== parseInt(id) && lt.leave_name && lt.leave_name.toLowerCase() === newName.toLowerCase()
       );
       
       if (duplicate) {
@@ -241,12 +267,13 @@ const leaveController = {
       }
 
       const updatedLeaveType = await db.leaveTypes.update(id, {
-        leave_name: leave_name.trim(),
-        color: color || 'primary',
-        entitled_days: parseInt(entitled_days),
-        gender_restriction: gender_restriction || 'All',
-        description: description || '',
-        status: status || 'Active'
+        leave_name: newName,
+        color: newColor,
+        entitled_days: newEntitledDays,
+        gender_restriction: newGender,
+        description: newDescription,
+        carry_forward_days: (typeof newCarryForward !== 'undefined' && newCarryForward !== null) ? newCarryForward : null,
+        status: newStatus
       });
 
       if (!updatedLeaveType) {
@@ -485,6 +512,7 @@ const leaveController = {
             entitled_days: entitledDays,
             gender_restriction: record.gender_restriction || 'All',
             description: record.description || '',
+            carry_forward_days: (typeof record.carry_forward_days !== 'undefined' && record.carry_forward_days !== '') ? parseInt(record.carry_forward_days) : null,
             status: record.status || 'Active'
           };
 
@@ -587,6 +615,9 @@ getLeaveLimits: async function(req, res) {
       return res.redirect('/');
     }
     
+    // Fetch leave types to manage carry forward values
+    const leaveTypes = await db.leaveTypes.findAll();
+
     // Render leave limits page
     res.render('leave_management/leave_limits', {
       activeShow: 'leave_types', // This keeps the "leave items" dropdown open
@@ -594,7 +625,8 @@ getLeaveLimits: async function(req, res) {
       userFirstName: user.first_name,
       userLastName: user.last_name,
       userEmail: user.email,
-      pageTitle: 'Leave Limits'
+      pageTitle: 'Leave Limits',
+      leaveTypes: leaveTypes || []
     });
   } catch (error) {
     console.error('Error loading leave limits page:', error);
@@ -633,25 +665,55 @@ getLeaveBulk: async function(req, res) {
 },
 
   /**
+   * NEW: Display leave applications page
+   */
+  getLeaveApplications: async function(req, res) {
+    try {
+      // Get user info
+      const user = await db.connection.get('SELECT email, first_name, last_name FROM users WHERE id = ?', [req.session.userId]);
+
+      if (!user) {
+        req.flash('error_msg', 'User not found');
+        return res.redirect('/');
+      }
+
+      // Render leave applications page
+      res.render('leave_management/leave_applications', {
+        activeShow: 'leave_types',
+        activePage: 'leave_applications',
+        userFirstName: user.first_name,
+        userLastName: user.last_name,
+        userEmail: user.email,
+        pageTitle: 'Leave Applications'
+      });
+    } catch (error) {
+      console.error('Error loading leave applications page:', error);
+      req.flash('error_msg', 'Error loading leave applications page');
+      res.redirect('/dashboard');
+    }
+  },
+
+  /**
    * NEW: Download CSV template
    */
   downloadTemplate: function(req, res) {
     try {
-      const template = `leave_name,color,entitled_days,gender_restriction,description,status
-Annual Leave,primary,21,All,Annual leave with pay,Active
-Sick Leave,success,14,All,Sick leave with pay,Active
-Maternity Leave,danger,180,Female,Maternity leave,Active
-Paternity Leave,warning,7,Male,Paternity leave,Active
-Casual Leave,info,7,All,Casual leave,Active
-Bereavement Leave,secondary,3,All,Bereavement leave,Active
+      const template = `leave_name,color,entitled_days,gender_restriction,description,carry_forward_days,status
+Annual Leave,primary,21,All,Annual leave with pay,,Active
+Sick Leave,success,14,All,Sick leave with pay,,Active
+Maternity Leave,danger,180,Female,Maternity leave,,Active
+Paternity Leave,warning,7,Male,Paternity leave,,Active
+Casual Leave,info,7,All,Casual leave,,Active
+Bereavement Leave,secondary,3,All,Bereavement leave,,Active
 
 # Instructions:
 # 1. Required fields: leave_name, entitled_days
-# 2. Optional fields: color, gender_restriction, description, status
+# 2. Optional fields: color, gender_restriction, description, carry_forward_days, status
 # 3. gender_restriction: All, Male, Female, Other, or None
 # 4. status: Active, Inactive, or Archived
-# 5. entitled_days must be a number (0 or greater)
-# 6. Remove this instruction row before uploading`;
+# 5. entitled_days and carry_forward_days must be numbers (0 or greater)
+# 6. If carry_forward_days is blank, it will be treated as 'N/A' for existing leave types
+# 7. Remove this instruction row before uploading`;
 
       res.setHeader('Content-Type', 'text/csv');
       res.setHeader('Content-Disposition', 'attachment; filename=leave_types_template.csv');

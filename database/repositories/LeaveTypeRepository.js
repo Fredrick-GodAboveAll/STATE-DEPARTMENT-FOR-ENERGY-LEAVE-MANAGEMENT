@@ -12,7 +12,7 @@ class LeaveTypeRepository {
         try {
             await this.connection.connect();
             
-            const { leave_name, color, entitled_days, gender_restriction, description, status } = leaveData;
+            const { leave_name, color, entitled_days, gender_restriction, description, carry_forward_days, status } = leaveData;
             const result = await this.connection.execute(
                 this.schema.INSERT_LEAVE_TYPE,
                 [
@@ -21,6 +21,7 @@ class LeaveTypeRepository {
                     entitled_days, 
                     gender_restriction || 'All', 
                     description, 
+                    (typeof carry_forward_days !== 'undefined' && carry_forward_days !== null) ? carry_forward_days : null,
                     status || 'Active'
                 ]
             );
@@ -80,7 +81,7 @@ class LeaveTypeRepository {
         try {
             await this.connection.connect();
             
-            const { leave_name, color, entitled_days, gender_restriction, description, status } = leaveData;
+            const { leave_name, color, entitled_days, gender_restriction, description, carry_forward_days, status } = leaveData;
             const result = await this.connection.execute(
                 this.schema.UPDATE_LEAVE_TYPE,
                 [
@@ -89,6 +90,7 @@ class LeaveTypeRepository {
                     entitled_days, 
                     gender_restriction || 'All', 
                     description, 
+                    (typeof carry_forward_days !== 'undefined' && carry_forward_days !== null) ? carry_forward_days : null,
                     status || 'Active', 
                     id
                 ]

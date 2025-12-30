@@ -1,12 +1,14 @@
 holiday_name,holiday_date,holiday_type,year,recurring,description
-New Year's Day,2024-01-01,Public Holiday,2024,1,First day of the year
-Republic Day,2024-01-26,Public Holiday,2024,1,Republic Day of India
-Good Friday,2024-03-29,Public Holiday,2024,0,Christian holiday
-Eid al-Fitr,2024-04-10,Public Holiday,2024,0,Islamic festival
-Independence Day,2024-08-15,Public Holiday,2024,1,Indian Independence Day
-Ganesh Chaturthi,2024-09-07,Public Holiday,2024,0,Hindu festival
-Diwali,2024-10-31,Public Holiday,2024,0,Festival of Lights
-Christmas Day,2024-12-25,Public Holiday,2024,1,Christmas celebration
-Company Foundation Day,2024-03-15,Company Holiday,2024,1,Company anniversary
-Team Outing,2024-06-14,Optional Holiday,2024,0,Annual team building event
-Wellness Day,2024-11-11,Special Day,2024,0,Mental health awareness day
+New Year's Day,2026-01-01,Public Holiday,2026,1,First day of the year
+Eid-ul-Fitr,2026-03-20,Public Holiday,2026,0,End of Ramadan (Tentative)
+Good Friday,2026-04-03,Public Holiday,2026,0,Christian holiday
+Easter Monday,2026-04-06,Public Holiday,2026,0,Christian holiday
+Labour Day,2026-05-01,Public Holiday,2026,1,Workers' Day
+Eid-ul-Adha,2026-05-27,Public Holiday,2026,0,Feast of Sacrifice (Tentative)
+Madaraka Day,2026-06-01,Public Holiday,2026,1,Internal self-rule day
+Mazingira Day,2026-10-10,Public Holiday,2026,1,Environment conservation day
+Mashujaa Day,2026-10-20,Public Holiday,2026,1,Heroes' Day
+Mashujaa Day (Observed),2026-10-21,Public Holiday,2026,0,Holiday falls on Sunday
+Jamhuri Day,2026-12-12,Public Holiday,2026,1,Republic Day
+Christmas Day,2026-12-25,Public Holiday,2026,1,Christmas celebration
+Utamaduni Day,2026-12-26,Public Holiday,2026,1,Boxing Day / Cultural Day

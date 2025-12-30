@@ -1,13 +1,11 @@
 leave_name,color,entitled_days,gender_restriction,description,status
-Annual Vacation,primary,25,All,Main annual vacation leave,Active
-Medical Leave,success,20,All,For medical treatment and recovery,Active
-Maternity,primary,120,Female,Maternity leave for mothers,Active
-Parental Leave,info,30,All,Leave for new parents regardless of gender,Active
-Casual,secondary,10,All,For personal or casual needs,Active
-Compassionate,danger,5,All,For family emergencies or bereavement,Active
-Wedding,primary,10,All,For own wedding arrangements,Active
-Examination,dark,15,All,For taking important exams,Active
-Sabbatical,warning,365,All,Extended leave for research or travel,Active
-Religious,secondary,2,All,Leave for religious observances,Active
-Quarantine,danger,14,All,Mandatory quarantine leave,Active
-Blood Donation,success,1,All,Leave for blood donation,Active
+Annual Leave,primary,30,All,Recuperative leave (excludes weekends/holidays),Active
+Maternity Leave,primary,90,Female,90 calendar days exclusive of annual leave,Active
+Paternity Leave,info,10,Male,10 working days during spouse's maternity,Active
+Child Adoption Leave,info,30,All,30 days for bonding (requires adoption order),Active
+Compassionate Leave,danger,10,All,Granted after exhausting annual leave,Active
+Sick Leave,warning,90,All,Up to 3 months full pay/3 months half pay,Active
+Sports Leave,success,0,All,Special leave for national/international fixtures,Active
+Terminal Leave,dark,30,All,30 calendar days preceding retirement,Active
+Religious Leave,secondary,2,All,Leave for religious festivals (Section E.14),Active
+Unpaid Leave,secondary,60,All,For urgent private affairs (max 60 days),Active

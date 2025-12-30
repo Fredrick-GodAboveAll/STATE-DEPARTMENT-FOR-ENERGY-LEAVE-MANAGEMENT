@@ -215,13 +215,7 @@
                           </td>
                           <td class="align-middle white-space-nowrap fw-semi-bold name">
                             <div class="d-flex align-items-center">
-                              <div class="avatar avatar-xs me-2">
-                                <div class="avatar-name rounded-circle bg-soft-<%= holiday.holiday_type === 'Public Holiday' ? 'success' : holiday.holiday_type === 'Optional Holiday' ? 'warning' : holiday.holiday_type === 'Company Holiday' ? 'info' : 'secondary' %>">
-                                  <span class="fs-9 text-<%= holiday.holiday_type === 'Public Holiday' ? 'success' : holiday.holiday_type === 'Optional Holiday' ? 'warning' : holiday.holiday_type === 'Company Holiday' ? 'info' : 'secondary' %>">
-                                    <%= holiday.holiday_name.charAt(0) %>
-                                  </span>
-                                </div>
-                              </div>
+                              
                               <a href="#!" class="holiday-name text-900" data-id="<%= holiday.id %>" data-bs-toggle="modal" data-bs-target="#editHolidayModal">
                                 <%= holiday.holiday_name %>
                               </a>

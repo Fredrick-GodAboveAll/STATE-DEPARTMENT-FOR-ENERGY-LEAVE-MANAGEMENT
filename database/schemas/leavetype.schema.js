@@ -10,6 +10,7 @@ module.exports = {
             gender_restriction TEXT CHECK(gender_restriction IN 
                 ('All', 'Male', 'Female', 'Other', 'None')),
             description TEXT,
+            carry_forward_days INTEGER,
             status TEXT DEFAULT 'Active' CHECK(status IN ('Active', 'Inactive', 'Archived')),
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -19,8 +20,8 @@ module.exports = {
     // Leave Type CRUD queries
     INSERT_LEAVE_TYPE: `
         INSERT INTO leave_types 
-        (leave_name, color, entitled_days, gender_restriction, description, status) 
-        VALUES (?, ?, ?, ?, ?, ?)
+        (leave_name, color, entitled_days, gender_restriction, description, carry_forward_days, status) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     `,
     
     GET_ALL_LEAVE_TYPES: `
@@ -38,7 +39,7 @@ module.exports = {
     UPDATE_LEAVE_TYPE: `
         UPDATE leave_types SET 
         leave_name = ?, color = ?, entitled_days = ?, 
-        gender_restriction = ?, description = ?, status = ?,
+        gender_restriction = ?, description = ?, carry_forward_days = ?, status = ?,
         updated_at = CURRENT_TIMESTAMP 
         WHERE id = ?
     `,

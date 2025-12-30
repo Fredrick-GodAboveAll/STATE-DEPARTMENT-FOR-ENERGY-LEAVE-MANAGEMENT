@@ -12,6 +12,7 @@ module.exports = {
                 gender_restriction TEXT CHECK(gender_restriction IN 
                     ('All', 'Male', 'Female', 'Other', 'None')),
                 description TEXT,
+                carry_forward_days INTEGER,
                 status TEXT DEFAULT 'Active' CHECK(status IN ('Active', 'Inactive', 'Archived')),
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP

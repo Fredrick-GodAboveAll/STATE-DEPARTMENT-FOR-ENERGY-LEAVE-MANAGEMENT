@@ -134,16 +134,17 @@ class DatabaseSeeder {
                     entitled_days: 1,
                     gender_restriction: 'All',
                     description: 'this is a test leave type',
+                    carry_forward_days: null,
                     status: 'Active'
                 }
             ];
             
             for (const leaveType of leaveTypes) {
                 await connection.execute(
-                    `INSERT INTO leave_types (leave_name, color, entitled_days, gender_restriction, description, status) 
-                     VALUES (?, ?, ?, ?, ?, ?)`,
+                    `INSERT INTO leave_types (leave_name, color, entitled_days, gender_restriction, description, carry_forward_days, status) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?)`,
                     [leaveType.leave_name, leaveType.color, leaveType.entitled_days, 
-                     leaveType.gender_restriction, leaveType.description, leaveType.status]
+                     leaveType.gender_restriction, leaveType.description, leaveType.carry_forward_days, leaveType.status]
                 );
             }
             
