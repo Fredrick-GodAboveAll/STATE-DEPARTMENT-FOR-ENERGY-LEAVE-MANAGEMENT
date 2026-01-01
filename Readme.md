@@ -1,124 +1,136 @@
-# State Department for Energy – Leave Management System
-
-[![Node.js](https://img.shields.io/badge/Node.js-16.x-green)](https://nodejs.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![GitHub issues](https://img.shields.io/github/issues/Fredrick-GodAboveAll/STATE-DEPARTMENT-FOR-ENERGY-LEAVE-MANAGEMENT)](issues)
-
-A modular, secure, and scalable **Leave Management System** designed for public sector HR operations.  
-Built with Node.js and Express, the system supports employee records, leave processing, holidays, analytics, and email notifications.
-
----
-
-## ✨ Features
-
-- 🔐 Authentication (Login, Register, Password Reset)
-- 👥 Employee & Department Management
-- 🗓 Leave Application, Approval & Tracking
-- 🎉 Gazetted Holiday Management
-- 📊 Dashboard Analytics & Summaries
-- 📧 Email Notifications
-- ⚙️ Custom Middleware (Auth, Errors, Flash Messages)
-- 🧰 Utility Helpers (Validation, Dates, Files)
-
----
-
-## 🏗 Architecture Overview
-
-This project follows a **clean, layered architecture** inspired by MVC principles:
-
-- **Routes** – Define application endpoints
-- **Controllers** – Handle business logic
-- **Repositories** – Database access layer
-- **Schemas & Migrations** – Database structure and versioning
-- **Middleware** – Authentication and request handling
-- **Views (EJS)** – Server-rendered UI templates
-
-This structure promotes maintainability, scalability, and clarity.
-
----
-
-## 📁 Project Structure
-
-```text
-leave-management-system/
-├── app.js
-├── package.json
-├── session.js
-├── database.js
-├── .env.example
-├── .gitignore
+the project structure
+├── 📄 app.js
+├── 📄 package.json
+├── 📄 database.js
+├── 📄 session.js
+├── 📄 .env
+├── 📄 .gitignore
 │
-├── config/
-│   ├── constants.js
-│   └── email.config.js
+├── 📂 uploads/
 │
-├── database/
-│   ├── connection.js
-│   ├── index.js
-│   ├── migrations.js
-│   ├── seed.js
+├── 📂 database/
+│   ├── 📄 index.js                    # Main database entry point
+│   ├── 📄 connection.js               # Database connection setup
+│   ├── 📄 migrations.js               # RENAMED: Migration runner (executes migration files)
+│   ├── 📄 seed.js                     # Sample data insertion
+│   ├── 📄 migrate.js
 │   │
-│   ├── migrations/
-│   │   ├── 001_users.js
-│   │   ├── 002_holidays.js
-│   │   ├── 003_leave_types.js
-│   │   ├── 004_employees.js
-│   │   └── 005_password_resets.js
+│   ├── 📂 repositories/               # Data access layer
+│   │   ├── 📄 UserRepository.js
+│   │   ├── 📄 HolidayRepository.js
+│   │   ├── 📄 LeaveTypeRepository.js
+│   │   ├── 📄 EmployeeRepository.js   # WILL UPDATE for new columns
+│   │   └── 📄 ResetRepository.js
+│   │   └── 📄 EmployeeRepository.js
 │   │
-│   ├── repositories/
-│   │   ├── UserRepository.js
-│   │   ├── EmployeeRepository.js
-│   │   ├── LeaveTypeRepository.js
-│   │   ├── HolidayRepository.js
-│   │   └── ResetRepository.js
+│   ├── 📂 schemas/                    # SQL queries organized by model
+│   │   ├── 📄 user.schema.js
+│   │   ├── 📄 holiday.schema.js
+│   │   ├── 📄 leavetype.schema.js
+│   │   ├── 📄 employee.schema.js      # UPDATED with date_of_birth & disability
+│   │   └── 📄 reset.schema.js
+│   │   └── 📄 department.schema.js
+│   │   └── 📄 index.js
 │   │
-│   └── schemas/
-│       ├── user.schema.js
-│       ├── employee.schema.js
-│       ├── leavetype.schema.js
-│       ├── holiday.schema.js
-│       └── reset.schema.js
+│   └── 📂 migrations/                 # NEW: Migration files folder
+│       ├── 📄 001_create_users_table.js
+│       ├── 📄 002_create_holidays_table.js
+│       ├── 📄 003_create_leavetypes_table.js
+│       ├── 📄 004_create_employees_table.js
+│       ├── 📄 005_create_resets_table.js
+│       ├── 📄 006_add_employee_columns.js       # NEW: date_of_birth & disability
+│       └── 📄 007_create_profiles_table.js
+│       └── 📄 008_create_departments_table.js
+│       └── 📄 009_add_carry_forward_days_to_leavetypes.js
+        └── 📄 migration-template.js
 │
-├── routes/
-│   ├── index.js
-│   ├── auth.routes.js
-│   ├── dashboard.routes.js
-│   ├── employee.routes.js
-│   ├── leave.routes.js
-│   └── api.routes.js
+├── 📂 config/
+│   ├── 📄 constants.js
+│   └── 📄 email.config.js
 │
-├── controllers/
-│   ├── auth.controller.js
-│   ├── dashboard.controller.js
-│   ├── employee.controller.js
-│   ├── leave.controller.js
-│   └── api.controller.js
+├── 📂 routes/
+│   ├── 📄 index.js
+│   ├── 📄 auth.routes.js
+│   ├── 📄 dashboard.routes.js
+│   ├── 📄 leave.routes.js
+│   ├── 📄 employee.routes.js          # WILL ADD: POST /employees/add route
+│   ├── 📄 api.routes.js
+│   └── 📄 app.routes.js
+│   └── 📄 departments.routes.js
+│   └── 📄 holidaysRoutes.js
 │
-├── middleware/
-│   ├── auth.middleware.js
-│   ├── user.middleware.js
-│   ├── flash.middleware.js
-│   └── error.middleware.js
+├── 📂 controllers/
+│   ├── 📄 auth.controller.js
+│   ├── 📄 dashboard.controller.js
+│   ├── 📄 leave.controller.js
+│   ├── 📄 employee.controller.js      # WILL ADD: addEmployee function
+│   ├── 📄 api.controller.js
+│   └── 📄 app.controller.js
+│   └── 📄 holidaysController.js
 │
-├── services/
-│   └── email.service.js
+├── 📂 middleware/
+│   ├── 📄 auth.middleware.js
+│   ├── 📄 flash.middleware.js
+│   ├── 📄 user.middleware.js
+│   └── 📄 error.middleware.js
+│   └── 📄 multer.js
 │
-├── utils/
-│   ├── validators.js
-│   ├── dateHelpers.js
-│   └── fileHelpers.js
+├── 📂 services/
+│   └── 📄 email.service.js
 │
-├── public/
-│   ├── css/
-│   ├── js/
-│   └── images/
+├── 📂 utils/
+│   ├── 📄 validators.js               # WILL ADD: employee validation
+│   ├── 📄 dateHelpers.js              # this has not been made yet
+│   └── 📄 fileHelpers.js               # this has not been made yet
 │
-└── views/
-    ├── layouts/
-    ├── auth/
-    ├── dashboard/
-    ├── employees/
-    ├── departments/
-    ├── leave_management/
-    ├── apps/
-    └── user/
+├── 📂 public/
+│   ├── 📂 css/
+│   ├── 📂 js/                         # WILL ADD: employee-form.js for AJAX
+│   └── 📂 images/
+│
+└── 📂 views/                   (EJS templates - YOUR EXISTING STRUCTURE)
+    ├── 📂 apps/                (Calendar, Chat)
+    │   ├── 📄 calender.ejs
+    │   └── 📄 chat.ejs
+    │
+    ├── 📂 auth/                (Authentication pages)
+    │   ├── 📄 login.ejs
+    │   ├── 📄 register.ejs
+    │   ├── 📄 forgot-password.ejs
+    │   ├── 📄 reset-password.ejs
+    │   └── 📄 check-mail.ejs
+    │
+    ├── 📂 dashboard/           (Dashboard pages)
+    │   ├── 📄 index.ejs
+    │   ├── 📄 analytics.ejs
+    │   └── 📄 overview.ejs
+    │
+    ├── 📂 departments/         (Department management)
+    │   ├── 📄 d-overview.ejs
+    │   └── 📄 d-structure.ejs
+    │
+    ├── 📂 employees/           (Employee management)
+    │   ├── 📄 add-employee.ejs
+    │   ├── 📄 employee-bulk.ejs
+    │   └── 📄 register.ejs     (Employee list employee main page )
+    │
+    ├── 📂 layouts/             (Layout templates)
+    │   ├── 📄 main.ejs
+    │   ├── 📄 auth.ejs
+    │   └── 📄 apps_layout.ejs
+    │
+    ├── 📂 error/             (error pages)
+    │   ├── 📄 400.ejs
+    │   ├── 📄 500.ejs
+    │
+    ├── 📂 leave_management/    (Leave management)
+    │   └── 📄 holidays.ejs
+    │   └── 📄 leave_bulk.ejs
+    │   └── 📄 leave_limits.ejs
+    │   └── 📄 leave_applications.ejs
+    │   └── 📄 leave_types.ejs
+    │
+    │
+    └── 📂 user/                (User settings)
+        ├── 📄 profile.ejs
+        └── 📄 settings.ejs
