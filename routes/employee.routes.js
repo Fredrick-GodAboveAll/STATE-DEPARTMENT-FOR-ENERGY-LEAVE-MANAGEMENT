@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const employeeController = require('../controllers/employee.controller');
 const { requireLogin } = require('../middleware/auth.middleware');
-const upload = require('../middleware/multer'); // Add multer middleware
+const upload = require('../middleware/multer');
 
 // Protect all employee routes
 router.use(requireLogin);
@@ -19,5 +19,10 @@ router.get('/add-staff', employeeController.getAddEmployee); // For compatibilit
 router.get('/employee-bulk', employeeController.getEmployeeBulk);
 router.get('/bulk-template', employeeController.downloadEmployeeTemplate); // Add template download
 router.post('/bulk-upload', upload.single('csvFile'), employeeController.bulkUploadEmployees); // Add bulk upload
+
+// NEW: Department assignment routes
+router.get('/employee-departments', employeeController.getDepartmentAssignments);
+router.put('/api/employees/:id/department', employeeController.updateEmployeeDepartment);
+router.post('/api/employees/bulk-departments', employeeController.bulkUpdateDepartments);
 
 module.exports = router;

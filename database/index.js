@@ -1,3 +1,4 @@
+// database/index.js
 'use strict';
 
 const connection = require('./connection');
@@ -10,7 +11,7 @@ const HolidayRepository = require('./repositories/HolidayRepository');
 const LeaveTypeRepository = require('./repositories/LeaveTypeRepository');
 const EmployeeRepository = require('./repositories/EmployeeRepository');
 const ResetRepository = require('./repositories/ResetRepository');
-const DepartmentRepository = require('./repositories/DepartmentRepository');  // ADD THIS LINE
+const DepartmentRepository = require('./repositories/DepartmentRepository');
 
 // Schemas
 const schemas = require('./schemas');
@@ -27,7 +28,7 @@ class Database {
         this.leaveTypes = LeaveTypeRepository;
         this.employees = EmployeeRepository;
         this.resets = ResetRepository;
-        this.departments = DepartmentRepository;  // ADD THIS LINE
+        this.departments = DepartmentRepository;  // Already there, but double-check
 
         this.schemas = schemas;
         this.initialized = false;
@@ -40,8 +41,7 @@ class Database {
         await this.connection.connect();
         await this.migrations.createTables();
         
-        // This should call seedAll() on the seeder instance
-        await this.seeder.seedAll();  // NOT this.seeder.seedAll()() or similar
+        await this.seeder.seedAll();
 
         this.initialized = true;
         console.log('✅ Database initialization completed');
@@ -82,7 +82,6 @@ const dbInstance = new Database();
 // Backward-compatible initializer
 const initializeDatabase = async () => dbInstance.initialize();
 
-// ✅ FINAL EXPORTS (VERIFIER + TEST FRIENDLY)
 module.exports = {
     db: dbInstance,
 
@@ -92,7 +91,7 @@ module.exports = {
     leaveTypes: LeaveTypeRepository,
     employees: EmployeeRepository,
     resets: ResetRepository,
-    departments: DepartmentRepository,  // ADD THIS LINE
+    departments: DepartmentRepository,  // Make sure this is here
 
     // Core modules
     connection,

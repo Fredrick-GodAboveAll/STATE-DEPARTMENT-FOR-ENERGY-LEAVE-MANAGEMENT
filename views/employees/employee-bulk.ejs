@@ -1,4 +1,3 @@
-<!-- views/employees/employee-bulk.ejs -->
 <div class="card bg-body-tertiary dark__bg-opacity-50 mb-3">
   <div class="card-body p-3">
     <p class="fs-10 mb-0">
@@ -259,8 +258,58 @@
                         <td>Permanent, Contract, Probation, Temporary</td>
                         <td>Employment type</td>
                       </tr>
+                      <!-- NEW: Department ID Column -->
+                      <tr>
+                        <td><code>department_id</code></td>
+                        <td><span class="badge bg-warning">Optional</span></td>
+                        <td>1, 2, 3 (or leave empty)</td>
+                        <td>Department ID (from departments table) - leave empty for unassigned</td>
+                      </tr>
                     </tbody>
                   </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Department ID Reference Card -->
+            <div class="card border border-info mb-4">
+              <div class="card-header bg-info-subtle">
+                <h6 class="mb-0">
+                  <i class="fas fa-building me-2"></i>
+                  Department ID Reference
+                </h6>
+              </div>
+              <div class="card-body">
+                <p class="text-600 mb-3">Available department IDs (use these in the department_id column):</p>
+                
+                <div class="row">
+                  <% if (departments && departments.length > 0) { %>
+                    <% departments.forEach(dept => { %>
+                    <div class="col-md-6 mb-2">
+                      <div class="d-flex align-items-center p-2 border rounded">
+                        <span class="badge bg-info me-2"><%= dept.id %></span>
+                        <div>
+                          <span class="fw-semi-bold"><%= dept.name %></span>
+                          <small class="text-muted d-block">Code: <%= dept.code %></small>
+                        </div>
+                      </div>
+                    </div>
+                    <% }); %>
+                  <% } else { %>
+                    <div class="col-12">
+                      <div class="alert alert-warning mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        No departments found. Create departments first.
+                      </div>
+                    </div>
+                  <% } %>
+                </div>
+                
+                <div class="mt-3">
+                  <p class="mb-0 text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Leave <code>department_id</code> empty or blank for unassigned employees
+                  </p>
                 </div>
               </div>
             </div>
@@ -277,6 +326,7 @@
                   <li class="mb-2">Required fields must be filled in for all records</li>
                   <li class="mb-2">Duplicate payroll numbers will be skipped</li>
                   <li class="mb-2">Duplicate ID numbers will be skipped</li>
+                  <li class="mb-2">Department ID must match an existing department or be left empty</li>
                   <li class="mb-2">File must be saved in CSV (Comma Separated Values) format</li>
                   <li class="mb-2">Maximum file size is 5MB</li>
                   <li class="mb-2">Use the template to ensure proper formatting</li>
@@ -323,7 +373,7 @@
         </div>
         
         <div class="mb-4">
-          <h6 class="mb-2">Data Validation</h6>
+          <h6 class="mb-2">Data Validation (Updated)</h6>
           <ul class="list-unstyled mb-0">
             <li class="mb-2">
               <strong>Payroll Number:</strong> Must be unique and numeric
@@ -334,8 +384,11 @@
             <li class="mb-2">
               <strong>Age:</strong> Must be between 18 and 120
             </li>
-            <li>
+            <li class="mb-2">
               <strong>Gender:</strong> Must be M or F
+            </li>
+            <li>
+              <strong>Department ID:</strong> Must exist in system or be empty
             </li>
           </ul>
         </div>
@@ -365,25 +418,60 @@
       <div class="card-body">
         <h5 class="mb-3">
           <i class="fas fa-file-csv text-secondary me-2"></i>
-          Sample CSV Data
+          Sample CSV Data (Updated)
         </h5>
         
         <div class="mb-3">
-          <p class="text-600 mb-2">Example of correct CSV format:</p>
+          <p class="text-600 mb-2">Example of correct CSV format with department_id:</p>
           <pre class="bg-light p-3 rounded fs-9 mb-0">
-payroll_number,full_name,id_number,gender,age,designation,job_group,status,retirement_date,employment_status
-19337,MR JULIUS ODHIAMBO MBOGAH,11684,M,63,Deputy Director - HRM & Development,R,0 - Active,04/11/2026,Permanent
-19338,JANE WANGUI KAMAU,11685,F,45,Senior HR Officer,S,0 - Active,15/08/2030,Permanent
-19339,PETER OMONDI OTIENO,11686,M,52,Finance Manager,T,0 - Active,22/05/2028,Contract</pre>
+payroll_number,full_name,id_number,gender,age,designation,job_group,status,retirement_date,employment_status,department_id
+19337,MR JULIUS ODHIAMBO MBOGAH,11684,M,63,Deputy Director - HRM & Development,R,0 - Active,04/11/2026,Permanent,1
+19338,JANE WANGUI KAMAU,11685,F,45,Senior HR Officer,S,0 - Active,15/08/2030,Permanent,2
+19339,PETER OMONDI OTIENO,11686,M,52,Finance Manager,T,0 - Active,22/05/2028,Contract,
+</pre>
         </div>
         
         <div class="mt-3">
-          <h6 class="mb-2">Common Issues</h6>
+          <h6 class="mb-2">Common Issues (Updated)</h6>
           <ul class="mb-0 ps-3">
             <li>Missing commas between fields</li>
             <li>Incorrect date format (must be DD/MM/YYYY)</li>
             <li>Duplicate payroll or ID numbers</li>
             <li>Invalid gender (must be M or F)</li>
+            <li>Invalid department_id (must be a number or empty)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Department Assignment Card -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="mb-3">
+          <i class="fas fa-building text-info me-2"></i>
+          Department Assignment
+        </h5>
+        
+        <div class="mb-3">
+          <h6 class="mb-2">Assign Departments Later</h6>
+          <p class="text-600 mb-2">If you leave department_id empty, you can assign departments later:</p>
+          <a href="/employee-departments" class="btn btn-info btn-sm">
+            <span class="fas fa-building me-1"></span>
+            Go to Department Assignment
+          </a>
+        </div>
+        
+        <div>
+          <h6 class="mb-2">Quick Stats</h6>
+          <ul class="list-unstyled mb-0">
+            <li class="mb-1">
+              <span class="fas fa-users me-2"></span>
+              Total Departments: <%= departments ? departments.length : 0 %>
+            </li>
+            <li>
+              <span class="fas fa-question-circle me-2"></span>
+              Leave empty for unassigned
+            </li>
           </ul>
         </div>
       </div>

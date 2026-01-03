@@ -21,7 +21,6 @@ the project structure
 │   │   ├── 📄 LeaveTypeRepository.js
 │   │   ├── 📄 EmployeeRepository.js   # WILL UPDATE for new columns
 │   │   └── 📄 ResetRepository.js
-│   │   └── 📄 EmployeeRepository.js
 │   │
 │   ├── 📂 schemas/                    # SQL queries organized by model
 │   │   ├── 📄 user.schema.js
@@ -42,7 +41,7 @@ the project structure
 │       └── 📄 007_create_profiles_table.js
 │       └── 📄 008_create_departments_table.js
 │       └── 📄 009_add_carry_forward_days_to_leavetypes.js
-        └── 📄 migration-template.js
+│       └── 📄 migration-template.js
 │
 ├── 📂 config/
 │   ├── 📄 constants.js

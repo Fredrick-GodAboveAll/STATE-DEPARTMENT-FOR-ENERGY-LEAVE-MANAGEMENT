@@ -14,7 +14,7 @@ class EmployeeRepository {
             
             const {
                 payroll_number, full_name, id_number, gender, age, designation, job_group,
-                status, retirement_date, employment_status
+                status, retirement_date, employment_status, department_id
             } = employeeData;
             
             const result = await this.connection.execute(
@@ -29,7 +29,8 @@ class EmployeeRepository {
                     job_group || null,
                     status || '0 - Active', 
                     retirement_date || null, 
-                    employment_status || 'Permanent'
+                    employment_status || 'Permanent',
+                    department_id || null
                 ]
             );
             
@@ -37,7 +38,6 @@ class EmployeeRepository {
         } catch (error) {
             console.error('EmployeeRepository.create error:', error.message);
             
-            // Handle duplicate error
             if (error.message.includes('UNIQUE constraint failed')) {
                 if (error.message.includes('payroll_number')) {
                     throw new Error(`Duplicate payroll number: ${employeeData.payroll_number}`);
@@ -87,7 +87,10 @@ class EmployeeRepository {
         try {
             await this.connection.connect();
             const employee = await this.connection.get(
-                `SELECT * FROM employees WHERE id_number = ?`,
+                `SELECT e.*, d.name as department_name 
+                 FROM employees e 
+                 LEFT JOIN departments d ON e.department_id = d.id 
+                 WHERE e.id_number = ?`,
                 [idNumber]
             );
             return employee;
@@ -114,7 +117,7 @@ class EmployeeRepository {
             
             const {
                 payroll_number, full_name, id_number, gender, age, designation, job_group,
-                status, retirement_date, employment_status
+                status, retirement_date, employment_status, department_id
             } = employeeData;
             
             const result = await this.connection.execute(
@@ -129,7 +132,8 @@ class EmployeeRepository {
                     job_group || null,
                     status || '0 - Active', 
                     retirement_date || null, 
-                    employment_status || 'Permanent', 
+                    employment_status || 'Permanent',
+                    department_id || null,
                     id
                 ]
             );
@@ -137,6 +141,22 @@ class EmployeeRepository {
             return result.changes > 0 ? await this.findById(id) : null;
         } catch (error) {
             console.error('EmployeeRepository.update error:', error.message);
+            throw error;
+        }
+    }
+
+    async updateDepartment(employeeId, departmentId) {
+        try {
+            await this.connection.connect();
+            
+            const result = await this.connection.execute(
+                this.schema.UPDATE_EMPLOYEE_DEPARTMENT,
+                [departmentId, employeeId]
+            );
+            
+            return result.changes > 0;
+        } catch (error) {
+            console.error('EmployeeRepository.updateDepartment error:', error.message);
             throw error;
         }
     }
@@ -156,13 +176,10 @@ class EmployeeRepository {
         try {
             await this.connection.connect();
             
-            // Get status counts
-            const statusCounts = await this.connection.all(this.schema.COUNT_EMPLOYEES_BY_STATUS);
-            
-            // Get comprehensive statistics
             const stats = await this.connection.get(this.schema.GET_EMPLOYEE_STATISTICS);
             
-            // Get gender distribution
+            const statusCounts = await this.connection.all(this.schema.COUNT_EMPLOYEES_BY_STATUS);
+            
             const genderStats = await this.connection.all(`
                 SELECT gender, COUNT(*) as count 
                 FROM employees 
@@ -170,7 +187,6 @@ class EmployeeRepository {
                 GROUP BY gender
             `);
             
-            // Get employment status distribution
             const employmentStats = await this.connection.all(`
                 SELECT employment_status, COUNT(*) as count 
                 FROM employees 
@@ -178,7 +194,6 @@ class EmployeeRepository {
                 GROUP BY employment_status
             `);
             
-            // Calculate average age
             const ageStats = await this.connection.get(`
                 SELECT 
                     AVG(age) as average_age,
@@ -188,12 +203,23 @@ class EmployeeRepository {
                 WHERE age IS NOT NULL
             `);
             
+            const departmentStats = await this.connection.all(`
+                SELECT 
+                    d.name,
+                    COUNT(e.id) as employee_count
+                FROM departments d
+                LEFT JOIN employees e ON d.id = e.department_id
+                GROUP BY d.id
+                ORDER BY employee_count DESC
+            `);
+            
             return {
                 ...stats,
                 statusCounts,
                 genderStats,
                 employmentStats,
-                ageStats
+                ageStats,
+                departmentStats
             };
         } catch (error) {
             console.error('EmployeeRepository.getStatistics error:', error.message);
@@ -220,7 +246,11 @@ class EmployeeRepository {
         try {
             await this.connection.connect();
             const employees = await this.connection.all(
-                `SELECT * FROM employees WHERE status LIKE '%Active%' ORDER BY full_name`
+                `SELECT e.*, d.name as department_name 
+                 FROM employees e 
+                 LEFT JOIN departments d ON e.department_id = d.id 
+                 WHERE e.status LIKE '%Active%' 
+                 ORDER BY e.full_name`
             );
             return employees;
         } catch (error) {
@@ -229,18 +259,77 @@ class EmployeeRepository {
         }
     }
 
+   // In EmployeeRepository.js - Update the getEmployeesByDepartment method (around line 200-210)
+async getEmployeesByDepartment(departmentId) {
+    try {
+        await this.connection.connect();
+        
+        // Fix: Use a simpler query without schema reference
+        const sql = `
+            SELECT e.*, d.name as department_name 
+            FROM employees e 
+            LEFT JOIN departments d ON e.department_id = d.id 
+            WHERE e.department_id = ? 
+            ORDER BY e.full_name
+        `;
+        
+        const employees = await this.connection.all(sql, [departmentId]);
+        return employees;
+    } catch (error) {
+        console.error('EmployeeRepository.getEmployeesByDepartment error:', error.message);
+        throw error;
+    }
+}
+
+    async getUnassignedEmployees() {
+        try {
+            await this.connection.connect();
+            const query = `SELECT * FROM employees WHERE department_id IS NULL ORDER BY full_name`;
+            const employees = await this.connection.all(query);
+            return employees;
+        } catch (error) {
+            console.error('EmployeeRepository.getUnassignedEmployees error:', error.message);
+            throw error;
+        }
+    }
+
+    async getDepartmentStats() {
+        try {
+            await this.connection.connect();
+            const query = `
+                SELECT 
+                    d.id,
+                    d.name,
+                    d.code,
+                    COUNT(e.id) as employee_count,
+                    GROUP_CONCAT(e.full_name) as employee_names
+                FROM departments d
+                LEFT JOIN employees e ON d.id = e.department_id
+                GROUP BY d.id
+                ORDER BY d.name
+            `;
+            const stats = await this.connection.all(query);
+            return stats;
+        } catch (error) {
+            console.error('EmployeeRepository.getDepartmentStats error:', error.message);
+            throw error;
+        }
+    }
+
     async getUpcomingRetirements(limit = 5) {
         try {
             await this.connection.connect();
             const sql = `
-                SELECT * FROM employees 
-                WHERE retirement_date IS NOT NULL 
-                AND retirement_date != ''
-                AND status LIKE '%Active%'
+                SELECT e.*, d.name as department_name 
+                FROM employees e 
+                LEFT JOIN departments d ON e.department_id = d.id 
+                WHERE e.retirement_date IS NOT NULL 
+                AND e.retirement_date != ''
+                AND e.status LIKE '%Active%'
                 ORDER BY 
-                    substr(retirement_date, 7, 4) || '-' || 
-                    substr(retirement_date, 4, 2) || '-' || 
-                    substr(retirement_date, 1, 2)
+                    substr(e.retirement_date, 7, 4) || '-' || 
+                    substr(e.retirement_date, 4, 2) || '-' || 
+                    substr(e.retirement_date, 1, 2)
                 LIMIT ?
             `;
             
@@ -282,7 +371,6 @@ class EmployeeRepository {
         }
     }
 
-    // Bulk insert method for CSV upload
     async bulkInsert(employeesData) {
         try {
             await this.connection.connect();
@@ -294,7 +382,7 @@ class EmployeeRepository {
                 try {
                     const {
                         payroll_number, full_name, id_number, gender, age, designation, job_group,
-                        status, retirement_date, employment_status
+                        status, retirement_date, employment_status, department_id
                     } = employeeData;
                     
                     const result = await this.connection.execute(
@@ -309,7 +397,8 @@ class EmployeeRepository {
                             job_group || null,
                             status || '0 - Active', 
                             retirement_date || null, 
-                            employment_status || 'Permanent'
+                            employment_status || 'Permanent',
+                            department_id || null
                         ]
                     );
                     
@@ -330,6 +419,46 @@ class EmployeeRepository {
             };
         } catch (error) {
             console.error('EmployeeRepository.bulkInsert error:', error.message);
+            throw error;
+        }
+    }
+
+    async bulkUpdateDepartments(employeeIds, departmentId) {
+        try {
+            await this.connection.connect();
+            
+            if (employeeIds.length === 0) return { successCount: 0 };
+            
+            const placeholders = employeeIds.map(() => '?').join(',');
+            
+            const sql = `UPDATE employees SET department_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id IN (${placeholders})`;
+            
+            const result = await this.connection.execute(
+                sql,
+                [departmentId, ...employeeIds]
+            );
+            
+            return {
+                successCount: result.changes
+            };
+        } catch (error) {
+            console.error('EmployeeRepository.bulkUpdateDepartments error:', error.message);
+            throw error;
+        }
+    }
+
+    async unassignFromDepartment(departmentId) {
+        try {
+            await this.connection.connect();
+            
+            const result = await this.connection.execute(
+                `UPDATE employees SET department_id = NULL, updated_at = CURRENT_TIMESTAMP WHERE department_id = ?`,
+                [departmentId]
+            );
+            
+            return result.changes;
+        } catch (error) {
+            console.error('EmployeeRepository.unassignFromDepartment error:', error.message);
             throw error;
         }
     }

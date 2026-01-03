@@ -251,32 +251,60 @@ const departmentController = {
   /**
    * Handle deleting department
    */
-  deleteDepartment: async function(req, res) {
+  // In department.controller.js - Update the deleteDepartment function with logging
+deleteDepartment: async function(req, res) {
     try {
-      const { id } = req.params;
-      
-      // First get department info for flash message
-      const department = await db.departments.findById(id);
-      
-      if (!department) {
-        req.flash('error_msg', 'Department not found');
-        return res.redirect('/departments');
-      }
-      
-      // Check if department has employees (you'll need to implement this later)
-      // For now, we'll allow deletion but you should add this check later
-      
-      await db.departments.delete(id);
-      
-      req.flash('success_msg', `Department "${department.name}" deleted successfully`);
-      res.redirect('/departments');
-      
+        const { id } = req.params;
+        console.log('Attempting to delete department ID:', id);
+        
+        // First get department info for flash message
+        const department = await db.departments.findById(id);
+        console.log('Department found:', department);
+        
+        if (!department) {
+            req.flash('error_msg', 'Department not found');
+            return res.redirect('/departments');
+        }
+        
+        // Check if department has employees and unassign them
+        console.log('Getting employees for department:', id);
+        const employeesInDept = await db.employees.getEmployeesByDepartment(id);
+        console.log('Employees in department:', employeesInDept);
+        const employeeCount = employeesInDept ? employeesInDept.length : 0;
+        console.log('Employee count:', employeeCount);
+        
+        if (employeeCount > 0) {
+            // Unassign all employees from this department
+            console.log('Unassigning employees from department:', id);
+            const unassignedCount = await db.employees.unassignFromDepartment(id);
+            console.log('Unassigned count:', unassignedCount);
+            
+            // Now delete the department
+            console.log('Deleting department:', id);
+            await db.departments.delete(id);
+            
+            req.flash('success_msg', 
+                `Department "${department.name}" deleted successfully. ${unassignedCount} employees have been unassigned.`);
+        } else {
+            // No employees, just delete the department
+            console.log('Deleting department with no employees:', id);
+            await db.departments.delete(id);
+            
+            req.flash('success_msg', 
+                `Department "${department.name}" deleted successfully.`);
+        }
+        
+        console.log('Redirecting to departments page');
+        res.redirect('/departments');
+        
     } catch (error) {
-      console.error('Error deleting department:', error);
-      req.flash('error_msg', 'Error deleting department');
-      res.redirect('/departments');
+        console.error('Error deleting department:', error);
+        console.error('Error details:', error.message);
+        console.error('Error stack:', error.stack);
+        req.flash('error_msg', 'Error deleting department: ' + error.message);
+        res.redirect('/departments');
     }
-  },
+},
 
   /**
    * API endpoint to get all departments (for AJAX calls, dropdowns)

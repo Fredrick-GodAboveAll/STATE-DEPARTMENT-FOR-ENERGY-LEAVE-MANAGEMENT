@@ -76,28 +76,12 @@ class DatabaseSeeder {
             
             const holidays = [
                 {
-                    holiday_name: 'New Year\'s Day',
+                    holiday_name: 'test holiday\'s Day',
                     holiday_date: '2024-01-01',
                     holiday_type: 'Public Holiday',
-                    year: 2024,
+                    year: 2025,
                     recurring: 1,
-                    description: 'First day of the year'
-                },
-                {
-                    holiday_name: 'Labour Day',
-                    holiday_date: '2024-05-01',
-                    holiday_type: 'Public Holiday',
-                    year: 2024,
-                    recurring: 1,
-                    description: 'International Workers\' Day'
-                },
-                {
-                    holiday_name: 'Christmas Day',
-                    holiday_date: '2024-12-25',
-                    holiday_type: 'Public Holiday',
-                    year: 2024,
-                    recurring: 1,
-                    description: 'Christmas celebration'
+                    description: 'First holiday from code'
                 }
             ];
             
@@ -167,39 +151,9 @@ class DatabaseSeeder {
             
             const departments = [
                 {
-                    name: 'Human Resources',
-                    code: 'HR',
-                    description: 'Handles recruitment, employee relations, and benefits',
-                    status: 'Active'
-                },
-                {
-                    name: 'Information Technology',
-                    code: 'IT',
-                    description: 'Manages technology infrastructure and support',
-                    status: 'Active'
-                },
-                {
-                    name: 'Finance',
-                    code: 'FIN',
-                    description: 'Handles accounting, budgeting, and financial reporting',
-                    status: 'Active'
-                },
-                {
-                    name: 'Operations',
-                    code: 'OPS',
-                    description: 'Manages day-to-day business operations',
-                    status: 'Active'
-                },
-                {
-                    name: 'Marketing',
-                    code: 'MKT',
-                    description: 'Responsible for brand promotion and customer acquisition',
-                    status: 'Active'
-                },
-                {
-                    name: 'Sales',
-                    code: 'SAL',
-                    description: 'Handles customer acquisition and revenue generation',
+                    name: 'Test Department',
+                    code: 'TD',
+                    description: 'this is just a test',
                     status: 'Active'
                 }
             ];
