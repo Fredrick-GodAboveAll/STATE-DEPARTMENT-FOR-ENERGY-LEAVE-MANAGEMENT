@@ -95,9 +95,25 @@
                     <h5 class="mb-0">All Leave Applications</h5>
                   </div>
                   <div class="col-6 col-sm-auto ms-auto text-end ps-0">
-                    <button class="btn btn-falcon-primary btn-sm" type="button">
+                    <button class="btn btn-falcon-primary btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#newLeaveApplicationModal">
                       <span class="fas fa-plus" data-fa-transform="shrink-3 down-2"></span>
                       <span class="d-none d-sm-inline-block ms-1">New Leave</span>
+                    </button>
+                    <button class="btn btn-falcon-default btn-sm mx-2" type="button">
+                      <span class="fas fa-file-csv" data-fa-transform="shrink-3 down-2"></span>
+                      <span class="d-none d-sm-inline-block ms-1">Export CSV</span>
+                    </button>
+                    <button class="btn btn-falcon-default btn-sm mx-2" type="button">
+                      <span class="fas fa-file-excel" data-fa-transform="shrink-3 down-2"></span>
+                      <span class="d-none d-sm-inline-block ms-1">Export Excel</span>
+                    </button>
+                    <button class="btn btn-falcon-default btn-sm mx-2" type="button">
+                      <span class="fas fa-file-code" data-fa-transform="shrink-3 down-2"></span>
+                      <span class="d-none d-sm-inline-block ms-1">Export JSON</span>
+                    </button>
+                    <button class="btn btn-falcon-default btn-sm" type="button">
+                      <span class="fas fa-print" data-fa-transform="shrink-3 down-2"></span>
+                      <span class="d-none d-sm-inline-block ms-1">Print</span>
                     </button>
                   </div>
                 </div>
@@ -113,15 +129,17 @@
                         </div>
                       </th>
                       
-                      <th class="text-900 sort white-space-nowrap">Personal No.</th>
-                      <th class="text-900 sort white-space-nowrap">Employee</th>
+                      <th class="text-900 sort white-space-nowrap">Ref No</th>
+                      <th class="text-900 sort white-space-nowrap">Personal No</th>
+                      <th class="text-900 sort white-space-nowrap">Employee Name</th>
                       <th class="text-900 sort white-space-nowrap">Department</th>
                       <th class="text-900 sort white-space-nowrap">Leave Type</th>
                       <th class="text-900 sort white-space-nowrap">Start Date</th>
                       <th class="text-900 sort white-space-nowrap">End Date</th>
-                      <th class="text-900 sort white-space-nowrap">Duration</th>
-                  
+                      <th class="text-900 sort white-space-nowrap">Back On</th>
+                      <th class="text-900 sort white-space-nowrap">Duration (Days)</th>
                       <th class="text-900 sort white-space-nowrap">Applied On</th>
+                      <th class="text-900 sort white-space-nowrap">Letter Date</th>
                       <th class="text-900 sort white-space-nowrap">Action</th>
                     </tr>
                   </thead>
@@ -135,89 +153,104 @@
                       </td>
 
                       <td class="align-middle white-space-nowrap">
+                        <span class="fw-semi-bold">LA/001/2026</span>
+                      </td>
+
+                      <td class="align-middle white-space-nowrap">
                         <span class="fw-semi-bold">EMP001</span>
                       </td>
 
                       <td class="align-middle white-space-nowrap">
                         <div class="d-flex align-items-center">
-                          
-                          <span class="fw-semi-bold">John Smith</span>
+                          <span class="fw-semi-bold">John Mwangi</span>
                         </div>
                       </td>
                       
                       <td class="align-middle white-space-nowrap">
-                        <span class="fw-semi-bold">IT</span>
+                        <span class="fw-semi-bold">Human Resource</span>
                       </td>
                       <td class="align-middle white-space-nowrap">
                         <span class="badge badge-subtle-primary rounded-pill">Annual Leave</span>
                       </td>
                       <td class="align-middle white-space-nowrap">
-                        <span class="fw-semi-bold">24th March, 2024</span>
+                        <span class="fw-semi-bold">2026-02-01</span>
                       </td>
                       <td class="align-middle white-space-nowrap">
-                        <span class="fw-semi-bold">24th March, 2024</span>
+                        <span class="fw-semi-bold">2026-02-14</span>
                       </td>
                       <td class="align-middle white-space-nowrap">
-                        <span class="badge badge-subtle-info rounded-pill">5 days</span>
+                        <span class="fw-semi-bold">2026-02-15</span>
                       </td>
-                    
                       <td class="align-middle white-space-nowrap">
-                        <span class="text-500">24th March, 2024</span>
+                        <span class="badge badge-subtle-info rounded-pill">14</span>
+                      </td>
+                      <td class="align-middle white-space-nowrap">
+                        <span class="text-500">2026-01-10</span>
+                      </td>
+                      <td class="align-middle white-space-nowrap">
+                        <span class="text-500">2026-01-15</span>
                       </td>
 
                       <td class="align-middle white-space-nowrap text-end">
                         <div class="dropstart font-sans-serif position-static d-inline-block"><button class="btn btn-link text-600 btn-sm dropdown-toggle btn-reveal float-end" type="button" id="dropdown-recent-purchase-table-13" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10"></span></button>
-                          <div class="dropdown-menu dropdown-menu-end border py-2" aria-labelledby="dropdown-recent-purchase-table-13"><a class="dropdown-item" href="#!">View</a><a class="dropdown-item" href="#!">Edit</a><a class="dropdown-item" href="#!">Refund</a>
-                            <div class="dropdown-divider"></div><a class="dropdown-item text-warning" href="#!">Archive</a><a class="dropdown-item text-danger" href="#!">Delete</a>
+                          <div class="dropdown-menu dropdown-menu-end border py-2" aria-labelledby="dropdown-recent-purchase-table-13"><a class="dropdown-item" href="#!" data-bs-toggle="modal" data-bs-target="#viewLeaveApplicationModal">View</a><a class="dropdown-item" href="#!">Edit</a><a class="dropdown-item text-warning" href="#!">Revoke</a>
+                            <div class="dropdown-divider"></div><a class="dropdown-item text-danger" href="#!">Delete</a>
                           </div>
                         </div>
                       </td>
                     </tr>
                     
-                    
                     <!-- Sample Data 2 -->
                     <tr class="btn-reveal-trigger">
                       <td class="align-middle" style="width: 28px;">
                         <div class="form-check mb-0">
-                          <input class="form-check-input" type="checkbox" id="leave-3" data-bulk-select-row="data-bulk-select-row" />
+                          <input class="form-check-input" type="checkbox" id="leave-2" data-bulk-select-row="data-bulk-select-row" />
                         </div>
                       </td>
 
                       <td class="align-middle white-space-nowrap">
-                        <span class="fw-semi-bold">EMP003</span>
+                        <span class="fw-semi-bold">LA/002/2026</span>
+                      </td>
+
+                      <td class="align-middle white-space-nowrap">
+                        <span class="fw-semi-bold">EMP002</span>
                       </td>
 
                       <td class="align-middle white-space-nowrap">
                         <div class="d-flex align-items-center">
-                          
-                          <span class="fw-semi-bold">Robert Johnson</span>
+                          <span class="fw-semi-bold">Sarah Wanjiku</span>
                         </div>
                       </td>
                       
                       <td class="align-middle white-space-nowrap">
-                        <span class="fw-semi-bold">Marketing</span>
+                        <span class="fw-semi-bold">Information Technology</span>
                       </td>
                       <td class="align-middle white-space-nowrap">
-                        <span class="badge badge-subtle-danger rounded-pill">Emergency Leave</span>
+                        <span class="badge badge-subtle-danger rounded-pill">Sick Leave</span>
                       </td>
                       <td class="align-middle white-space-nowrap">
-                        <span class="fw-semi-bold">24th March, 2024</span>
+                        <span class="fw-semi-bold">2026-01-20</span>
                       </td>
                       <td class="align-middle white-space-nowrap">
-                        <span class="fw-semi-bold">24th March, 2024</span>
+                        <span class="fw-semi-bold">2026-01-24</span>
                       </td>
                       <td class="align-middle white-space-nowrap">
-                        <span class="badge badge-subtle-info rounded-pill">1 day</span>
+                        <span class="fw-semi-bold">2026-01-25</span>
                       </td>
-                      
                       <td class="align-middle white-space-nowrap">
-                        <span class="text-500">24th March, 2024</span>
+                        <span class="badge badge-subtle-info rounded-pill">5</span>
+                      </td>
+                      <td class="align-middle white-space-nowrap">
+                        <span class="text-500">2026-01-19</span>
+                      </td>
+                      <td class="align-middle white-space-nowrap">
+                        <span class="text-500">2026-01-20</span>
                       </td>
 
                       <td class="align-middle white-space-nowrap text-end">
                         <div class="dropstart font-sans-serif position-static d-inline-block"><button class="btn btn-link text-600 btn-sm dropdown-toggle btn-reveal float-end" type="button" id="dropdown-recent-purchase-table-13" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10"></span></button>
-                          <div class="dropdown-menu dropdown-menu-end border py-2" aria-labelledby="dropdown-recent-purchase-table-13"><a class="dropdown-item" href="#!">View</a><a class="dropdown-item" href="#!">Edit</a><a class="dropdown-item" href="#!">Refund</a>
-                            <div class="dropdown-divider"></div><a class="dropdown-item text-warning" href="#!">Archive</a><a class="dropdown-item text-danger" href="#!">Delete</a>
+                          <div class="dropdown-menu dropdown-menu-end border py-2" aria-labelledby="dropdown-recent-purchase-table-13"><a class="dropdown-item" href="#!" data-bs-toggle="modal" data-bs-target="#viewLeaveApplicationModal">View</a><a class="dropdown-item" href="#!">Edit</a><a class="dropdown-item text-warning" href="#!">Revoke</a>
+                            <div class="dropdown-divider"></div><a class="dropdown-item text-danger" href="#!">Delete</a>
                           </div>
                         </div>
                       </td>
@@ -228,6 +261,207 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- View Leave Application Modal -->
+<div class="modal fade" id="viewLeaveApplicationModal" tabindex="-1" aria-labelledby="viewLeaveApplicationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewLeaveApplicationModalLabel">Leave Application Details</h5>
+        <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+          <span class="fas fa-times fs-9"></span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Reference Number</label>
+              <p class="form-text">EMP001/74</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Status</label>
+              <p class="form-text"><span class="badge badge-subtle-info rounded-pill">Pending</span></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Employee</label>
+              <p class="form-text">John Mwangi</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Personal Number</label>
+              <p class="form-text">EMP001</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Department</label>
+              <p class="form-text">Human Resource</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Leave Type</label>
+              <p class="form-text">Annual Leave</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Leave Period</label>
+          <p class="form-text">
+            <strong>Start Date:</strong> 1st February 2026 <br>
+            <strong>End Date:</strong> 14th February 2026 <br>
+            <strong>Back On:</strong> 15th February 2026
+          </p>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Duration (Days)</label>
+              <p class="form-text">14</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Applied On</label>
+              <p class="form-text">10th January 2026</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Letter Date</label>
+          <p class="form-text">15th January 2026</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- New Leave Application Modal -->
+<div class="modal fade" id="newLeaveApplicationModal" tabindex="-1" aria-labelledby="newLeaveApplicationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="newLeaveApplicationModalLabel">New Leave Application</h5>
+        <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+          <span class="fas fa-times fs-9"></span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label" for="employee">Employee *</label>
+          <select class="form-select" id="employee" name="employee">
+            <option value="">Select Employee</option>
+            <option value="EMP001">EMP001 - John Mwangi</option>
+            <option value="EMP002">EMP002 - Sarah Wanjiku</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label" for="personalNumber">Personal Number</label>
+              <input class="form-control" id="personalNumber" type="text" name="personalNumber" value="EMP001" readonly>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label" for="department">Department</label>
+              <input class="form-control" id="department" type="text" name="department" value="Human Resource" readonly>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="leaveType">Leave Type *</label>
+          <select class="form-select" id="leaveType" name="leaveType">
+            <option value="">Select Leave Type</option>
+            <option value="Annual Leave" selected>Annual Leave</option>
+            <option value="Sick Leave">Sick Leave</option>
+            <option value="Maternity Leave">Maternity Leave</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label class="form-label" for="startDate">Start Date *</label>
+              <input class="form-control" id="startDate" type="text" name="startDate" value="1st February 2026" placeholder="1st February 2026">
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label class="form-label" for="endDate">End Date *</label>
+              <input class="form-control" id="endDate" type="text" name="endDate" value="14th February 2026" placeholder="14th February 2026">
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label class="form-label" for="backOn">Back On *</label>
+              <input class="form-control" id="backOn" type="text" name="backOn" value="15th February 2026" placeholder="15th February 2026">
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label" for="duration">Duration (Days)</label>
+              <input class="form-control" id="duration" type="number" name="duration" value="14" readonly>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label" for="appliedOn">Applied On *</label>
+              <input class="form-control" id="appliedOn" type="text" name="appliedOn" value="10th January 2026" placeholder="10th January 2026">
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label" for="letterDate">Letter Date *</label>
+              <input class="form-control" id="letterDate" type="text" name="letterDate" value="15th January 2026" placeholder="15th January 2026">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label" for="folio">Folio *</label>
+              <input class="form-control" id="folio" type="number" name="folio" value="74" placeholder="74">
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="referenceNumber">Reference Number</label>
+          <input class="form-control" id="referenceNumber" type="text" name="referenceNumber" value="EMP001/74" readonly>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" type="submit">Save Leave Application</button>
       </div>
     </div>
   </div>
