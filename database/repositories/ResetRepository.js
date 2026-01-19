@@ -10,8 +10,6 @@ class ResetRepository {
 
     async createToken(email, token, expires) {
         try {
-            await this.connection.connect();
-            
             // Clean up expired tokens first
             await this.connection.execute(this.schema.DELETE_EXPIRED_TOKENS);
             
@@ -29,8 +27,6 @@ class ResetRepository {
 
     async findToken(token) {
         try {
-            await this.connection.connect();
-            
             // Clean up expired tokens first
             await this.connection.execute(this.schema.DELETE_EXPIRED_TOKENS);
             
@@ -44,7 +40,6 @@ class ResetRepository {
 
     async deleteToken(token) {
         try {
-            await this.connection.connect();
             const result = await this.connection.execute(this.schema.DELETE_RESET_TOKEN, [token]);
             return result.changes > 0;
         } catch (error) {
@@ -55,8 +50,6 @@ class ResetRepository {
 
     async createProfile(profileData) {
         try {
-            await this.connection.connect();
-            
             const { user_id, avatar_url, bio, website } = profileData;
             const result = await this.connection.execute(
                 this.schema.INSERT_PROFILE,
@@ -72,7 +65,6 @@ class ResetRepository {
 
     async findProfileByUserId(user_id) {
         try {
-            await this.connection.connect();
             const profile = await this.connection.get(this.schema.GET_PROFILE_BY_USER_ID, [user_id]);
             return profile;
         } catch (error) {
@@ -83,8 +75,6 @@ class ResetRepository {
 
     async updateProfile(user_id, profileData) {
         try {
-            await this.connection.connect();
-            
             const { avatar_url, bio, website } = profileData;
             const result = await this.connection.execute(
                 this.schema.UPDATE_PROFILE,
@@ -100,7 +90,6 @@ class ResetRepository {
 
     async deleteExpiredTokens() {
         try {
-            await this.connection.connect();
             const result = await this.connection.execute(this.schema.DELETE_EXPIRED_TOKENS);
             return result.changes;
         } catch (error) {
@@ -111,7 +100,6 @@ class ResetRepository {
 
     async getProfileWithUser(user_id) {
         try {
-            await this.connection.connect();
             const sql = `
                 SELECT p.*, u.first_name, u.last_name, u.email
                 FROM profiles p

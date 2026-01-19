@@ -10,8 +10,6 @@ class EmployeeRepository {
 
     async create(employeeData) {
         try {
-            await this.connection.connect();
-            
             const {
                 payroll_number, full_name, id_number, gender, age, designation, job_group,
                 status, retirement_date, employment_status, department_id
@@ -52,7 +50,6 @@ class EmployeeRepository {
 
     async findAll() {
         try {
-            await this.connection.connect();
             const employees = await this.connection.all(this.schema.GET_ALL_EMPLOYEES);
             return employees;
         } catch (error) {
@@ -63,7 +60,6 @@ class EmployeeRepository {
 
     async findById(id) {
         try {
-            await this.connection.connect();
             const employee = await this.connection.get(this.schema.GET_EMPLOYEE_BY_ID, [id]);
             return employee;
         } catch (error) {
@@ -74,7 +70,6 @@ class EmployeeRepository {
 
     async findByPayroll(payrollNumber) {
         try {
-            await this.connection.connect();
             const employee = await this.connection.get(this.schema.GET_EMPLOYEE_BY_PAYROLL, [payrollNumber]);
             return employee;
         } catch (error) {
@@ -85,7 +80,6 @@ class EmployeeRepository {
 
     async findByIdNumber(idNumber) {
         try {
-            await this.connection.connect();
             const employee = await this.connection.get(
                 `SELECT e.*, d.name as department_name 
                  FROM employees e 
@@ -102,7 +96,6 @@ class EmployeeRepository {
 
     async findByStatus(status) {
         try {
-            await this.connection.connect();
             const employees = await this.connection.all(this.schema.GET_EMPLOYEES_BY_STATUS, [status]);
             return employees;
         } catch (error) {
@@ -113,8 +106,6 @@ class EmployeeRepository {
 
     async update(id, employeeData) {
         try {
-            await this.connection.connect();
-            
             const {
                 payroll_number, full_name, id_number, gender, age, designation, job_group,
                 status, retirement_date, employment_status, department_id
@@ -147,8 +138,6 @@ class EmployeeRepository {
 
     async updateDepartment(employeeId, departmentId) {
         try {
-            await this.connection.connect();
-            
             const result = await this.connection.execute(
                 this.schema.UPDATE_EMPLOYEE_DEPARTMENT,
                 [departmentId, employeeId]
@@ -163,7 +152,6 @@ class EmployeeRepository {
 
     async delete(id) {
         try {
-            await this.connection.connect();
             const result = await this.connection.execute(this.schema.DELETE_EMPLOYEE, [id]);
             return result.changes > 0;
         } catch (error) {
@@ -174,8 +162,6 @@ class EmployeeRepository {
 
     async getStatistics() {
         try {
-            await this.connection.connect();
-            
             const stats = await this.connection.get(this.schema.GET_EMPLOYEE_STATISTICS);
             
             const statusCounts = await this.connection.all(this.schema.COUNT_EMPLOYEES_BY_STATUS);
@@ -229,7 +215,6 @@ class EmployeeRepository {
 
     async search(query) {
         try {
-            await this.connection.connect();
             const searchQuery = `%${query}%`;
             const employees = await this.connection.all(
                 this.schema.SEARCH_EMPLOYEES,
@@ -244,7 +229,6 @@ class EmployeeRepository {
 
     async getActiveEmployees() {
         try {
-            await this.connection.connect();
             const employees = await this.connection.all(
                 `SELECT e.*, d.name as department_name 
                  FROM employees e 
@@ -262,8 +246,6 @@ class EmployeeRepository {
    // In EmployeeRepository.js - Update the getEmployeesByDepartment method (around line 200-210)
 async getEmployeesByDepartment(departmentId) {
     try {
-        await this.connection.connect();
-        
         // Fix: Use a simpler query without schema reference
         const sql = `
             SELECT e.*, d.name as department_name 
@@ -283,7 +265,6 @@ async getEmployeesByDepartment(departmentId) {
 
     async getUnassignedEmployees() {
         try {
-            await this.connection.connect();
             const query = `SELECT * FROM employees WHERE department_id IS NULL ORDER BY full_name`;
             const employees = await this.connection.all(query);
             return employees;
@@ -295,7 +276,6 @@ async getEmployeesByDepartment(departmentId) {
 
     async getDepartmentStats() {
         try {
-            await this.connection.connect();
             const query = `
                 SELECT 
                     d.id,
@@ -318,7 +298,6 @@ async getEmployeesByDepartment(departmentId) {
 
     async getUpcomingRetirements(limit = 5) {
         try {
-            await this.connection.connect();
             const sql = `
                 SELECT e.*, d.name as department_name 
                 FROM employees e 
@@ -343,7 +322,6 @@ async getEmployeesByDepartment(departmentId) {
 
     async toggleStatus(id) {
         try {
-            await this.connection.connect();
             const employee = await this.findById(id);
             
             if (!employee) {
@@ -373,8 +351,6 @@ async getEmployeesByDepartment(departmentId) {
 
     async bulkInsert(employeesData) {
         try {
-            await this.connection.connect();
-            
             const insertedIds = [];
             const errors = [];
             
@@ -425,8 +401,6 @@ async getEmployeesByDepartment(departmentId) {
 
     async bulkUpdateDepartments(employeeIds, departmentId) {
         try {
-            await this.connection.connect();
-            
             if (employeeIds.length === 0) return { successCount: 0 };
             
             const placeholders = employeeIds.map(() => '?').join(',');
@@ -449,8 +423,6 @@ async getEmployeesByDepartment(departmentId) {
 
     async unassignFromDepartment(departmentId) {
         try {
-            await this.connection.connect();
-            
             const result = await this.connection.execute(
                 `UPDATE employees SET department_id = NULL, updated_at = CURRENT_TIMESTAMP WHERE department_id = ?`,
                 [departmentId]
