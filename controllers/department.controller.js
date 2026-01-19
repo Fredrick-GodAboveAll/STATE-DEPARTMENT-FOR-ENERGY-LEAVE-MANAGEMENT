@@ -443,6 +443,15 @@ deleteDepartment: async function(req, res) {
         return res.status(404).json({ success: false, message: 'Department not found' });
       }
       
+      // Check if department has employees and unassign them before deletion
+      const employeesInDept = await db.employees.getEmployeesByDepartment(id);
+      const employeeCount = employeesInDept ? employeesInDept.length : 0;
+      
+      if (employeeCount > 0) {
+        // Unassign all employees from this department (fixes data consistency)
+        await db.employees.unassignFromDepartment(id);
+      }
+      
       const deleted = await db.departments.delete(id);
       
       if (!deleted) {
@@ -451,7 +460,8 @@ deleteDepartment: async function(req, res) {
       
       res.json({ 
         success: true, 
-        message: 'Department deleted successfully'
+        message: `Department deleted successfully. ${employeeCount} employees have been unassigned.`,
+        unassignedCount: employeeCount
       });
     } catch (error) {
       console.error('Error in deleteDepartmentAPI:', error);
