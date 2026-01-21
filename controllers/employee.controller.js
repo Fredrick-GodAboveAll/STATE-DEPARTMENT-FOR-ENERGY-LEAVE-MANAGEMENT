@@ -335,7 +335,7 @@ const employeeController = {
   },
 
   /**
-   * Download employee CSV template - UPDATED with department_id
+   * Download employee CSV template - UPDATED with disability and date_of_birth
    */
   downloadEmployeeTemplate: async function(req, res) {
     try {
@@ -349,25 +349,27 @@ const employeeController = {
       // Get departments for template
       const departments = await db.departments.findAll();
       
-      const template = `payroll_number,full_name,id_number,gender,age,designation,job_group,status,retirement_date,employment_status,department_id
-19337,MR JULIUS ODHIAMBO MBOGAH,11684,M,63,Deputy Director - HRM & Development,R,0 - Active,04/11/2026,Permanent,
-19338,JANE WANGUI KAMAU,11685,F,45,Senior HR Officer,S,0 - Active,15/08/2030,Permanent,
-19339,PETER OMONDI OTIENO,11686,M,52,Finance Manager,T,0 - Active,22/05/2028,Contract,
+      const template = `payroll_number,full_name,id_number,gender,age,designation,job_group,status,retirement_date,employment_status,date_of_birth,disability,department_id
+19337,MR JULIUS ODHIAMBO MBOGAH,11684,M,63,Deputy Director - HRM & Development,R,0 - Active,04/11/2026,Permanent,1961-05-12,0,
+19338,JANE WANGUI KAMAU,11685,F,45,Senior HR Officer,S,0 - Active,15/08/2030,Permanent,1979-08-25,,
+19339,PETER OMONDI OTIENO,11686,M,52,Finance Manager,T,0 - Active,22/05/2028,Contract,1972-03-18,4,
 
 # Available department IDs:
 ${departments.map(dept => `# ${dept.id}: ${dept.name} (${dept.code})`).join('\n')}
 
 # Instructions:
-# 1. Required columns: payroll_number, full_name, id_number, gender, age, designation
-# 2. Optional columns: job_group, status, retirement_date, employment_status, department_id
+# 1. Required columns: payroll_number, full_name, id_number, gender, designation
+# 2. Optional columns: age, job_group, status, retirement_date, employment_status, date_of_birth, disability, department_id
 # 3. payroll_number and id_number must be unique and numeric
 # 4. gender must be M or F
-# 5. age must be between 18 and 120
-# 6. retirement_date must be in DD/MM/YYYY format
-# 7. status format: "0 - Active", "1 - Inactive", "2 - Retired"
-# 8. employment_status: Permanent, Contract, Probation, Temporary
-# 9. department_id: Use the ID from the departments list above (leave empty for unassigned)
-# 10. Remove this instruction row before uploading`;
+# 5. age must be between 18 and 120 (auto-calculated from date_of_birth if not provided)
+# 6. date_of_birth format: YYYY-MM-DD or DD/MM/YYYY (used to auto-calculate age if age not provided)
+# 7. disability: only 0 or 4 allowed (0=no disability, 4=with disability)
+# 8. retirement_date must be in DD/MM/YYYY format, defaults to NA if not provided
+# 9. status format: "0 - Active", "1 - Inactive", "2 - Retired"
+# 10. employment_status: Permanent, Contract, Probation, Temporary
+# 11. department_id: Use the ID from the departments list above, or leave empty for NA (unassigned)
+# 12. Remove this instruction section before uploading`;
 
       res.setHeader('Content-Type', 'text/csv');
       res.setHeader('Content-Disposition', 'attachment; filename=employee_template.csv');
@@ -423,7 +425,7 @@ ${departments.map(dept => `# ${dept.id}: ${dept.name} (${dept.code})`).join('\n'
             continue; // Skip header row
           }
           
-          // We need at least 6 required columns (department_id is optional)
+          // We need at least 6 required columns (others are optional)
           if (columns.length >= 6) {
             const row = {
               payroll_number: columns[0] || '',
@@ -436,7 +438,9 @@ ${departments.map(dept => `# ${dept.id}: ${dept.name} (${dept.code})`).join('\n'
               status: columns[7] || '',
               retirement_date: columns[8] || '',
               employment_status: columns[9] || '',
-              department_id: columns[10] || '' // NEW: department_id
+              date_of_birth: columns[10] || '',
+              disability: columns[11] || '',
+              department_id: columns[12] || ''
             };
             rows.push(row);
           }
@@ -483,9 +487,8 @@ ${departments.map(dept => `# ${dept.id}: ${dept.name} (${dept.code})`).join('\n'
           if (!record.gender) {
             throw new Error('gender is required');
           }
-          if (!record.age) {
-            throw new Error('age is required');
-          }
+          // Age is optional if date_of_birth is provided (will be auto-calculated)
+          // Validation happens below after attempting auto-calculation
           if (!record.designation) {
             throw new Error('designation is required');
           }
@@ -506,27 +509,50 @@ ${departments.map(dept => `# ${dept.id}: ${dept.name} (${dept.code})`).join('\n'
             throw new Error(`gender must be M or F`);
           }
 
-          // Validate age
-          const age = parseInt(record.age);
+          // Validate age and auto-calculate from date_of_birth if provided
+          let age = parseInt(record.age);
+          let dateOfBirth = record.date_of_birth ? record.date_of_birth.toString().trim() : null;
+          
+          // If age not provided but date_of_birth is, calculate age
+          if ((isNaN(age) || !record.age) && dateOfBirth) {
+            const empSchema = require('../database/schemas').employee;
+            age = empSchema.calculateAgeFromDOB(dateOfBirth);
+            if (!age) {
+              throw new Error(`Invalid date_of_birth: ${dateOfBirth}. Could not calculate valid age (18-120)`);
+            }
+          }
+          
           if (isNaN(age) || age < 18 || age > 120) {
             throw new Error(`age must be a number between 18 and 120`);
           }
 
-          // Validate department_id if provided
-          let departmentId = null;
+          // Validate disability (0 or 4 only)
+          let disability = null;
+          if (record.disability && record.disability.toString().trim() !== '') {
+            disability = parseInt(record.disability.toString().trim());
+            if (isNaN(disability) || (disability !== 0 && disability !== 4)) {
+              throw new Error(`disability must be 0 or 4, received: ${record.disability}`);
+            }
+          }
+
+          // Validate department_id if provided - set to NA by default for bulk uploads
+          let departmentId = 'NA';  // Default to NA for bulk uploads
           if (record.department_id && record.department_id.toString().trim() !== '') {
-            const deptId = parseInt(record.department_id.toString().trim());
-            if (isNaN(deptId) || deptId < 1) {
-              throw new Error(`department_id must be a positive number`);
+            const deptIdStr = record.department_id.toString().trim();
+            if (deptIdStr !== 'NA' && deptIdStr.toUpperCase() !== 'NA') {
+              const deptId = parseInt(deptIdStr);
+              if (isNaN(deptId) || deptId < 1) {
+                throw new Error(`department_id must be a positive number or NA`);
+              }
+              
+              // Check if department exists
+              const department = await db.departments.findById(deptId);
+              if (!department) {
+                throw new Error(`Department with ID ${deptId} does not exist`);
+              }
+              
+              departmentId = deptId;
             }
-            
-            // Check if department exists
-            const department = await db.departments.findById(deptId);
-            if (!department) {
-              throw new Error(`Department with ID ${deptId} does not exist`);
-            }
-            
-            departmentId = deptId;
           }
 
           // Check for duplicate payroll number in database
@@ -594,9 +620,11 @@ ${departments.map(dept => `# ${dept.id}: ${dept.name} (${dept.code})`).join('\n'
             designation: record.designation.toString().trim(),
             job_group: record.job_group ? record.job_group.toString().trim().toUpperCase() : null,
             status: status,
-            retirement_date: retirementDate,
+            retirement_date: retirementDate || 'NA',
             employment_status: record.employment_status ? record.employment_status.toString().trim() : 'Permanent',
-            department_id: departmentId  // NEW: department_id
+            date_of_birth: dateOfBirth,
+            disability: disability,
+            department_id: departmentId  // Set to NA for bulk uploads by default
           };
 
           // Create employee using repository

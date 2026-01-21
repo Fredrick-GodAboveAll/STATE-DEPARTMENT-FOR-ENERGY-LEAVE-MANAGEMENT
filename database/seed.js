@@ -185,18 +185,79 @@ class DatabaseSeeder {
             
             const employees = [
                 {
-                    payroll_number: '111',
-                    full_name: 'Test staff',
-                    id_number: '111111111',
+                    payroll_number: '10001',
+                    full_name: 'John Kariuki Mwangi',
+                    id_number: '12345678',
                     gender: 'M',
-                    age: 60,
-                    designation: 'Manager',
-                    job_group: 'JG2',
-                    status: 'Active',
-                    retirement_date: '2070-12-31',
+                    age: 46,
+                    designation: 'Senior Finance Officer',
+                    job_group: 'A',
+                    status: '0',
+                    retirement_date: 'NA',
                     employment_status: 'Permanent',
-                    date_of_birth: '2000-05-15',
-                    disability: 'None'
+                    date_of_birth: '1978-03-15',
+                    disability: 0,
+                    department_id: '1'
+                },
+                {
+                    payroll_number: '10002',
+                    full_name: 'Sarah Kamau Wanjiru',
+                    id_number: '23456789',
+                    gender: 'F',
+                    age: 39,
+                    designation: 'Human Resources Manager',
+                    job_group: 'B',
+                    status: '0',
+                    retirement_date: 'NA',
+                    employment_status: 'Permanent',
+                    date_of_birth: '1985-06-22',
+                    disability: 4,
+                    department_id: '1'
+                },
+                {
+                    payroll_number: '10003',
+                    full_name: 'Peter Omondi Kipchoge',
+                    id_number: '34567890',
+                    gender: 'M',
+                    age: 42,
+                    designation: 'Operations Supervisor',
+                    job_group: 'A',
+                    status: '0',
+                    retirement_date: 'NA',
+                    employment_status: 'Contract',
+                    date_of_birth: '1982-11-08',
+                    disability: 0,
+                    department_id: '1'
+                },
+                {
+                    payroll_number: '10004',
+                    full_name: 'Alice Njeri Muthoni',
+                    id_number: '45678901',
+                    gender: 'F',
+                    age: 34,
+                    designation: 'Accounts Officer',
+                    job_group: 'B',
+                    status: '0',
+                    retirement_date: 'NA',
+                    employment_status: 'Permanent',
+                    date_of_birth: '1990-01-30',
+                    disability: 0,
+                    department_id: '1'
+                },
+                {
+                    payroll_number: '10005',
+                    full_name: 'Michael Kiplagat Bor',
+                    id_number: '56789012',
+                    gender: 'M',
+                    age: 49,
+                    designation: 'Deputy Director',
+                    job_group: 'A',
+                    status: '0',
+                    retirement_date: 'NA',
+                    employment_status: 'Permanent',
+                    date_of_birth: '1975-09-12',
+                    disability: 0,
+                    department_id: '1'
                 }
             ];
             
@@ -204,11 +265,11 @@ class DatabaseSeeder {
                 await connection.execute(
                     `INSERT INTO employees 
                     (payroll_number, full_name, id_number, gender, age, designation, job_group, 
-                     status, retirement_date, employment_status, date_of_birth, disability) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                     status, retirement_date, employment_status, date_of_birth, disability, department_id) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [emp.payroll_number, emp.full_name, emp.id_number, emp.gender, emp.age, 
                      emp.designation, emp.job_group, emp.status, emp.retirement_date, 
-                     emp.employment_status, emp.date_of_birth, emp.disability]
+                     emp.employment_status, emp.date_of_birth, emp.disability, emp.department_id]
                 );
             }
             

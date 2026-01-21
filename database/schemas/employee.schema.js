@@ -1,6 +1,6 @@
 // database/schemas/employee.schema.js
 module.exports = {
-    // Employees table queries - UPDATED TO INCLUDE department_id
+    // Employees table queries - UPDATED TO INCLUDE disability and date_of_birth
     CREATE_TABLE: `
         CREATE TABLE IF NOT EXISTS employees (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -8,25 +8,29 @@ module.exports = {
             full_name TEXT NOT NULL,
             id_number TEXT UNIQUE NOT NULL,
             gender TEXT CHECK(gender IN ('M', 'F')),
-            age INTEGER CHECK(age > 0 AND age < 120),
+            age INTEGER CHECK(age >= 18 AND age <= 120),
             designation TEXT NOT NULL,
             job_group TEXT,
-            status TEXT,                    -- From "Employment Status" column (0 - Active, etc.)
-            retirement_date TEXT,           -- From "ROD" column (dd/mm/yyyy format)
-            employment_status TEXT,         -- From "Engage Name" column (Permanent, Contract, etc.)
-            department_id INTEGER,          -- NEW: Foreign key to departments table
+            status TEXT,                        -- From "Employment Status" column (0 - Active, etc.)
+            retirement_date TEXT DEFAULT 'NA',  -- Default to 'NA'
+            employment_status TEXT,             -- From "Engage Name" column (Permanent, Contract, etc.)
+            date_of_birth TEXT,                 -- Used for age auto-calculation
+            disability INTEGER CHECK(disability IN (0, 4)),  -- Only 0 or 4 allowed
+            department_id TEXT DEFAULT 'NA',    -- Foreign key to departments (set to 'NA' initially for bulk uploads)
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL
         )
     `,
     
-    // Employee CRUD queries - ORDER MATCHES CSV HEADERS (updated to 11 columns)
+    // Employee CRUD queries - NEW ORDER with disability and date_of_birth
+    // Order: id, payroll_number, full_name, id_number, gender, age, designation, job_group, 
+    //        status, retirement_date, employment_status, date_of_birth, disability, department_id, created_at, updated_at
     INSERT_EMPLOYEE: `
         INSERT INTO employees 
         (payroll_number, full_name, id_number, gender, age, designation, job_group, 
-         status, retirement_date, employment_status, department_id) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         status, retirement_date, employment_status, date_of_birth, disability, department_id) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     
     GET_ALL_EMPLOYEES: `
@@ -62,8 +66,8 @@ module.exports = {
         UPDATE employees SET 
         payroll_number = ?, full_name = ?, id_number = ?, gender = ?, age = ?, 
         designation = ?, job_group = ?, status = ?, 
-        retirement_date = ?, employment_status = ?, department_id = ?, 
-        updated_at = CURRENT_TIMESTAMP 
+        retirement_date = ?, employment_status = ?, date_of_birth = ?, disability = ?, 
+        department_id = ?, updated_at = CURRENT_TIMESTAMP 
         WHERE id = ?
     `,
     
@@ -123,5 +127,78 @@ module.exports = {
         LEFT JOIN employees e ON d.id = e.department_id
         GROUP BY d.id
         ORDER BY d.name
-    `
+    `,
+
+    // ============ VALIDATION HELPERS ============
+    
+    validateGender: (gender) => {
+        if (!gender) return false;
+        const normalized = gender.toString().toUpperCase().trim();
+        return normalized === 'M' || normalized === 'F';
+    },
+
+    validateAge: (age) => {
+        const ageNum = parseInt(age);
+        return !isNaN(ageNum) && ageNum >= 18 && ageNum <= 120;
+    },
+
+    validateDisability: (disability) => {
+        if (disability === null || disability === undefined || disability === '') {
+            return true;
+        }
+        const disabilityNum = parseInt(disability);
+        return !isNaN(disabilityNum) && (disabilityNum === 0 || disabilityNum === 4);
+    },
+
+    calculateAgeFromDOB: (dateOfBirth) => {
+        if (!dateOfBirth) return null;
+        
+        let dob;
+        if (dateOfBirth.includes('-')) {
+            dob = new Date(dateOfBirth);
+        } else if (dateOfBirth.includes('/')) {
+            const parts = dateOfBirth.split('/');
+            if (parts.length === 3) {
+                dob = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+            }
+        }
+        
+        if (!dob || isNaN(dob.getTime())) {
+            return null;
+        }
+        
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const monthDiff = today.getMonth() - dob.getMonth();
+        
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+            age--;
+        }
+        
+        return age >= 18 && age <= 120 ? age : null;
+    },
+
+    formatDateToISO: (dateStr) => {
+        if (!dateStr) return null;
+        
+        try {
+            let date;
+            if (dateStr.includes('-')) {
+                date = new Date(dateStr);
+            } else if (dateStr.includes('/')) {
+                const parts = dateStr.split('/');
+                if (parts.length === 3) {
+                    date = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                }
+            }
+            
+            if (!date || isNaN(date.getTime())) {
+                return null;
+            }
+            
+            return date.toISOString().split('T')[0];
+        } catch (error) {
+            return null;
+        }
+    }
 };
