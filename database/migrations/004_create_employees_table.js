@@ -13,9 +13,10 @@ module.exports = {
                 age INTEGER CHECK(age > 0 AND age < 120),
                 designation TEXT NOT NULL,
                 job_group TEXT,
-                status TEXT,                    -- From "Employment Status" column (0 - Active, etc.)
-                retirement_date TEXT,           -- From "ROD" column (dd/mm/yyyy format)
-                employment_status TEXT,         -- From "Engage Name" column (Permanent, Contract, etc.)
+                status TEXT,
+                retirement_date TEXT,
+                employment_status TEXT,
+                department_id INTEGER,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )

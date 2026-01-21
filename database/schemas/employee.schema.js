@@ -1,6 +1,6 @@
 // database/schemas/employee.schema.js
 module.exports = {
-    // Employees table queries - UPDATED TO MATCH CSV COLUMN ORDER
+    // Employees table queries - UPDATED TO INCLUDE department_id
     CREATE_TABLE: `
         CREATE TABLE IF NOT EXISTS employees (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -14,40 +14,62 @@ module.exports = {
             status TEXT,                    -- From "Employment Status" column (0 - Active, etc.)
             retirement_date TEXT,           -- From "ROD" column (dd/mm/yyyy format)
             employment_status TEXT,         -- From "Engage Name" column (Permanent, Contract, etc.)
+            department_id INTEGER,          -- NEW: Foreign key to departments table
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL
         )
     `,
     
-    // Employee CRUD queries - ORDER MATCHES CSV HEADERS
+    // Employee CRUD queries - ORDER MATCHES CSV HEADERS (updated to 11 columns)
     INSERT_EMPLOYEE: `
         INSERT INTO employees 
         (payroll_number, full_name, id_number, gender, age, designation, job_group, 
-         status, retirement_date, employment_status) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         status, retirement_date, employment_status, department_id) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     
     GET_ALL_EMPLOYEES: `
-        SELECT * FROM employees ORDER BY full_name
+        SELECT e.*, d.name as department_name 
+        FROM employees e 
+        LEFT JOIN departments d ON e.department_id = d.id 
+        ORDER BY e.full_name
     `,
     
     GET_EMPLOYEE_BY_ID: `
-        SELECT * FROM employees WHERE id = ?
+        SELECT e.*, d.name as department_name 
+        FROM employees e 
+        LEFT JOIN departments d ON e.department_id = d.id 
+        WHERE e.id = ?
     `,
     
     GET_EMPLOYEE_BY_PAYROLL: `
-        SELECT * FROM employees WHERE payroll_number = ?
+        SELECT e.*, d.name as department_name 
+        FROM employees e 
+        LEFT JOIN departments d ON e.department_id = d.id 
+        WHERE e.payroll_number = ?
     `,
     
     GET_EMPLOYEES_BY_STATUS: `
-        SELECT * FROM employees WHERE status = ? ORDER BY full_name
+        SELECT e.*, d.name as department_name 
+        FROM employees e 
+        LEFT JOIN departments d ON e.department_id = d.id 
+        WHERE e.status = ? 
+        ORDER BY e.full_name
     `,
     
     UPDATE_EMPLOYEE: `
         UPDATE employees SET 
         payroll_number = ?, full_name = ?, id_number = ?, gender = ?, age = ?, 
         designation = ?, job_group = ?, status = ?, 
-        retirement_date = ?, employment_status = ?, updated_at = CURRENT_TIMESTAMP 
+        retirement_date = ?, employment_status = ?, department_id = ?, 
+        updated_at = CURRENT_TIMESTAMP 
+        WHERE id = ?
+    `,
+    
+    UPDATE_EMPLOYEE_DEPARTMENT: `
+        UPDATE employees SET 
+        department_id = ?, updated_at = CURRENT_TIMESTAMP 
         WHERE id = ?
     `,
     
@@ -60,9 +82,11 @@ module.exports = {
     `,
     
     SEARCH_EMPLOYEES: `
-        SELECT * FROM employees 
-        WHERE full_name LIKE ? OR payroll_number LIKE ? OR id_number LIKE ? 
-        ORDER BY full_name
+        SELECT e.*, d.name as department_name 
+        FROM employees e 
+        LEFT JOIN departments d ON e.department_id = d.id 
+        WHERE e.full_name LIKE ? OR e.payroll_number LIKE ? OR e.id_number LIKE ? 
+        ORDER BY e.full_name
     `,
     
     GET_EMPLOYEE_STATISTICS: `
@@ -73,5 +97,31 @@ module.exports = {
             SUM(CASE WHEN status LIKE '%Terminated%' THEN 1 ELSE 0 END) as terminated,
             SUM(CASE WHEN status LIKE '%Retired%' THEN 1 ELSE 0 END) as retired
         FROM employees
+    `,
+    
+    // NEW: Department-related queries
+    GET_EMPLOYEES_BY_DEPARTMENT: `
+        SELECT e.*, d.name as department_name 
+        FROM employees e 
+        LEFT JOIN departments d ON e.department_id = d.id 
+        WHERE e.department_id = ? 
+        ORDER BY e.full_name
+    `,
+    
+    GET_UNASSIGNED_EMPLOYEES: `
+        SELECT * FROM employees WHERE department_id IS NULL ORDER BY full_name
+    `,
+    
+    GET_DEPARTMENT_STATS: `
+        SELECT 
+            d.id,
+            d.name,
+            d.code,
+            COUNT(e.id) as employee_count,
+            GROUP_CONCAT(e.full_name) as employee_names
+        FROM departments d
+        LEFT JOIN employees e ON d.id = e.department_id
+        GROUP BY d.id
+        ORDER BY d.name
     `
 };

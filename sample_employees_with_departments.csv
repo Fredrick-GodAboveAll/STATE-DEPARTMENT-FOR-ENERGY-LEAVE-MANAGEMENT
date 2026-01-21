@@ -1,0 +1,5 @@
+payroll_number,full_name,id_number,gender,age,designation,job_group,status,retirement_date,employment_status,department_id
+1001,JOHN MUTUA KIOKO,50001,M,48,Senior Manager,E,0 - Active,30/06/2029,Permanent,1
+1002,ANN WANJIKU NYAGA,50002,F,39,Systems Analyst,F,0 - Active,15/09/2034,Permanent,2
+1003,PAUL OCHIENG OWINO,50003,M,52,Chief Accountant,G,0 - Active,25/12/2031,Permanent,3
+1004,RUTH ADHIAMBO ODUOR,50004,F,44,Sales Manager,H,0 - Active,18/03/2033,Permanent,5

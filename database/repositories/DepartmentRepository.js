@@ -10,8 +10,6 @@ class DepartmentRepository {
 
     async create(departmentData) {
         try {
-            await this.connection.connect();
-            
             const { name, code, description, status } = departmentData;
             const result = await this.connection.execute(
                 this.schema.INSERT_DEPARTMENT,
@@ -32,7 +30,6 @@ class DepartmentRepository {
 
     async findAll() {
         try {
-            await this.connection.connect();
             const departments = await this.connection.all(this.schema.GET_ALL_DEPARTMENTS);
             return departments;
         } catch (error) {
@@ -43,7 +40,6 @@ class DepartmentRepository {
 
     async findById(id) {
         try {
-            await this.connection.connect();
             const department = await this.connection.get(this.schema.GET_DEPARTMENT_BY_ID, [id]);
             return department;
         } catch (error) {
@@ -54,7 +50,6 @@ class DepartmentRepository {
 
     async findByCode(code) {
         try {
-            await this.connection.connect();
             const department = await this.connection.get(this.schema.GET_DEPARTMENT_BY_CODE, [code]);
             return department;
         } catch (error) {
@@ -65,7 +60,6 @@ class DepartmentRepository {
 
     async findByStatus(status) {
         try {
-            await this.connection.connect();
             const departments = await this.connection.all(this.schema.GET_DEPARTMENTS_BY_STATUS, [status]);
             return departments;
         } catch (error) {
@@ -76,7 +70,6 @@ class DepartmentRepository {
 
     async findActive() {
         try {
-            await this.connection.connect();
             const departments = await this.connection.all(this.schema.GET_ACTIVE_DEPARTMENTS);
             return departments;
         } catch (error) {
@@ -87,8 +80,6 @@ class DepartmentRepository {
 
     async update(id, departmentData) {
         try {
-            await this.connection.connect();
-            
             const { name, code, description, status } = departmentData;
             const result = await this.connection.execute(
                 this.schema.UPDATE_DEPARTMENT,
@@ -110,7 +101,6 @@ class DepartmentRepository {
 
     async delete(id) {
         try {
-            await this.connection.connect();
             const result = await this.connection.execute(this.schema.DELETE_DEPARTMENT, [id]);
             return result.changes > 0;
         } catch (error) {
@@ -121,7 +111,6 @@ class DepartmentRepository {
 
     async getStatistics() {
         try {
-            await this.connection.connect();
             const stats = await this.connection.get(this.schema.GET_DEPARTMENT_STATS);
             
             const statusCounts = await this.connection.all(this.schema.GET_DEPARTMENT_COUNT);
@@ -147,7 +136,6 @@ class DepartmentRepository {
 
     async search(query) {
         try {
-            await this.connection.connect();
             const searchQuery = `%${query}%`;
             const departments = await this.connection.all(
                 this.schema.SEARCH_DEPARTMENTS,
@@ -162,7 +150,6 @@ class DepartmentRepository {
 
     async toggleStatus(id) {
         try {
-            await this.connection.connect();
             const department = await this.findById(id);
             
             if (!department) {
@@ -192,7 +179,6 @@ class DepartmentRepository {
 
     async checkCodeExists(code, excludeId = null) {
         try {
-            await this.connection.connect();
             let sql = 'SELECT COUNT(*) as count FROM departments WHERE code = ?';
             const params = [code];
             
@@ -211,7 +197,6 @@ class DepartmentRepository {
 
     async checkNameExists(name, excludeId = null) {
         try {
-            await this.connection.connect();
             let sql = 'SELECT COUNT(*) as count FROM departments WHERE name = ?';
             const params = [name];
             

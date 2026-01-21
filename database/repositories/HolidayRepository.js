@@ -10,8 +10,6 @@ class HolidayRepository {
 
     async create(holidayData) {
         try {
-            await this.connection.connect();
-            
             const { holiday_name, holiday_date, holiday_type, year, recurring, description, created_by } = holidayData;
             const result = await this.connection.execute(
                 this.schema.INSERT_HOLIDAY,
@@ -35,7 +33,6 @@ class HolidayRepository {
 
     async findAll() {
         try {
-            await this.connection.connect();
             const holidays = await this.connection.all(this.schema.GET_ALL_HOLIDAYS);
             return holidays;
         } catch (error) {
@@ -46,7 +43,6 @@ class HolidayRepository {
 
     async findById(id) {
         try {
-            await this.connection.connect();
             const holiday = await this.connection.get(this.schema.GET_HOLIDAY_BY_ID, [id]);
             return holiday;
         } catch (error) {
@@ -57,7 +53,6 @@ class HolidayRepository {
 
     async findByYear(year) {
         try {
-            await this.connection.connect();
             const holidays = await this.connection.all(this.schema.GET_HOLIDAYS_BY_YEAR, [year]);
             return holidays;
         } catch (error) {
@@ -68,7 +63,6 @@ class HolidayRepository {
 
     async findByTypeAndYear(holiday_type, year) {
         try {
-            await this.connection.connect();
             const holidays = await this.connection.all(this.schema.GET_HOLIDAYS_BY_TYPE, [holiday_type, year]);
             return holidays;
         } catch (error) {
@@ -79,7 +73,6 @@ class HolidayRepository {
 
     async findUpcoming() {
         try {
-            await this.connection.connect();
             const holidays = await this.connection.all(this.schema.GET_UPCOMING_HOLIDAYS);
             return holidays;
         } catch (error) {
@@ -90,7 +83,6 @@ class HolidayRepository {
 
     async findByMonth(yearMonth) {
         try {
-            await this.connection.connect();
             const holidays = await this.connection.all(this.schema.GET_HOLIDAYS_BY_MONTH, [yearMonth]);
             return holidays;
         } catch (error) {
@@ -101,8 +93,6 @@ class HolidayRepository {
 
     async update(id, holidayData) {
         try {
-            await this.connection.connect();
-            
             const { holiday_name, holiday_date, holiday_type, year, recurring, description } = holidayData;
             const result = await this.connection.execute(
                 this.schema.UPDATE_HOLIDAY,
@@ -126,7 +116,6 @@ class HolidayRepository {
 
     async delete(id) {
         try {
-            await this.connection.connect();
             const result = await this.connection.execute(this.schema.DELETE_HOLIDAY, [id]);
             return result.changes > 0;
         } catch (error) {
@@ -137,7 +126,6 @@ class HolidayRepository {
 
     async getStatistics() {
         try {
-            await this.connection.connect();
             const yearCounts = await this.connection.all(this.schema.GET_HOLIDAY_COUNT_BY_YEAR);
             
             const total = yearCounts.reduce((sum, item) => sum + item.count, 0);
@@ -166,7 +154,6 @@ class HolidayRepository {
 
     async search(query) {
         try {
-            await this.connection.connect();
             const searchQuery = `%${query}%`;
             const sql = `
                 SELECT h.*, u.first_name, u.last_name 

@@ -10,8 +10,6 @@ class LeaveTypeRepository {
 
     async create(leaveData) {
         try {
-            await this.connection.connect();
-            
             const { leave_name, color, entitled_days, gender_restriction, description, carry_forward_days, status } = leaveData;
             const result = await this.connection.execute(
                 this.schema.INSERT_LEAVE_TYPE,
@@ -35,7 +33,6 @@ class LeaveTypeRepository {
 
     async findAll() {
         try {
-            await this.connection.connect();
             const leaveTypes = await this.connection.all(this.schema.GET_ALL_LEAVE_TYPES);
             return leaveTypes;
         } catch (error) {
@@ -46,7 +43,6 @@ class LeaveTypeRepository {
 
     async findById(id) {
         try {
-            await this.connection.connect();
             const leaveType = await this.connection.get(this.schema.GET_LEAVE_TYPE_BY_ID, [id]);
             return leaveType;
         } catch (error) {
@@ -57,7 +53,6 @@ class LeaveTypeRepository {
 
     async findByStatus(status) {
         try {
-            await this.connection.connect();
             const leaveTypes = await this.connection.all(this.schema.GET_LEAVE_TYPES_BY_STATUS, [status]);
             return leaveTypes;
         } catch (error) {
@@ -68,7 +63,6 @@ class LeaveTypeRepository {
 
     async findActive() {
         try {
-            await this.connection.connect();
             const leaveTypes = await this.connection.all(this.schema.GET_ACTIVE_LEAVE_TYPES);
             return leaveTypes;
         } catch (error) {
@@ -79,8 +73,6 @@ class LeaveTypeRepository {
 
     async update(id, leaveData) {
         try {
-            await this.connection.connect();
-            
             const { leave_name, color, entitled_days, gender_restriction, description, carry_forward_days, status } = leaveData;
             const result = await this.connection.execute(
                 this.schema.UPDATE_LEAVE_TYPE,
@@ -105,7 +97,6 @@ class LeaveTypeRepository {
 
     async delete(id) {
         try {
-            await this.connection.connect();
             const result = await this.connection.execute(this.schema.DELETE_LEAVE_TYPE, [id]);
             return result.changes > 0;
         } catch (error) {
@@ -116,7 +107,6 @@ class LeaveTypeRepository {
 
     async getStatistics() {
         try {
-            await this.connection.connect();
             const statusCounts = await this.connection.all(this.schema.GET_LEAVE_TYPE_COUNT);
             
             const total = statusCounts.reduce((sum, item) => sum + item.count, 0);
@@ -144,7 +134,6 @@ class LeaveTypeRepository {
 
     async search(query) {
         try {
-            await this.connection.connect();
             const searchQuery = `%${query}%`;
             const sql = `
                 SELECT * FROM leave_types 
@@ -162,7 +151,6 @@ class LeaveTypeRepository {
 
     async toggleStatus(id) {
         try {
-            await this.connection.connect();
             const leaveType = await this.findById(id);
             
             if (!leaveType) {

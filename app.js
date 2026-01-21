@@ -116,10 +116,8 @@ app.use(function(req, res, next) {
   // Set active menu items based on URL
   res.locals.activePath = req.path;
   
-  // Make database available for debugging (remove in production)
-  if (process.env.NODE_ENV !== 'production') {
-    res.locals.dbStatus = database.db.getStatus ? database.db.getStatus() : null;
-  }
+  // NOTE: Database status removed from every request to prevent memory leaks
+  // Use /debug/db-status endpoint instead for debugging
   
   next();
 });

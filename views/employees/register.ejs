@@ -61,6 +61,7 @@
     });
   });
 </script>
+
 <div class="card mb-3">
   <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(../../assets/img/icons/spot-illustrations/corner-4.png);"></div>
   <div class="card-body p-0">
@@ -76,6 +77,12 @@
                 <button class="btn btn-falcon-default btn-sm" type="button" onclick="location.href='/employees/add-employee'">
                   <span class="fas fa-user-plus" data-fa-transform="shrink-3 down-2"></span>
                   <span class="d-none d-sm-inline-block ms-1">Add Employee</span>
+                </button>
+                
+                <!-- NEW: Department Assignment Button -->
+                <button class="btn btn-falcon-info btn-sm ms-2" type="button" onclick="location.href='/employee-departments'">
+                  <span class="fas fa-building" data-fa-transform="shrink-3 down-2"></span>
+                  <span class="d-none d-sm-inline-block ms-1">Assign Departments</span>
                 </button>
               </div>
             </div>
@@ -154,7 +161,41 @@
               </div>
             </div>
             
-            <!-- Second Row: Gender and Employment Statistics -->
+            <!-- Second Row: Additional Statistics -->
+            <div class="row g-3 mb-4">
+              <!-- NEW: Unassigned Employees Card -->
+              <div class="col-md-3">
+                <div class="card h-100 shadow-sm">
+                  <div class="card-body p-3 d-flex align-items-center">
+                    <div class="me-3">
+                      <div class="avatar rounded-circle bg-soft-info text-info d-flex align-items-center justify-content-center" style="width:48px;height:48px;">
+                        <span class="fas fa-question-circle fs-4"></span>
+                      </div>
+                    </div>
+                    <div>
+                      <h6 class="mb-0">Unassigned</h6>
+                      <h3 class="fw-bold mb-0"><%= unassignedEmployees || 0 %></h3>
+                      <small class="text-muted">No department</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Placeholder for future stats -->
+              <div class="col-md-9">
+                <div class="card border h-100">
+                  <div class="card-body p-3 d-flex align-items-center justify-content-center">
+                    <div class="text-center">
+                      <span class="fas fa-chart-pie text-muted fa-2x mb-2"></span>
+                      <h6 class="mb-0 text-muted">Department Statistics</h6>
+                      <p class="text-muted mb-0 small">Click "Assign Departments" to manage</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Third Row: Gender and Employment Statistics -->
             <div class="row g-3 mb-4">
               <div class="col-md-4">
                 <div class="card border h-100">
@@ -236,6 +277,50 @@
                 </div>
               </div>
             </div>
+            
+            <!-- NEW: Fourth Row - Department Distribution -->
+            <% if (Object.keys(departmentStats || {}).length > 0) { %>
+            <div class="row g-3">
+              <div class="col-md-12">
+                <div class="card border h-100">
+                  <div class="card-header bg-light py-2">
+                    <h6 class="mb-0">Department Distribution</h6>
+                  </div>
+                  <div class="card-body p-3">
+                    <div class="row">
+                      <% 
+                        const deptEntries = Object.entries(departmentStats || {});
+                        let deptTotal = 0;
+                        deptEntries.forEach(([dept, count]) => {
+                          deptTotal += count;
+                        });
+                      %>
+                      <% deptEntries.forEach(([deptName, count], index) => { 
+                        const percentage = deptTotal > 0 ? Math.round((count / deptTotal) * 100) : 0;
+                        const colors = ['primary', 'success', 'info', 'warning', 'danger', 'secondary', 'dark'];
+                        const colorClass = `bg-${colors[index % colors.length]}`;
+                      %>
+                      <div class="col-md-4 mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                          <span class="fas fa-building me-2 text-<%= colors[index % colors.length] %>"></span>
+                          <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                              <span class="fw-semi-bold"><%= deptName %></span>
+                              <span class="text-600"><%= count %> (<%= percentage %>%)</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                              <div class="progress-bar <%= colorClass %>" role="progressbar" data-percentage="<%= percentage %>" aria-valuenow="<%= percentage %>" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <% }); %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <% } %>
           </div>
         </div>
       </div>
@@ -243,7 +328,7 @@
   </div>
 </div>
 
-<!-- Employee Table - EXACTLY AS BEFORE, NO CHANGES -->
+<!-- Employee Table - UPDATED WITH DEPARTMENT COLUMN -->
 <div class="card mb-3">
   <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(../../assets/img/icons/spot-illustrations/corner-1.png); background-position: right bottom;"></div>
   <div class="card-body p-0">
@@ -260,7 +345,14 @@
                   <span class="fas fa-plus" data-fa-transform="shrink-3 down-2"></span>
                   <span class="d-none d-sm-inline-block ms-1">Add Employee</span>
                 </button>
-                <button class="btn btn-falcon-default btn-sm mx-2" type="button" id="toggleFilters">
+                
+                <!-- NEW: Department Assignment Button -->
+                <button class="btn btn-falcon-info btn-sm mx-2" type="button" onclick="location.href='/employee-departments'">
+                  <span class="fas fa-building" data-fa-transform="shrink-3 down-2"></span>
+                  <span class="d-none d-sm-inline-block ms-1">Assign Departments</span>
+                </button>
+                
+                <button class="btn btn-falcon-default btn-sm" type="button" id="toggleFilters">
                   <span class="fas fa-filter" data-fa-transform="shrink-3 down-2"></span>
                   <span class="d-none d-sm-inline-block ms-1">Filter</span>
                 </button>
@@ -273,7 +365,7 @@
           </div>
           <div class="card-body px-0 pt-0">
             <table class="table table-sm mb-0 overflow-hidden data-table fs-10" 
-              data-datatables='{"responsive":true,"pagingType":"simple","lengthChange":true,"pageLength":10,"searching":true,"bDeferRender":true,"serverSide":false,"language":{"info":"_START_ to _END_ of _TOTAL_ employees","search":"Search employees:","searchPlaceholder":"Search by name, payroll..."},"order":[[1,"asc"]],"columnDefs":[{"orderable":false,"targets":[0,10]}]}'>
+              data-datatables='{"responsive":true,"pagingType":"simple","lengthChange":true,"pageLength":10,"searching":true,"bDeferRender":true,"serverSide":false,"language":{"info":"_START_ to _END_ of _TOTAL_ employees","search":"Search employees:","searchPlaceholder":"Search by name, payroll..."},"order":[[1,"asc"]],"columnDefs":[{"orderable":false,"targets":[0,11]}]}'>
               <thead class="bg-200">
                 <tr>
                   <th class="text-900 no-sort white-space-nowrap" data-orderable="false">
@@ -289,6 +381,10 @@
                   <th class="text-900 sort white-space-nowrap">Designation</th>
                   <th class="text-900 sort white-space-nowrap">Job Group</th>
                   <th class="text-900 sort white-space-nowrap">Status</th>
+                  
+                  <!-- NEW: Department Column -->
+                  <th class="text-900 sort white-space-nowrap">Department</th>
+                  
                   <th class="text-900 sort white-space-nowrap">Retirement Date</th>
                   <th class="text-900 sort white-space-nowrap">Employment Status</th>
                   <th class="text-900 sort white-space-nowrap">Actions</th>
@@ -349,6 +445,16 @@
                     } else if (empStatusText === 'Casual') {
                       empStatusClass = 'badge-subtle-primary';
                     }
+                    
+                    // NEW: Department badge
+                    let deptBadgeClass = 'badge-subtle-warning';
+                    let deptIcon = 'fa-question-circle';
+                    let deptText = employee.department_name || 'Unassigned';
+                    
+                    if (employee.department_name) {
+                      deptBadgeClass = 'badge-subtle-info';
+                      deptIcon = 'fa-building';
+                    }
                   %>
                   <tr class="btn-reveal-trigger">
                     <td class="align-middle" style="width: 28px;">
@@ -391,6 +497,15 @@
                         <span class="ms-1 fas <%= statusIcon %>" data-fa-transform="shrink-2"></span>
                       </span>
                     </td>
+                    
+                    <!-- NEW: Department Column Data -->
+                    <td class="align-middle white-space-nowrap">
+                      <span class="badge <%= deptBadgeClass %> rounded-pill d-inline-flex align-items-center">
+                        <span class="fas <%= deptIcon %> me-1" data-fa-transform="shrink-2"></span>
+                        <%= deptText %>
+                      </span>
+                    </td>
+                    
                     <td class="align-middle white-space-nowrap">
                       <%= retirementDisplay %>
                     </td>
@@ -416,7 +531,7 @@
                   <% }); %>
                 <% } else { %>
                   <tr>
-                    <td colspan="12" class="text-center py-5">
+                    <td colspan="13" class="text-center py-5">
                       <div class="text-muted">
                         <span class="fas fa-users fa-3x mb-3"></span>
                         <h5 class="mb-1">No employees found</h5>
@@ -482,5 +597,9 @@
         });
       });
     }
+    
+    // NEW: Quick department assignment (optional enhancement)
+    // This can be added later for inline editing
+    // For now, we just have the department column display
   });
 </script>

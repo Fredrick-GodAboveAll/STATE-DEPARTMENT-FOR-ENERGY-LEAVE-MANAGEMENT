@@ -12,6 +12,12 @@ class DatabaseConnection {
     connect() {
         return new Promise((resolve, reject) => {
             try {
+                // If already connected, return existing connection
+                if (this.db && this.isConnected) {
+                    resolve(this.db);
+                    return;
+                }
+
                 this.db = new sqlite3.Database(this.dbPath, (err) => {
                     if (err) {
                         console.error('❌ Database connection error:', err.message);

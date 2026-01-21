@@ -1,4 +1,4 @@
-// employee.controller.js - CLEAN VERSION
+// controllers/employee.controller.js
 const { db } = require('../database');
 const fs = require('fs');
 const csv = require('csv-parser');
@@ -18,11 +18,13 @@ const employeeController = {
       
       const employees = await db.employees.findAll();
       const statistics = await db.employees.getStatistics();
+      const departments = await db.departments.findAll(); // NEW: Get departments for dropdown
       
       const totalEmployees = employees ? employees.length : 0;
       const activeEmployees = employees ? employees.filter(emp => emp.status && emp.status.includes('Active')).length : 0;
       const retiredEmployees = employees ? employees.filter(emp => emp.status && emp.status.includes('Retired')).length : 0;
       const inactiveEmployees = employees ? employees.filter(emp => emp.status && emp.status.includes('Inactive')).length : 0;
+      const unassignedEmployees = employees ? employees.filter(emp => emp.department_id === null || emp.department_name === null).length : 0;
       
       const employmentStats = {};
       if (employees) {
@@ -42,6 +44,15 @@ const employeeController = {
         female: employees ? employees.filter(emp => emp.gender === 'F').length : 0
       };
       
+      // NEW: Department distribution
+      const departmentStats = {};
+      if (employees) {
+        employees.forEach(emp => {
+          const deptName = emp.department_name || 'Unassigned';
+          departmentStats[deptName] = (departmentStats[deptName] || 0) + 1;
+        });
+      }
+      
       res.render('employees/register', {
         activeShow: 'employees',
         activePage: 'register',
@@ -49,19 +60,180 @@ const employeeController = {
         userLastName: user.last_name,
         userEmail: user.email,
         employees: employees || [],
+        departments: departments || [], // NEW: Pass departments to view
         totalEmployees,
         activeEmployees,
         retiredEmployees,
         inactiveEmployees,
+        unassignedEmployees, // NEW
         employmentStats,
         employmentPercentages,
         genderStats,
+        departmentStats, // NEW
         statistics: statistics || {}
       });
     } catch (error) {
       console.error('Error fetching employees:', error);
       req.flash('error_msg', 'Error loading employee data');
       res.redirect('/dashboard');
+    }
+  },
+
+  /**
+   * Display department assignment page
+   */
+  getDepartmentAssignments: async function(req, res) {
+    try {
+      const user = await db.users.findById(req.session.userId);
+      
+      if (!user) {
+        req.flash('error_msg', 'User not found');
+        return res.redirect('/');
+      }
+      
+      // Get all employees with departments
+      const employees = await db.employees.findAll();
+      
+      // Get unassigned employees
+      const unassignedEmployees = await db.employees.getUnassignedEmployees();
+      
+      // Get department statistics
+      const departmentStats = await db.employees.getDepartmentStats();
+      
+      // Get all departments for dropdowns
+      const departments = await db.departments.findAll();
+      
+      // Calculate statistics
+      const totalEmployees = employees ? employees.length : 0;
+      const assignedCount = employees ? employees.filter(emp => emp.department_id !== null).length : 0;
+      const unassignedCount = employees ? employees.filter(emp => emp.department_id === null).length : 0;
+      
+      res.render('employees/employee-departments', {
+        activeShow: 'employees',
+        activePage: 'employee-departments',
+        userFirstName: user.first_name,
+        userLastName: user.last_name,
+        userEmail: user.email,
+        employees: employees || [],
+        unassignedEmployees: unassignedEmployees || [],
+        departmentStats: departmentStats || [],
+        departments: departments || [],
+        totalEmployees,
+        assignedCount,
+        unassignedCount,
+        assignedPercentage: totalEmployees > 0 ? Math.round((assignedCount / totalEmployees) * 100) : 0,
+        unassignedPercentage: totalEmployees > 0 ? Math.round((unassignedCount / totalEmployees) * 100) : 0
+      });
+    } catch (error) {
+      console.error('Error loading department assignments:', error);
+      req.flash('error_msg', 'Error loading department assignments');
+      res.redirect('/dashboard');
+    }
+  },
+
+  /**
+   * Update employee department (API endpoint)
+   */
+  updateEmployeeDepartment: async function(req, res) {
+    try {
+      const user = await db.users.findById(req.session.userId);
+      
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+      
+      const { id } = req.params;
+      const { department_id } = req.body;
+      
+      if (!id) {
+        return res.status(400).json({
+          success: false,
+          message: 'Employee ID is required'
+        });
+      }
+      
+      // Convert department_id to null if it's "null" or empty
+      const deptId = department_id === "null" || department_id === "" ? null : parseInt(department_id);
+      
+      // Update the department
+      const success = await db.employees.updateDepartment(id, deptId);
+      
+      if (success) {
+        // Get updated employee data
+        const employee = await db.employees.findById(id);
+        
+        res.json({
+          success: true,
+          message: 'Department updated successfully',
+          employee
+        });
+      } else {
+        res.status(404).json({
+          success: false,
+          message: 'Employee not found'
+        });
+      }
+    } catch (error) {
+      console.error('Error updating employee department:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error updating department',
+        error: error.message
+      });
+    }
+  },
+
+  /**
+   * Bulk update employee departments (API endpoint)
+   */
+  bulkUpdateDepartments: async function(req, res) {
+    try {
+      const user = await db.users.findById(req.session.userId);
+      
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+      
+      const { employee_ids, department_id } = req.body;
+      
+      if (!employee_ids || !Array.isArray(employee_ids) || employee_ids.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'No employees selected'
+        });
+      }
+      
+      if (!department_id && department_id !== null) {
+        return res.status(400).json({
+          success: false,
+          message: 'Department ID is required'
+        });
+      }
+      
+      // Convert department_id to null if it's "null" or empty
+      const deptId = department_id === "null" || department_id === "" ? null : parseInt(department_id);
+      
+      // Bulk update departments
+      const result = await db.employees.bulkUpdateDepartments(employee_ids, deptId);
+      
+      res.json({
+        success: true,
+        message: `Updated ${result.successCount} employees successfully`,
+        result
+      });
+    } catch (error) {
+      console.error('Error bulk updating departments:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error bulk updating departments',
+        error: error.message
+      });
     }
   },
 
@@ -77,12 +249,16 @@ const employeeController = {
         return res.redirect('/');
       }
       
+      // NEW: Get departments for dropdown
+      const departments = await db.departments.findAll();
+      
       res.render('employees/add-employee', {
         activeShow: 'employees',
         activePage: 'add-employees',
         userFirstName: user.first_name,
         userLastName: user.last_name,
-        userEmail: user.email
+        userEmail: user.email,
+        departments: departments || [] // NEW: Pass departments to view
       });
     } catch (error) {
       console.error('Error fetching user for add employee:', error);
@@ -91,6 +267,43 @@ const employeeController = {
     }
   },
 
+    /**
+   * Display add employee-department page
+   */
+
+ getEmployeeDepartment: async function(req, res) {
+  try {
+    const user = await db.users.findById(req.session.userId);
+    
+    if (!user) {
+      req.flash('error_msg', 'User not found');
+      return res.redirect('/');
+    }
+    
+    // FETCH THE DATA:
+    const employees = await db.employees.findAll();
+    const departments = await db.departments.findAll();
+    const unassignedCount = employees.filter(e => !e.department_id).length;
+    
+    res.render('employees/employee-departments', {
+      activeShow: 'employees',
+      activePage: 'employee-departments',
+      userFirstName: user.first_name,
+      userLastName: user.last_name,
+      userEmail: user.email,
+      employees: employees || [],
+      departments: departments || [],
+      unassignedCount: unassignedCount,
+      totalEmployees: employees.length
+    });
+  } catch (error) {
+    console.error('Error loading department page:', error);
+    req.flash('error_msg', 'Error loading page');
+    res.redirect('/dashboard');
+  }
+},
+
+  
   /**
    * Display bulk employee centralized upload page
    */
@@ -103,12 +316,16 @@ const employeeController = {
         return res.redirect('/');
       }
       
+      // NEW: Get departments for dropdown in bulk upload
+      const departments = await db.departments.findAll();
+      
       res.render('employees/employee-bulk', {
         activeShow: 'employee-bulk',
         activePage: 'employee-bulk',
         userFirstName: user.first_name,
         userLastName: user.last_name,
-        userEmail: user.email
+        userEmail: user.email,
+        departments: departments || [] // NEW: Pass departments to view
       });
     } catch (error) {
       console.error('Error fetching user for bulk upload:', error);
@@ -118,7 +335,7 @@ const employeeController = {
   },
 
   /**
-   * Download employee CSV template
+   * Download employee CSV template - UPDATED with department_id
    */
   downloadEmployeeTemplate: async function(req, res) {
     try {
@@ -129,21 +346,28 @@ const employeeController = {
         return res.redirect('/');
       }
       
-      const template = `payroll_number,full_name,id_number,gender,age,designation,job_group,status,retirement_date,employment_status
-19337,MR JULIUS ODHIAMBO MBOGAH,11684,M,63,Deputy Director - HRM & Development,R,0 - Active,04/11/2026,Permanent
-19338,JANE WANGUI KAMAU,11685,F,45,Senior HR Officer,S,0 - Active,15/08/2030,Permanent
-19339,PETER OMONDI OTIENO,11686,M,52,Finance Manager,T,0 - Active,22/05/2028,Contract
+      // Get departments for template
+      const departments = await db.departments.findAll();
+      
+      const template = `payroll_number,full_name,id_number,gender,age,designation,job_group,status,retirement_date,employment_status,department_id
+19337,MR JULIUS ODHIAMBO MBOGAH,11684,M,63,Deputy Director - HRM & Development,R,0 - Active,04/11/2026,Permanent,
+19338,JANE WANGUI KAMAU,11685,F,45,Senior HR Officer,S,0 - Active,15/08/2030,Permanent,
+19339,PETER OMONDI OTIENO,11686,M,52,Finance Manager,T,0 - Active,22/05/2028,Contract,
+
+# Available department IDs:
+${departments.map(dept => `# ${dept.id}: ${dept.name} (${dept.code})`).join('\n')}
 
 # Instructions:
 # 1. Required columns: payroll_number, full_name, id_number, gender, age, designation
-# 2. Optional columns: job_group, status, retirement_date, employment_status
+# 2. Optional columns: job_group, status, retirement_date, employment_status, department_id
 # 3. payroll_number and id_number must be unique and numeric
 # 4. gender must be M or F
 # 5. age must be between 18 and 120
 # 6. retirement_date must be in DD/MM/YYYY format
 # 7. status format: "0 - Active", "1 - Inactive", "2 - Retired"
 # 8. employment_status: Permanent, Contract, Probation, Temporary
-# 9. Remove this instruction row before uploading`;
+# 9. department_id: Use the ID from the departments list above (leave empty for unassigned)
+# 10. Remove this instruction row before uploading`;
 
       res.setHeader('Content-Type', 'text/csv');
       res.setHeader('Content-Disposition', 'attachment; filename=employee_template.csv');
@@ -156,7 +380,7 @@ const employeeController = {
   },
 
   /**
-   * Bulk upload employees from CSV - CLEAN VERSION
+   * Bulk upload employees from CSV - UPDATED for department_id
    */
   bulkUploadEmployees: async function(req, res) {
     try {
@@ -199,7 +423,7 @@ const employeeController = {
             continue; // Skip header row
           }
           
-          // We need at least 6 required columns
+          // We need at least 6 required columns (department_id is optional)
           if (columns.length >= 6) {
             const row = {
               payroll_number: columns[0] || '',
@@ -211,7 +435,8 @@ const employeeController = {
               job_group: columns[6] || '',
               status: columns[7] || '',
               retirement_date: columns[8] || '',
-              employment_status: columns[9] || ''
+              employment_status: columns[9] || '',
+              department_id: columns[10] || '' // NEW: department_id
             };
             rows.push(row);
           }
@@ -287,6 +512,23 @@ const employeeController = {
             throw new Error(`age must be a number between 18 and 120`);
           }
 
+          // Validate department_id if provided
+          let departmentId = null;
+          if (record.department_id && record.department_id.toString().trim() !== '') {
+            const deptId = parseInt(record.department_id.toString().trim());
+            if (isNaN(deptId) || deptId < 1) {
+              throw new Error(`department_id must be a positive number`);
+            }
+            
+            // Check if department exists
+            const department = await db.departments.findById(deptId);
+            if (!department) {
+              throw new Error(`Department with ID ${deptId} does not exist`);
+            }
+            
+            departmentId = deptId;
+          }
+
           // Check for duplicate payroll number in database
           const existingByPayroll = allEmployees.find(emp => 
             emp.payroll_number === record.payroll_number.toString().trim()
@@ -353,7 +595,8 @@ const employeeController = {
             job_group: record.job_group ? record.job_group.toString().trim().toUpperCase() : null,
             status: status,
             retirement_date: retirementDate,
-            employment_status: record.employment_status ? record.employment_status.toString().trim() : 'Permanent'
+            employment_status: record.employment_status ? record.employment_status.toString().trim() : 'Permanent',
+            department_id: departmentId  // NEW: department_id
           };
 
           // Create employee using repository
