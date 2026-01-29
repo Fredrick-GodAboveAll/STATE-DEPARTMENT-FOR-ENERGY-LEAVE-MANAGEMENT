@@ -407,6 +407,7 @@ ${departments.map(dept => `# ${dept.id}: ${dept.name} (${dept.code})`).join('\n'
         const rows = [];
         const fileContent = fs.readFileSync(req.file.path, 'utf8');
         const lines = fileContent.split('\n');
+        let isHeaderValidated = false;
         
         for (const line of lines) {
           const trimmedLine = line.trim();
@@ -416,12 +417,20 @@ ${departments.map(dept => `# ${dept.id}: ${dept.name} (${dept.code})`).join('\n'
           }
           
           // Parse CSV line
-          const columns = trimmedLine.split(',').map(col => col.trim());
+          const columns = trimmedLine.split(',').map(col => col.trim().toLowerCase());
           
           // Check if this might be a header row
           if (columns[0] === 'payroll_number' || 
               columns[1] === 'full_name' || 
               columns[2] === 'id_number') {
+            // VALIDATION: Reject any CSV containing department columns
+            if (columns.includes('department_id') || 
+                columns.includes('department') || 
+                columns.includes('dept_id') || 
+                columns.includes('dept')) {
+              reject(new Error('Do not include department information in the upload. Departments are assigned automatically.'));
+            }
+            isHeaderValidated = true;
             continue; // Skip header row
           }
           
@@ -439,8 +448,7 @@ ${departments.map(dept => `# ${dept.id}: ${dept.name} (${dept.code})`).join('\n'
               retirement_date: columns[8] || '',
               employment_status: columns[9] || '',
               date_of_birth: columns[10] || '',
-              disability: columns[11] || '',
-              department_id: columns[12] || ''
+              disability: columns[11] || ''
             };
             rows.push(row);
           }
@@ -535,25 +543,8 @@ ${departments.map(dept => `# ${dept.id}: ${dept.name} (${dept.code})`).join('\n'
             }
           }
 
-          // Validate department_id if provided - set to NA by default for bulk uploads
-          let departmentId = 'NA';  // Default to NA for bulk uploads
-          if (record.department_id && record.department_id.toString().trim() !== '') {
-            const deptIdStr = record.department_id.toString().trim();
-            if (deptIdStr !== 'NA' && deptIdStr.toUpperCase() !== 'NA') {
-              const deptId = parseInt(deptIdStr);
-              if (isNaN(deptId) || deptId < 1) {
-                throw new Error(`department_id must be a positive number or NA`);
-              }
-              
-              // Check if department exists
-              const department = await db.departments.findById(deptId);
-              if (!department) {
-                throw new Error(`Department with ID ${deptId} does not exist`);
-              }
-              
-              departmentId = deptId;
-            }
-          }
+          // STRICT: Do NOT assign any department - always NULL for new employees
+          const departmentId = null;  // Always NULL - departments assigned separately
 
           // Check for duplicate payroll number in database
           const existingByPayroll = allEmployees.find(emp => 

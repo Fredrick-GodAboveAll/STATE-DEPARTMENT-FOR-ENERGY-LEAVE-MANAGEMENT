@@ -30,34 +30,9 @@ class DatabaseSeeder {
 
     async seedUsers() {
         try {
-            // Check if users table has data
-            const existing = await connection.get('SELECT COUNT(*) as count FROM users');
-            
-            if (existing.count > 0) {
-                console.log('⚠️ Users table already has data, skipping user seeding');
-                return;
-            }
-            
-            console.log('👤 Seeding sample users...');
-            
-            const users = [
-                {
-                    first_name: 'Admin',
-                    last_name: 'User',
-                    email: 'admin@example.com',
-                    password: '$2b$10$YourHashedPasswordHere' // Use bcrypt hash in real app
-                }
-            ];
-            
-            for (const user of users) {
-                await connection.execute(
-                    `INSERT INTO users (first_name, last_name, email, password, last_login) 
-                     VALUES (?, ?, ?, ?, ?)`,
-                    [user.first_name, user.last_name, user.email, user.password, new Date().toISOString()]
-                );
-            }
-            
-            console.log('✅ Seeded 1 user');
+            // Skip user seeding - allow users to register themselves
+            console.log('⏭️ Skipping user seeding - register new users via sign-up');
+            return;
         } catch (error) {
             console.log('⏭️ Users table not ready for seeding yet:', error.message);
         }
@@ -181,7 +156,7 @@ class DatabaseSeeder {
                 return;
             }
             
-            console.log('👥 Seeding sample employees...');
+            console.log('👥 Seeding sample employees (no departments - NULL)...');
             
             const employees = [
                 {
@@ -197,7 +172,7 @@ class DatabaseSeeder {
                     employment_status: 'Permanent',
                     date_of_birth: '1978-03-15',
                     disability: 0,
-                    department_id: '1'
+                    department_id: null
                 },
                 {
                     payroll_number: '10002',
@@ -212,7 +187,7 @@ class DatabaseSeeder {
                     employment_status: 'Permanent',
                     date_of_birth: '1985-06-22',
                     disability: 4,
-                    department_id: '1'
+                    department_id: null
                 },
                 {
                     payroll_number: '10003',
@@ -227,7 +202,7 @@ class DatabaseSeeder {
                     employment_status: 'Contract',
                     date_of_birth: '1982-11-08',
                     disability: 0,
-                    department_id: '1'
+                    department_id: null
                 },
                 {
                     payroll_number: '10004',
@@ -242,7 +217,7 @@ class DatabaseSeeder {
                     employment_status: 'Permanent',
                     date_of_birth: '1990-01-30',
                     disability: 0,
-                    department_id: '1'
+                    department_id: null
                 },
                 {
                     payroll_number: '10005',
@@ -257,7 +232,7 @@ class DatabaseSeeder {
                     employment_status: 'Permanent',
                     date_of_birth: '1975-09-12',
                     disability: 0,
-                    department_id: '1'
+                    department_id: null
                 }
             ];
             
@@ -273,7 +248,7 @@ class DatabaseSeeder {
                 );
             }
             
-            console.log(`✅ Seeded ${employees.length} employees`);
+            console.log(`✅ Seeded ${employees.length} employees (all without departments)`);
         } catch (error) {
             console.log('⏭️ Employees table not ready for seeding yet:', error.message);
         }

@@ -36,7 +36,7 @@ class EmployeeRepository {
                     employment_status || 'Permanent',
                     date_of_birth || null,
                     disability || null,
-                    department_id || 'NA'
+                    department_id || null
                 ]
             );
             

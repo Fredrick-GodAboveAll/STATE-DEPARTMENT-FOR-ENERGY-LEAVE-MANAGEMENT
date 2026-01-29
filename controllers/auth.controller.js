@@ -76,6 +76,8 @@ const authController = {
     const trimmedLastName = last_name.trim();
     const trimmedEmail = email.trim().toLowerCase();
 
+    console.log('📝 Registration attempt with email:', trimmedEmail);
+
     if (trimmedFirstName.length < 2 || trimmedFirstName.length > 50) {
       req.flash('error_msg', 'First name must be 2-50 chars');
       return res.redirect('/sign-up');
@@ -105,6 +107,14 @@ const authController = {
     }
 
     try {
+      // Check if email already exists first
+      const existingUser = await db.connection.get('SELECT id FROM users WHERE LOWER(email) = ?', [trimmedEmail]);
+      if (existingUser) {
+        console.log('❌ Email already exists in database:', trimmedEmail);
+        req.flash('error_msg', 'Email already registered. Please log in or use a different email.');
+        return res.redirect('/sign-up');
+      }
+
       const hashedPassword = await bcrypt.hash(password, 12);
 
       const result = await db.connection.execute(
@@ -112,6 +122,7 @@ const authController = {
         [trimmedFirstName, trimmedLastName, trimmedEmail, hashedPassword]
       );
 
+      console.log('✅ User registered successfully:', trimmedEmail);
       req.session.userId = result.lastID;
       req.session.userEmail = trimmedEmail;
       req.flash('success_msg', 'Registration successful! Welcome.');

@@ -16,7 +16,7 @@ module.exports = {
             employment_status TEXT,             -- From "Engage Name" column (Permanent, Contract, etc.)
             date_of_birth TEXT,                 -- Used for age auto-calculation
             disability INTEGER CHECK(disability IN (0, 4)),  -- Only 0 or 4 allowed
-            department_id TEXT DEFAULT 'NA',    -- Foreign key to departments (set to 'NA' initially for bulk uploads)
+            department_id INTEGER,              -- Foreign key to departments (NULL = unassigned)
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL
