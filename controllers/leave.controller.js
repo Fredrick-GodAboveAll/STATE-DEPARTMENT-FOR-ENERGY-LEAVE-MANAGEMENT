@@ -677,19 +677,109 @@ getLeaveBulk: async function(req, res) {
         return res.redirect('/');
       }
 
-      // Render leave applications page
+      // Get leave applications from database
+      const leaveApplications = await db.leaveApplications.findAll();
+      
+      // Get summary counts
+      const totalApplications = await db.leaveApplications.count();
+      const pendingCount = await db.leaveApplications.countByStatus('Pending');
+      const approvedCount = await db.leaveApplications.countByStatus('Approved');
+      const rejectedCount = await db.leaveApplications.countByStatus('Rejected');
+      const cancelledCount = await db.leaveApplications.countByStatus('Cancelled');
+
+      // Calculate capacity (example: assuming 200 total capacity)
+      const capacity = 220;
+      const onLeave = approvedCount; // Assuming approved means currently on leave
+
       res.render('leave_management/leave_applications', {
         activeShow: 'leave_types',
         activePage: 'leave_applications',
         userFirstName: user.first_name,
         userLastName: user.last_name,
         userEmail: user.email,
-        pageTitle: 'Leave Applications'
+        pageTitle: 'Leave Applications',
+        leaveApplications: leaveApplications,
+        totalApplications: totalApplications,
+        capacity: capacity,
+        onLeave: onLeave,
+        revoked: rejectedCount + cancelledCount
       });
     } catch (error) {
       console.error('Error loading leave applications page:', error);
       req.flash('error_msg', 'Error loading leave applications page');
       res.redirect('/dashboard');
+    }
+  },
+
+  // Leave Applications CRUD operations
+  getLeaveApplicationById: async function(req, res) {
+    try {
+      const { id } = req.params;
+      const leaveApplication = await db.leaveApplications.findById(id);
+      
+      if (!leaveApplication) {
+        return res.status(404).json({ success: false, message: 'Leave application not found' });
+      }
+      
+      res.json({ success: true, data: leaveApplication });
+    } catch (error) {
+      console.error('Error fetching leave application:', error);
+      res.status(500).json({ success: false, message: 'Error fetching leave application' });
+    }
+  },
+
+  createLeaveApplication: async function(req, res) {
+    try {
+      const leaveApplicationData = req.body;
+      const result = await db.leaveApplications.create(leaveApplicationData);
+      
+      res.status(201).json({ success: true, data: result, message: 'Leave application created successfully' });
+    } catch (error) {
+      console.error('Error creating leave application:', error);
+      res.status(500).json({ success: false, message: 'Error creating leave application' });
+    }
+  },
+
+  updateLeaveApplication: async function(req, res) {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+      
+      // For now, just update status if provided
+      if (updateData.status) {
+        await db.leaveApplications.updateStatus(id, updateData.status);
+      }
+      
+      res.json({ success: true, message: 'Leave application updated successfully' });
+    } catch (error) {
+      console.error('Error updating leave application:', error);
+      res.status(500).json({ success: false, message: 'Error updating leave application' });
+    }
+  },
+
+  deleteLeaveApplication: async function(req, res) {
+    try {
+      const { id } = req.params;
+      await db.leaveApplications.delete(id);
+      
+      res.json({ success: true, message: 'Leave application deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting leave application:', error);
+      res.status(500).json({ success: false, message: 'Error deleting leave application' });
+    }
+  },
+
+  updateLeaveApplicationStatus: async function(req, res) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      
+      await db.leaveApplications.updateStatus(id, status);
+      
+      res.json({ success: true, message: 'Leave application status updated successfully' });
+    } catch (error) {
+      console.error('Error updating leave application status:', error);
+      res.status(500).json({ success: false, message: 'Error updating leave application status' });
     }
   },
 

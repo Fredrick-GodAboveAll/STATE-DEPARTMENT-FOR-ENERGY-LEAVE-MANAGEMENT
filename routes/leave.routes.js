@@ -71,4 +71,11 @@ router.get('/leave_bulk', leaveController.getLeaveBulk);
 // NEW: Leave applications page
 router.get('/leave_applications', leaveController.getLeaveApplications);
 
+// API routes for leave applications CRUD
+router.get('/leave_applications/:id', leaveController.getLeaveApplicationById);
+router.post('/leave_applications', leaveController.createLeaveApplication);
+router.put('/leave_applications/:id', leaveController.updateLeaveApplication);
+router.delete('/leave_applications/:id', leaveController.deleteLeaveApplication);
+router.patch('/leave_applications/:id/status', leaveController.updateLeaveApplicationStatus);
+
 module.exports = router;

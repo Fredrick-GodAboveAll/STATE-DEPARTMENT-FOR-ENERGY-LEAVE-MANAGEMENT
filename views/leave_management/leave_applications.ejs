@@ -21,7 +21,7 @@
         <div class="d-flex align-items-center">
           <div class="flex-1">
             <h6 class="text-600 mb-1">Total Applications</h6>
-            <h4 class="mb-0">45</h4>
+            <h4 class="mb-0"><%= totalApplications %></h4>
           </div>
           <div class="ms-2">
             <span class="fas fa-file-alt text-primary fa-2x"></span>
@@ -37,7 +37,7 @@
         <div class="d-flex align-items-center">
           <div class="flex-1">
             <h6 class="text-600 mb-1">Capacity</h6>
-            <h4 class="mb-0">220</h4>
+            <h4 class="mb-0"><%= capacity %></h4>
           </div>
           <div class="ms-2">
             <span class="fas fa-clock text-warning fa-2x"></span>
@@ -53,7 +53,7 @@
         <div class="d-flex align-items-center">
           <div class="flex-1">
             <h6 class="text-600 mb-1">On Leave</h6>
-            <h4 class="mb-0">10</h4>
+            <h4 class="mb-0"><%= onLeave %></h4>
           </div>
           <div class="ms-2">
             <span class="fas fa-check-circle text-success fa-2x"></span>
@@ -69,7 +69,7 @@
         <div class="d-flex align-items-center">
           <div class="flex-1">
             <h6 class="text-600 mb-1">Revoked</h6>
-            <h4 class="mb-0">1</h4>
+            <h4 class="mb-0"><%= revoked %></h4>
           </div>
           <div class="ms-2">
             <span class="fas fa-times-circle text-danger fa-2x"></span>
@@ -144,117 +144,74 @@
                     </tr>
                   </thead>
                   <tbody class="list" id="table-simple-pagination-body">
-                    <!-- Sample Data 1 -->
+                    <% if (leaveApplications && leaveApplications.length > 0) { %>
+                      <% leaveApplications.forEach(function(app, index) { %>
                     <tr class="btn-reveal-trigger">
                       <td class="align-middle" style="width: 28px;">
                         <div class="form-check mb-0">
-                          <input class="form-check-input" type="checkbox" id="leave-1" data-bulk-select-row="data-bulk-select-row" />
+                          <input class="form-check-input" type="checkbox" id="leave-<%= app.id %>" data-bulk-select-row="data-bulk-select-row" />
                         </div>
                       </td>
 
                       <td class="align-middle white-space-nowrap">
-                        <span class="fw-semi-bold">LA/001/2026</span>
+                        <span class="fw-semi-bold"><%= app.ref_no %></span>
                       </td>
 
                       <td class="align-middle white-space-nowrap">
-                        <span class="fw-semi-bold">EMP001</span>
+                        <span class="fw-semi-bold"><%= app.payroll_number %></span>
                       </td>
 
                       <td class="align-middle white-space-nowrap">
                         <div class="d-flex align-items-center">
-                          <span class="fw-semi-bold">John Mwangi</span>
+                          <span class="fw-semi-bold"><%= app.employee_name %></span>
                         </div>
                       </td>
                       
                       <td class="align-middle white-space-nowrap">
-                        <span class="fw-semi-bold">Human Resource</span>
+                        <span class="fw-semi-bold"><%= app.department_name %></span>
                       </td>
                       <td class="align-middle white-space-nowrap">
-                        <span class="badge badge-subtle-primary rounded-pill">Annual Leave</span>
+                        <span class="badge badge-subtle-<%= app.leave_type_color %> rounded-pill"><%= app.leave_type_name %></span>
                       </td>
                       <td class="align-middle white-space-nowrap">
-                        <span class="fw-semi-bold">2026-02-01</span>
+                        <span class="fw-semi-bold"><%= app.start_date %></span>
                       </td>
                       <td class="align-middle white-space-nowrap">
-                        <span class="fw-semi-bold">2026-02-14</span>
+                        <span class="fw-semi-bold"><%= app.end_date %></span>
                       </td>
                       <td class="align-middle white-space-nowrap">
-                        <span class="fw-semi-bold">2026-02-15</span>
+                        <span class="fw-semi-bold"><%= app.back_on %></span>
                       </td>
                       <td class="align-middle white-space-nowrap">
-                        <span class="badge badge-subtle-info rounded-pill">14</span>
+                        <span class="badge badge-subtle-info rounded-pill"><%= app.duration_days %></span>
                       </td>
                       <td class="align-middle white-space-nowrap">
-                        <span class="text-500">2026-01-10</span>
+                        <span class="text-500"><%= app.applied_on %></span>
                       </td>
                       <td class="align-middle white-space-nowrap">
-                        <span class="text-500">2026-01-15</span>
+                        <span class="text-500"><%= app.letter_date %></span>
                       </td>
 
                       <td class="align-middle white-space-nowrap text-end">
-                        <div class="dropstart font-sans-serif position-static d-inline-block"><button class="btn btn-link text-600 btn-sm dropdown-toggle btn-reveal float-end" type="button" id="dropdown-recent-purchase-table-13" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10"></span></button>
-                          <div class="dropdown-menu dropdown-menu-end border py-2" aria-labelledby="dropdown-recent-purchase-table-13"><a class="dropdown-item" href="#!" data-bs-toggle="modal" data-bs-target="#viewLeaveApplicationModal">View</a><a class="dropdown-item" href="#!">Edit</a><a class="dropdown-item text-warning" href="#!">Revoke</a>
+                        <div class="dropstart font-sans-serif position-static d-inline-block"><button class="btn btn-link text-600 btn-sm dropdown-toggle btn-reveal float-end" type="button" id="dropdown-recent-purchase-table-<%= app.id %>" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10"></span></button>
+                          <div class="dropdown-menu dropdown-menu-end border py-2" aria-labelledby="dropdown-recent-purchase-table-<%= app.id %>"><a class="dropdown-item" href="#!" data-bs-toggle="modal" data-bs-target="#viewLeaveApplicationModal" onclick="viewApplication(<%= app.id %>)">View</a><a class="dropdown-item" href="#!">Edit</a><a class="dropdown-item text-warning" href="#!">Revoke</a>
                             <div class="dropdown-divider"></div><a class="dropdown-item text-danger" href="#!">Delete</a>
                           </div>
                         </div>
                       </td>
                     </tr>
-                    
-                    <!-- Sample Data 2 -->
-                    <tr class="btn-reveal-trigger">
-                      <td class="align-middle" style="width: 28px;">
-                        <div class="form-check mb-0">
-                          <input class="form-check-input" type="checkbox" id="leave-2" data-bulk-select-row="data-bulk-select-row" />
-                        </div>
-                      </td>
-
-                      <td class="align-middle white-space-nowrap">
-                        <span class="fw-semi-bold">LA/002/2026</span>
-                      </td>
-
-                      <td class="align-middle white-space-nowrap">
-                        <span class="fw-semi-bold">EMP002</span>
-                      </td>
-
-                      <td class="align-middle white-space-nowrap">
-                        <div class="d-flex align-items-center">
-                          <span class="fw-semi-bold">Sarah Wanjiku</span>
-                        </div>
-                      </td>
-                      
-                      <td class="align-middle white-space-nowrap">
-                        <span class="fw-semi-bold">Information Technology</span>
-                      </td>
-                      <td class="align-middle white-space-nowrap">
-                        <span class="badge badge-subtle-danger rounded-pill">Sick Leave</span>
-                      </td>
-                      <td class="align-middle white-space-nowrap">
-                        <span class="fw-semi-bold">2026-01-20</span>
-                      </td>
-                      <td class="align-middle white-space-nowrap">
-                        <span class="fw-semi-bold">2026-01-24</span>
-                      </td>
-                      <td class="align-middle white-space-nowrap">
-                        <span class="fw-semi-bold">2026-01-25</span>
-                      </td>
-                      <td class="align-middle white-space-nowrap">
-                        <span class="badge badge-subtle-info rounded-pill">5</span>
-                      </td>
-                      <td class="align-middle white-space-nowrap">
-                        <span class="text-500">2026-01-19</span>
-                      </td>
-                      <td class="align-middle white-space-nowrap">
-                        <span class="text-500">2026-01-20</span>
-                      </td>
-
-                      <td class="align-middle white-space-nowrap text-end">
-                        <div class="dropstart font-sans-serif position-static d-inline-block"><button class="btn btn-link text-600 btn-sm dropdown-toggle btn-reveal float-end" type="button" id="dropdown-recent-purchase-table-13" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10"></span></button>
-                          <div class="dropdown-menu dropdown-menu-end border py-2" aria-labelledby="dropdown-recent-purchase-table-13"><a class="dropdown-item" href="#!" data-bs-toggle="modal" data-bs-target="#viewLeaveApplicationModal">View</a><a class="dropdown-item" href="#!">Edit</a><a class="dropdown-item text-warning" href="#!">Revoke</a>
-                            <div class="dropdown-divider"></div><a class="dropdown-item text-danger" href="#!">Delete</a>
-                          </div>
+                      <% }); %>
+                    <% } else { %>
+                    <tr>
+                      <td colspan="13" class="text-center py-4">
+                        <div class="d-flex flex-column align-items-center">
+                          <span class="fas fa-calendar-times fa-3x text-300 mb-2"></span>
+                          <h6 class="text-600">No leave applications found</h6>
+                          <p class="text-500 mb-0">Start by creating your first leave application</p>
                         </div>
                       </td>
                     </tr>
+                    <% } %>
                   </tbody>
                 </table>
               </div>

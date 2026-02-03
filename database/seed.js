@@ -18,6 +18,7 @@ class DatabaseSeeder {
             await this.seedLeaveTypes();
             await this.seedDepartments();  // NEW: Add departments
             await this.seedEmployees();
+            await this.seedLeaveApplications();
             
             console.log('✅ Database seeding completed');
         } catch (error) {
@@ -88,11 +89,56 @@ class DatabaseSeeder {
             
             const leaveTypes = [
                 {
-                    leave_name: 'Test',
+                    leave_name: 'Annual Leave',
                     color: 'primary',
-                    entitled_days: 1,
+                    entitled_days: 21,
                     gender_restriction: 'All',
-                    description: 'this is a test leave type',
+                    description: 'Annual leave with pay',
+                    carry_forward_days: null,
+                    status: 'Active'
+                },
+                {
+                    leave_name: 'Sick Leave',
+                    color: 'danger',
+                    entitled_days: 14,
+                    gender_restriction: 'All',
+                    description: 'Sick leave with pay',
+                    carry_forward_days: null,
+                    status: 'Active'
+                },
+                {
+                    leave_name: 'Maternity Leave',
+                    color: 'success',
+                    entitled_days: 90,
+                    gender_restriction: 'Female',
+                    description: 'Maternity leave',
+                    carry_forward_days: null,
+                    status: 'Active'
+                },
+                {
+                    leave_name: 'Paternity Leave',
+                    color: 'warning',
+                    entitled_days: 7,
+                    gender_restriction: 'Male',
+                    description: 'Paternity leave',
+                    carry_forward_days: null,
+                    status: 'Active'
+                },
+                {
+                    leave_name: 'Casual Leave',
+                    color: 'info',
+                    entitled_days: 7,
+                    gender_restriction: 'All',
+                    description: 'Casual leave',
+                    carry_forward_days: null,
+                    status: 'Active'
+                },
+                {
+                    leave_name: 'Bereavement Leave',
+                    color: 'secondary',
+                    entitled_days: 3,
+                    gender_restriction: 'All',
+                    description: 'Bereavement leave',
                     carry_forward_days: null,
                     status: 'Active'
                 }
@@ -126,9 +172,27 @@ class DatabaseSeeder {
             
             const departments = [
                 {
-                    name: 'Test Department',
-                    code: 'TD',
-                    description: 'this is just a test',
+                    name: 'Human Resource',
+                    code: 'HR',
+                    description: 'Human Resources Department',
+                    status: 'Active'
+                },
+                {
+                    name: 'Information Technology',
+                    code: 'IT',
+                    description: 'Information Technology Department',
+                    status: 'Active'
+                },
+                {
+                    name: 'Finance',
+                    code: 'FIN',
+                    description: 'Finance Department',
+                    status: 'Active'
+                },
+                {
+                    name: 'Operations',
+                    code: 'OPS',
+                    description: 'Operations Department',
                     status: 'Active'
                 }
             ];
@@ -160,8 +224,8 @@ class DatabaseSeeder {
             
             const employees = [
                 {
-                    payroll_number: '10001',
-                    full_name: 'John Kariuki Mwangi',
+                    payroll_number: 'EMP001',
+                    full_name: 'John Mwangi',
                     id_number: '12345678',
                     gender: 'M',
                     age: 46,
@@ -172,11 +236,11 @@ class DatabaseSeeder {
                     employment_status: 'Permanent',
                     date_of_birth: '1978-03-15',
                     disability: 'no',
-                    department_id: null
+                    department_id: 1  // Human Resource
                 },
                 {
-                    payroll_number: '10002',
-                    full_name: 'Sarah Kamau Wanjiru',
+                    payroll_number: 'EMP002',
+                    full_name: 'Sarah Wanjiku',
                     id_number: '23456789',
                     gender: 'F',
                     age: 39,
@@ -187,7 +251,7 @@ class DatabaseSeeder {
                     employment_status: 'Permanent',
                     date_of_birth: '1985-06-22',
                     disability: 'yes',
-                    department_id: null
+                    department_id: 2  // Information Technology
                 },
                 {
                     payroll_number: '10003',
@@ -202,7 +266,7 @@ class DatabaseSeeder {
                     employment_status: 'Contract',
                     date_of_birth: '1982-11-08',
                     disability: 'no',
-                    department_id: null
+                    department_id: 4  // Operations
                 },
                 {
                     payroll_number: '10004',
@@ -217,7 +281,7 @@ class DatabaseSeeder {
                     employment_status: 'Permanent',
                     date_of_birth: '1990-01-30',
                     disability: 'no',
-                    department_id: null
+                    department_id: 3  // Finance
                 },
                 {
                     payroll_number: '10005',
@@ -232,16 +296,13 @@ class DatabaseSeeder {
                     employment_status: 'Permanent',
                     date_of_birth: '1975-09-12',
                     disability: 'no',
-                    department_id: null
+                    department_id: 1  // Human Resource
                 }
             ];
             
             for (const emp of employees) {
                 await connection.execute(
-                    `INSERT INTO employees 
-                    (payroll_number, full_name, id_number, gender, age, designation, job_group, 
-                     status, retirement_date, employment_status, date_of_birth, disability, department_id) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    `INSERT INTO employees (payroll_number, full_name, id_number, gender, age, designation, job_group, status, retirement_date, employment_status, date_of_birth, disability, department_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [emp.payroll_number, emp.full_name, emp.id_number, emp.gender, emp.age, 
                      emp.designation, emp.job_group, emp.status, emp.retirement_date, 
                      emp.employment_status, emp.date_of_birth, emp.disability, emp.department_id]
@@ -251,6 +312,60 @@ class DatabaseSeeder {
             console.log(`✅ Seeded ${employees.length} employees (all without departments)`);
         } catch (error) {
             console.log('⏭️ Employees table not ready for seeding yet:', error.message);
+        }
+    }
+
+    async seedLeaveApplications() {
+        try {
+            const existing = await connection.get('SELECT COUNT(*) as count FROM leave_applications');
+            
+            if (existing.count > 0) {
+                console.log('⚠️ Leave applications table already has data, skipping leave application seeding');
+                return;
+            }
+            
+            console.log('📋 Seeding sample leave applications...');
+            
+            const leaveApplications = [
+                {
+                    ref_no: 'LA/001/2026',
+                    employee_id: 1,  // John Mwangi
+                    leave_type_id: 1,  // Annual Leave
+                    start_date: '2026-02-01',
+                    end_date: '2026-02-14',
+                    back_on: '2026-02-15',
+                    duration_days: 14,
+                    applied_on: '2026-01-10',
+                    letter_date: '2026-01-15',
+                    status: 'Pending',
+                    reason: null
+                },
+                {
+                    ref_no: 'LA/002/2026',
+                    employee_id: 2,  // Sarah Wanjiku
+                    leave_type_id: 2,  // Sick Leave
+                    start_date: '2026-01-20',
+                    end_date: '2026-01-24',
+                    back_on: '2026-01-25',
+                    duration_days: 5,
+                    applied_on: '2026-01-19',
+                    letter_date: '2026-01-20',
+                    status: 'Approved',
+                    reason: null
+                }
+            ];
+            
+            for (const app of leaveApplications) {
+                await connection.execute(
+                    `INSERT INTO leave_applications (ref_no, employee_id, leave_type_id, start_date, end_date, back_on, duration_days, applied_on, letter_date, status, reason) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [app.ref_no, app.employee_id, app.leave_type_id, app.start_date, app.end_date, app.back_on, 
+                     app.duration_days, app.applied_on, app.letter_date, app.status, app.reason]
+                );
+            }
+            
+            console.log(`✅ Seeded ${leaveApplications.length} leave applications`);
+        } catch (error) {
+            console.log('⏭️ Leave applications table not ready for seeding yet:', error.message);
         }
     }
 }

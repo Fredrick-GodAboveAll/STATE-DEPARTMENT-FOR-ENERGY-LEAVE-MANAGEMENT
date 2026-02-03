@@ -12,6 +12,7 @@ const LeaveTypeRepository = require('./repositories/LeaveTypeRepository');
 const EmployeeRepository = require('./repositories/EmployeeRepository');
 const ResetRepository = require('./repositories/ResetRepository');
 const DepartmentRepository = require('./repositories/DepartmentRepository');
+const LeaveApplicationRepository = require('./repositories/LeaveApplicationRepository');
 
 // Schemas
 const schemas = require('./schemas');
@@ -28,7 +29,8 @@ class Database {
         this.leaveTypes = LeaveTypeRepository;
         this.employees = EmployeeRepository;
         this.resets = ResetRepository;
-        this.departments = DepartmentRepository;  // Already there, but double-check
+        this.departments = DepartmentRepository;
+        this.leaveApplications = LeaveApplicationRepository;
 
         this.schemas = schemas;
         this.initialized = false;
