@@ -17,7 +17,7 @@ module.exports = {
         
         // Add disability if not exists
         if (!columnNames.includes('disability')) {
-            await db.execute('ALTER TABLE employees ADD COLUMN disability TEXT');
+            await db.execute('ALTER TABLE employees ADD COLUMN disability TEXT CHECK(disability IN (\'yes\', \'no\'))');
             console.log('✅ Added disability column');
         } else {
             console.log('⏭️ disability column already exists');

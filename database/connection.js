@@ -77,7 +77,7 @@ class DatabaseConnection {
                 return;
             }
             
-            this.db.run(sql, params, function(err) {
+            this.db.run(sql, ...params, function(err) {
                 if (err) {
                     reject(err);
                 } else {
@@ -95,7 +95,7 @@ class DatabaseConnection {
                 return;
             }
             
-            this.db.get(sql, params, (err, row) => {
+            this.db.get(sql, ...params, (err, row) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -113,7 +113,7 @@ class DatabaseConnection {
                 return;
             }
             
-            this.db.all(sql, params, (err, rows) => {
+            this.db.all(sql, ...params, (err, rows) => {
                 if (err) {
                     reject(err);
                 } else {

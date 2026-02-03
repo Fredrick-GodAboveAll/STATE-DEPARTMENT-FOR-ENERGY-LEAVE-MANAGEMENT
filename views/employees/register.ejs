@@ -456,21 +456,17 @@
                       deptText = employee.department_name;
                     }
                     
-                    // NEW: Disability badge - Fixed to handle both string and number types
+                    // NEW: Disability badge - Direct display of "yes"/"no"
                     let disabilityText = '-';
                     let disabilityBadgeClass = 'badge-subtle-secondary';
                     
-                    // Convert to number to handle both string "0"/"4" and number 0/4
-                    const disabilityValue = parseInt(employee.disability);
-                    
-                    if (!isNaN(disabilityValue)) {
-                      if (disabilityValue === 0) {
-                        disabilityText = 'NO';
-                        disabilityBadgeClass = 'badge-subtle-success';
-                      } else if (disabilityValue === 4) {
-                        disabilityText = 'YES';
-                        disabilityBadgeClass = 'badge-subtle-info';
-                      }
+                    const disabilityValue = employee.disability;
+                    if (disabilityValue === 'yes') {
+                      disabilityText = 'yes';
+                      disabilityBadgeClass = 'badge-subtle-info';
+                    } else if (disabilityValue === 'no') {
+                      disabilityText = 'no';
+                      disabilityBadgeClass = 'badge-subtle-success';
                     }
                   %>
                   <tr class="btn-reveal-trigger">

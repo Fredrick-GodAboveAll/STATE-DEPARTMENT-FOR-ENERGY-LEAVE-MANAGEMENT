@@ -534,12 +534,14 @@ ${departments.map(dept => `# ${dept.id}: ${dept.name} (${dept.code})`).join('\n'
             throw new Error(`age must be a number between 18 and 120`);
           }
 
-          // Validate disability (0 or 4 only)
+          // Validate disability ("yes" or "no")
           let disability = null;
           if (record.disability && record.disability.toString().trim() !== '') {
-            disability = parseInt(record.disability.toString().trim());
-            if (isNaN(disability) || (disability !== 0 && disability !== 4)) {
-              throw new Error(`disability must be 0 or 4, received: ${record.disability}`);
+            const disabilityStr = record.disability.toString().toLowerCase().trim();
+            if (disabilityStr === 'yes' || disabilityStr === 'no') {
+              disability = disabilityStr;
+            } else {
+              throw new Error(`disability must be "yes" or "no", received: ${record.disability}`);
             }
           }
 

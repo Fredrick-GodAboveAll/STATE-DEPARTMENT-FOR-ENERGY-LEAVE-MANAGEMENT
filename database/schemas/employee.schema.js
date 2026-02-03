@@ -15,7 +15,7 @@ module.exports = {
             retirement_date TEXT DEFAULT 'NA',  -- Default to 'NA'
             employment_status TEXT,             -- From "Engage Name" column (Permanent, Contract, etc.)
             date_of_birth TEXT,                 -- Used for age auto-calculation
-            disability INTEGER CHECK(disability IN (0, 4)),  -- Only 0 or 4 allowed
+            disability TEXT CHECK(disability IN ('yes', 'no')),  -- "yes" = disability, "no" = no disability
             department_id INTEGER,              -- Foreign key to departments (NULL = unassigned)
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -167,7 +167,8 @@ module.exports = {
             return null;
         }
         
-        const today = new Date();
+        // Use fixed date: February 3, 2026 (real life date for this project)
+        const today = new Date(2026, 1, 3); // Month is 0-based: 1 = February
         let age = today.getFullYear() - dob.getFullYear();
         const monthDiff = today.getMonth() - dob.getMonth();
         

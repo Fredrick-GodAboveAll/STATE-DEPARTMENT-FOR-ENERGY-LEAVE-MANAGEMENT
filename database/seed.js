@@ -171,7 +171,7 @@ class DatabaseSeeder {
                     retirement_date: 'NA',
                     employment_status: 'Permanent',
                     date_of_birth: '1978-03-15',
-                    disability: 0,
+                    disability: 'no',
                     department_id: null
                 },
                 {
@@ -186,7 +186,7 @@ class DatabaseSeeder {
                     retirement_date: 'NA',
                     employment_status: 'Permanent',
                     date_of_birth: '1985-06-22',
-                    disability: 4,
+                    disability: 'yes',
                     department_id: null
                 },
                 {
@@ -201,7 +201,7 @@ class DatabaseSeeder {
                     retirement_date: 'NA',
                     employment_status: 'Contract',
                     date_of_birth: '1982-11-08',
-                    disability: 0,
+                    disability: 'no',
                     department_id: null
                 },
                 {
@@ -216,7 +216,7 @@ class DatabaseSeeder {
                     retirement_date: 'NA',
                     employment_status: 'Permanent',
                     date_of_birth: '1990-01-30',
-                    disability: 0,
+                    disability: 'no',
                     department_id: null
                 },
                 {
@@ -231,7 +231,7 @@ class DatabaseSeeder {
                     retirement_date: 'NA',
                     employment_status: 'Permanent',
                     date_of_birth: '1975-09-12',
-                    disability: 0,
+                    disability: 'no',
                     department_id: null
                 }
             ];
