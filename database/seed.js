@@ -317,20 +317,25 @@ class DatabaseSeeder {
 
     async seedLeaveApplications() {
         try {
-            const existing = await connection.get('SELECT COUNT(*) as count FROM leave_applications');
+            console.log('📋 Seeding sample leave applications...');
             
-            if (existing.count > 0) {
-                console.log('⚠️ Leave applications table already has data, skipping leave application seeding');
+            // Clear existing data to ensure clean seeding
+            await connection.execute('DELETE FROM leave_applications');
+            
+            // Get existing employee and leave type IDs
+            const employees = await connection.all('SELECT id, payroll_number, full_name FROM employees LIMIT 5');
+            const leaveTypes = await connection.all('SELECT id, leave_name FROM leave_types LIMIT 5');
+            
+            if (employees.length === 0 || leaveTypes.length === 0) {
+                console.log('⏭️ No employees or leave types found, skipping leave application seeding');
                 return;
             }
-            
-            console.log('📋 Seeding sample leave applications...');
             
             const leaveApplications = [
                 {
                     ref_no: 'LA/001/2026',
-                    employee_id: 1,  // John Mwangi
-                    leave_type_id: 1,  // Annual Leave
+                    employee_id: employees[0].id,
+                    leave_type_id: leaveTypes[0].id,
                     start_date: '2026-02-01',
                     end_date: '2026-02-14',
                     back_on: '2026-02-15',
@@ -342,8 +347,8 @@ class DatabaseSeeder {
                 },
                 {
                     ref_no: 'LA/002/2026',
-                    employee_id: 2,  // Sarah Wanjiku
-                    leave_type_id: 2,  // Sick Leave
+                    employee_id: employees.length > 1 ? employees[1].id : employees[0].id,
+                    leave_type_id: leaveTypes.length > 1 ? leaveTypes[1].id : leaveTypes[0].id,
                     start_date: '2026-01-20',
                     end_date: '2026-01-24',
                     back_on: '2026-01-25',
@@ -351,6 +356,32 @@ class DatabaseSeeder {
                     applied_on: '2026-01-19',
                     letter_date: '2026-01-20',
                     status: 'Approved',
+                    reason: null
+                },
+                {
+                    ref_no: 'LA/003/2026',
+                    employee_id: employees.length > 2 ? employees[2].id : employees[0].id,
+                    leave_type_id: leaveTypes[0].id,
+                    start_date: '2026-03-01',
+                    end_date: '2026-03-05',
+                    back_on: '2026-03-06',
+                    duration_days: 5,
+                    applied_on: '2026-02-20',
+                    letter_date: '2026-02-25',
+                    status: 'Approved',
+                    reason: 'Family emergency'
+                },
+                {
+                    ref_no: 'LA/004/2026',
+                    employee_id: employees.length > 3 ? employees[3].id : employees[0].id,
+                    leave_type_id: leaveTypes.length > 2 ? leaveTypes[2].id : leaveTypes[0].id,
+                    start_date: '2026-04-01',
+                    end_date: '2026-04-10',
+                    back_on: '2026-04-11',
+                    duration_days: 10,
+                    applied_on: '2026-03-15',
+                    letter_date: '2026-03-20',
+                    status: 'Pending',
                     reason: null
                 }
             ];
