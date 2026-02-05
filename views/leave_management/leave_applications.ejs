@@ -168,7 +168,7 @@
                       </td>
                       
                       <td class="align-middle white-space-nowrap">
-                        <span class="fw-semi-bold"><%= app.department_name %></span>
+                        <span class="fw-semi-bold"><%= app.department_name || 'NA' %></span>
                       </td>
                       <td class="align-middle white-space-nowrap">
                         <span class="badge badge-subtle-<%= app.leave_type_color %> rounded-pill"><%= app.leave_type_name %></span>
