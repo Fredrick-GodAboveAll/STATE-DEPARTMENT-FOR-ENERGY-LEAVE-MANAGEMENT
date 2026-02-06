@@ -688,7 +688,8 @@ getLeaveBulk: async function(req, res) {
       const cancelledCount = await db.leaveApplications.countByStatus('Cancelled');
 
       // Get total number of employees as capacity
-      const totalEmployees = await db.employees.count();
+      const allEmployees = await db.employees.findAll();
+      const totalEmployees = allEmployees ? allEmployees.length : 0;
       const capacity = totalEmployees || 0;
       const onLeave = approvedCount; // Assuming approved means currently on leave
 
