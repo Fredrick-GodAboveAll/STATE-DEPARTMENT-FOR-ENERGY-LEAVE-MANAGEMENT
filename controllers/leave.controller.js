@@ -687,8 +687,9 @@ getLeaveBulk: async function(req, res) {
       const rejectedCount = await db.leaveApplications.countByStatus('Rejected');
       const cancelledCount = await db.leaveApplications.countByStatus('Cancelled');
 
-      // Calculate capacity (example: assuming 200 total capacity)
-      const capacity = 220;
+      // Get total number of employees as capacity
+      const totalEmployees = await db.employees.count();
+      const capacity = totalEmployees || 0;
       const onLeave = approvedCount; // Assuming approved means currently on leave
 
       res.render('leave_management/leave_applications', {
@@ -813,6 +814,115 @@ Bereavement Leave,secondary,3,All,Bereavement leave,,Active
       res.status(500).json({
         success: false,
         message: 'Error downloading template'
+      });
+    }
+  },
+
+  /**
+   * API: Search employees for leave application modal
+   */
+  searchEmployees: async function(req, res) {
+    res.set('Content-Type', 'application/json');
+    try {
+      const employees = await db.connection.all(
+        `SELECT e.id, e.payroll_number, e.full_name, e.department_id, d.name as department_name
+         FROM employees e
+         LEFT JOIN departments d ON e.department_id = d.id
+         ORDER BY e.full_name`
+      );
+
+      res.json({
+        success: true,
+        employees: employees || []
+      });
+    } catch (error) {
+      console.error('Error searching employees:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error searching employees',
+        error: error.message
+      });
+    }
+  },
+
+  /**
+   * API: Get all holidays for date validation
+   */
+  getHolidaysForValidation: async function(req, res) {
+    res.set('Content-Type', 'application/json');
+    try {
+      let holidays = [];
+      try {
+        holidays = await db.holidays.findAll();
+      } catch (dbError) {
+        console.error('Database error in getHolidaysForValidation:', dbError);
+        holidays = [];
+      }
+      
+      // Format holidays as simple date array for client-side validation
+      const holidayDates = (holidays || []).map(h => {
+        // Handle date safely - database might return string or Date
+        const dateStr = h.holiday_date || h.date;
+        let isoDate = dateStr;
+        
+        // If it's a full date object or has time component, extract just the date part
+        if (dateStr && dateStr.includes('-')) {
+          isoDate = dateStr.split('T')[0]; // Handle ISO format dates
+        } else if (dateStr) {
+          const dateObj = new Date(dateStr);
+          isoDate = dateObj.toISOString().split('T')[0];
+        }
+        
+        return {
+          date: dateStr,
+          isoDate: isoDate,
+          name: h.holiday_name || 'Holiday'
+        };
+      });
+
+      console.log('✅ Returning', holidayDates.length, 'holidays:', holidayDates.map(h => h.isoDate).join(', '));
+
+      res.json({
+        success: true,
+        holidays: holidayDates
+      });
+    } catch (error) {
+      console.error('Error getting holidays:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error fetching holidays',
+        error: error.message
+      });
+    }
+  },
+
+  /**
+   * API: Get all active leave types for form dropdown
+   */
+  getLeaveTypesForForm: async function(req, res) {
+    res.set('Content-Type', 'application/json');
+    try {
+      let leaveTypes = [];
+      try {
+        leaveTypes = await db.leaveTypes.findAll();
+      } catch (dbError) {
+        console.error('Database error in getLeaveTypesForForm:', dbError);
+        leaveTypes = [];
+      }
+      
+      // Filter only active leave types
+      const activeLeaveTypes = (leaveTypes || []).filter(lt => lt.status === 'Active');
+
+      res.json({
+        success: true,
+        leaveTypes: activeLeaveTypes
+      });
+    } catch (error) {
+      console.error('Error getting leave types:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error fetching leave types',
+        error: error.message
       });
     }
   }

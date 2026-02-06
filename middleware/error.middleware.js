@@ -14,16 +14,18 @@ function errorHandler(err, req, res, next) {
 const staticFileExtensions = [
   '.html', '.css', '.js', '.png', '.jpg', '.jpeg', '.gif', 
   '.ico', '.svg', '.woff', '.woff2', '.ttf', '.eot', 
-  '.map', '.json'  // <--- ADD THESE TWO HERE
+  '.map', '.json'
 ];
   
   const isStaticFile = staticFileExtensions.some(function(ext) {
     return req.path.toLowerCase().endsWith(ext);
   });
   
-  // Check if it's an API request
-  if (req.xhr || req.path.startsWith('/api/')) {
-    // API error response
+  // Check if it's an API request (check URL contains /api/ or is xhr)
+  const isApiRequest = req.xhr || req.path.includes('/api/') || req.path.startsWith('/api');
+  
+  if (isApiRequest) {
+    // API error response - always return JSON
     res.status(500).json({
       success: false,
       message: 'An internal error occurred',
@@ -33,10 +35,11 @@ const staticFileExtensions = [
     // Static file not found - send simple 404
     res.status(404).send('File not found: ' + req.path);
   } else {
-    // Page error response
+    // Page error response - only render if activePage is defined
     res.status(500).render('error/500', {
       title: 'Server Error',
       error: process.env.NODE_ENV === 'development' ? err.message : undefined,
+      activePage: 'error',
       req: req
     });
   }
@@ -49,7 +52,7 @@ function notFoundHandler(req, res, next) {
     return req.path.toLowerCase().endsWith(ext);
   });
   
-  if (req.xhr || req.path.startsWith('/api/')) {
+  if (req.xhr || req.path.includes('/api/')) {
     res.status(404).json({ success: false, message: 'Resource not found' });
   } else if (isStaticFile) {
     // Static file not found - send simple 404

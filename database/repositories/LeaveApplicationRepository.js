@@ -26,6 +26,7 @@ class LeaveApplicationRepository {
             return { id: result.lastID, ...leaveApplicationData };
         } catch (error) {
             console.error('LeaveApplicationRepository.create error:', error.message);
+            // Do not auto-modify or auto-increment ref_no here; propagate the error
             throw error;
         }
     }

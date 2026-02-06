@@ -28,12 +28,14 @@ router.get('/holidays/template', holidaysController.downloadTemplate);
 router.post('/holidays/bulk-upload', upload.single('csvFile'), holidaysController.bulkUploadHolidays);
 
 // Leave Types API
+router.get('/leave_types', apiController.getAllLeaveTypes);
 router.post('/leave_types', apiController.addLeaveType);
 router.delete('/leave_types/:id', apiController.deleteLeaveType);
 router.put('/leave_types/:id', apiController.updateLeaveType);
 router.get('/leave_types/:id', apiController.getLeaveType);
 
 // Employees API
+router.get('/employees', apiController.getAllEmployees);
 router.post('/employees', apiController.addEmployee);
 router.delete('/employees/:id', apiController.deleteEmployee);
 router.put('/employees/:id', apiController.updateEmployee);
