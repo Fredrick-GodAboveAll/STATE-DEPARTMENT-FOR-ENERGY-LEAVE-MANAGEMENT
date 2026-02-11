@@ -12,8 +12,14 @@ class EmployeeRepository {
         try {
             const {
                 payroll_number, full_name, id_number, gender, age, designation, job_group,
-                status, retirement_date, employment_status, department_id
+                status, retirement_date, employment_status, date_of_birth, disability, department_id
             } = employeeData;
+            
+            // Auto-calculate age from date_of_birth if not provided
+            let finalAge = age;
+            if (date_of_birth && !age) {
+                finalAge = this.schema.calculateAgeFromDOB(date_of_birth);
+            }
             
             const result = await this.connection.execute(
                 this.schema.INSERT_EMPLOYEE,
@@ -22,12 +28,14 @@ class EmployeeRepository {
                     full_name, 
                     id_number, 
                     gender || null, 
-                    age || null, 
+                    finalAge || null, 
                     designation, 
                     job_group || null,
                     status || '0 - Active', 
-                    retirement_date || null, 
+                    retirement_date || 'NA', 
                     employment_status || 'Permanent',
+                    date_of_birth || null,
+                    disability || null,
                     department_id || null
                 ]
             );
@@ -108,8 +116,14 @@ class EmployeeRepository {
         try {
             const {
                 payroll_number, full_name, id_number, gender, age, designation, job_group,
-                status, retirement_date, employment_status, department_id
+                status, retirement_date, employment_status, date_of_birth, disability, department_id
             } = employeeData;
+            
+            // Auto-calculate age from date_of_birth if not provided
+            let finalAge = age;
+            if (date_of_birth && !age) {
+                finalAge = this.schema.calculateAgeFromDOB(date_of_birth);
+            }
             
             const result = await this.connection.execute(
                 this.schema.UPDATE_EMPLOYEE,
@@ -118,13 +132,15 @@ class EmployeeRepository {
                     full_name, 
                     id_number, 
                     gender || null, 
-                    age || null, 
+                    finalAge || null, 
                     designation, 
                     job_group || null,
                     status || '0 - Active', 
-                    retirement_date || null, 
+                    retirement_date || 'NA', 
                     employment_status || 'Permanent',
-                    department_id || null,
+                    date_of_birth || null,
+                    disability || null,
+                    department_id || 'NA',
                     id
                 ]
             );
@@ -358,8 +374,14 @@ async getEmployeesByDepartment(departmentId) {
                 try {
                     const {
                         payroll_number, full_name, id_number, gender, age, designation, job_group,
-                        status, retirement_date, employment_status, department_id
+                        status, retirement_date, employment_status, date_of_birth, disability, department_id
                     } = employeeData;
+                    
+                    // Auto-calculate age from date_of_birth if not provided
+                    let finalAge = age;
+                    if (date_of_birth && !age) {
+                        finalAge = this.schema.calculateAgeFromDOB(date_of_birth);
+                    }
                     
                     const result = await this.connection.execute(
                         this.schema.INSERT_EMPLOYEE,
@@ -368,13 +390,15 @@ async getEmployeesByDepartment(departmentId) {
                             full_name, 
                             id_number, 
                             gender || null, 
-                            age || null, 
+                            finalAge || null, 
                             designation, 
                             job_group || null,
                             status || '0 - Active', 
-                            retirement_date || null, 
+                            retirement_date || 'NA', 
                             employment_status || 'Permanent',
-                            department_id || null
+                            date_of_birth || null,
+                            disability || null,
+                            department_id || 'NA'
                         ]
                     );
                     

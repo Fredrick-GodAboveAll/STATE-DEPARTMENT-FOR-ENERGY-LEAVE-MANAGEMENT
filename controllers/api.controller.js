@@ -249,6 +249,20 @@ const apiController = {
   },
 
   /**
+   * Get all leave types
+   */
+  getAllLeaveTypes: async function(req, res) {
+    try {
+      res.set('Content-Type', 'application/json');
+      const leaveTypes = await db.leaveTypes.findAll();
+      res.json({ success: true, leaveTypes: leaveTypes || [] });
+    } catch (error) {
+      console.error('Error fetching leave types:', error);
+      res.status(500).json({ success: false, message: error.message || 'Error fetching leave types' });
+    }
+  },
+
+  /**
    * Get single leave type by ID
    */
   getLeaveType: async function(req, res) {
@@ -370,6 +384,20 @@ const apiController = {
     } catch (error) {
       console.error('Error deleting employee:', error);
       res.status(500).json({ success: false, message: error.message || 'Error deleting employee' });
+    }
+  },
+
+  /**
+   * Get all employees with their departments
+   */
+  getAllEmployees: async function(req, res) {
+    try {
+      res.set('Content-Type', 'application/json');
+      const employees = await db.employees.findAll();
+      res.json({ success: true, employees: employees || [] });
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+      res.status(500).json({ success: false, message: error.message || 'Error fetching employees' });
     }
   },
 

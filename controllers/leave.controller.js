@@ -677,19 +677,111 @@ getLeaveBulk: async function(req, res) {
         return res.redirect('/');
       }
 
-      // Render leave applications page
+      // Get leave applications from database
+      const leaveApplications = await db.leaveApplications.findAll();
+      
+      // Get summary counts
+      const totalApplications = await db.leaveApplications.count();
+      const pendingCount = await db.leaveApplications.countByStatus('Pending');
+      const approvedCount = await db.leaveApplications.countByStatus('Approved');
+      const rejectedCount = await db.leaveApplications.countByStatus('Rejected');
+      const cancelledCount = await db.leaveApplications.countByStatus('Cancelled');
+
+      // Get total number of employees as capacity
+      const allEmployees = await db.employees.findAll();
+      const totalEmployees = allEmployees ? allEmployees.length : 0;
+      const capacity = totalEmployees || 0;
+      const onLeave = approvedCount; // Assuming approved means currently on leave
+
       res.render('leave_management/leave_applications', {
         activeShow: 'leave_types',
         activePage: 'leave_applications',
         userFirstName: user.first_name,
         userLastName: user.last_name,
         userEmail: user.email,
-        pageTitle: 'Leave Applications'
+        pageTitle: 'Leave Applications',
+        leaveApplications: leaveApplications,
+        totalApplications: totalApplications,
+        capacity: capacity,
+        onLeave: onLeave,
+        revoked: rejectedCount + cancelledCount
       });
     } catch (error) {
       console.error('Error loading leave applications page:', error);
       req.flash('error_msg', 'Error loading leave applications page');
       res.redirect('/dashboard');
+    }
+  },
+
+  // Leave Applications CRUD operations
+  getLeaveApplicationById: async function(req, res) {
+    try {
+      const { id } = req.params;
+      const leaveApplication = await db.leaveApplications.findById(id);
+      
+      if (!leaveApplication) {
+        return res.status(404).json({ success: false, message: 'Leave application not found' });
+      }
+      
+      res.json({ success: true, data: leaveApplication });
+    } catch (error) {
+      console.error('Error fetching leave application:', error);
+      res.status(500).json({ success: false, message: 'Error fetching leave application' });
+    }
+  },
+
+  createLeaveApplication: async function(req, res) {
+    try {
+      const leaveApplicationData = req.body;
+      const result = await db.leaveApplications.create(leaveApplicationData);
+      
+      res.status(201).json({ success: true, data: result, message: 'Leave application created successfully' });
+    } catch (error) {
+      console.error('Error creating leave application:', error);
+      res.status(500).json({ success: false, message: 'Error creating leave application' });
+    }
+  },
+
+  updateLeaveApplication: async function(req, res) {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+      
+      // For now, just update status if provided
+      if (updateData.status) {
+        await db.leaveApplications.updateStatus(id, updateData.status);
+      }
+      
+      res.json({ success: true, message: 'Leave application updated successfully' });
+    } catch (error) {
+      console.error('Error updating leave application:', error);
+      res.status(500).json({ success: false, message: 'Error updating leave application' });
+    }
+  },
+
+  deleteLeaveApplication: async function(req, res) {
+    try {
+      const { id } = req.params;
+      await db.leaveApplications.delete(id);
+      
+      res.json({ success: true, message: 'Leave application deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting leave application:', error);
+      res.status(500).json({ success: false, message: 'Error deleting leave application' });
+    }
+  },
+
+  updateLeaveApplicationStatus: async function(req, res) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      
+      await db.leaveApplications.updateStatus(id, status);
+      
+      res.json({ success: true, message: 'Leave application status updated successfully' });
+    } catch (error) {
+      console.error('Error updating leave application status:', error);
+      res.status(500).json({ success: false, message: 'Error updating leave application status' });
     }
   },
 
@@ -723,6 +815,115 @@ Bereavement Leave,secondary,3,All,Bereavement leave,,Active
       res.status(500).json({
         success: false,
         message: 'Error downloading template'
+      });
+    }
+  },
+
+  /**
+   * API: Search employees for leave application modal
+   */
+  searchEmployees: async function(req, res) {
+    res.set('Content-Type', 'application/json');
+    try {
+      const employees = await db.connection.all(
+        `SELECT e.id, e.payroll_number, e.full_name, e.department_id, d.name as department_name
+         FROM employees e
+         LEFT JOIN departments d ON e.department_id = d.id
+         ORDER BY e.full_name`
+      );
+
+      res.json({
+        success: true,
+        employees: employees || []
+      });
+    } catch (error) {
+      console.error('Error searching employees:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error searching employees',
+        error: error.message
+      });
+    }
+  },
+
+  /**
+   * API: Get all holidays for date validation
+   */
+  getHolidaysForValidation: async function(req, res) {
+    res.set('Content-Type', 'application/json');
+    try {
+      let holidays = [];
+      try {
+        holidays = await db.holidays.findAll();
+      } catch (dbError) {
+        console.error('Database error in getHolidaysForValidation:', dbError);
+        holidays = [];
+      }
+      
+      // Format holidays as simple date array for client-side validation
+      const holidayDates = (holidays || []).map(h => {
+        // Handle date safely - database might return string or Date
+        const dateStr = h.holiday_date || h.date;
+        let isoDate = dateStr;
+        
+        // If it's a full date object or has time component, extract just the date part
+        if (dateStr && dateStr.includes('-')) {
+          isoDate = dateStr.split('T')[0]; // Handle ISO format dates
+        } else if (dateStr) {
+          const dateObj = new Date(dateStr);
+          isoDate = dateObj.toISOString().split('T')[0];
+        }
+        
+        return {
+          date: dateStr,
+          isoDate: isoDate,
+          name: h.holiday_name || 'Holiday'
+        };
+      });
+
+      console.log('✅ Returning', holidayDates.length, 'holidays:', holidayDates.map(h => h.isoDate).join(', '));
+
+      res.json({
+        success: true,
+        holidays: holidayDates
+      });
+    } catch (error) {
+      console.error('Error getting holidays:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error fetching holidays',
+        error: error.message
+      });
+    }
+  },
+
+  /**
+   * API: Get all active leave types for form dropdown
+   */
+  getLeaveTypesForForm: async function(req, res) {
+    res.set('Content-Type', 'application/json');
+    try {
+      let leaveTypes = [];
+      try {
+        leaveTypes = await db.leaveTypes.findAll();
+      } catch (dbError) {
+        console.error('Database error in getLeaveTypesForForm:', dbError);
+        leaveTypes = [];
+      }
+      
+      // Filter only active leave types
+      const activeLeaveTypes = (leaveTypes || []).filter(lt => lt.status === 'Active');
+
+      res.json({
+        success: true,
+        leaveTypes: activeLeaveTypes
+      });
+    } catch (error) {
+      console.error('Error getting leave types:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error fetching leave types',
+        error: error.message
       });
     }
   }

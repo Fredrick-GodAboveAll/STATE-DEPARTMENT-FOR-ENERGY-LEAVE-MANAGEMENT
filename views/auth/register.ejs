@@ -21,7 +21,7 @@
                       <div class="col-auto fs-10 text-600"><span class="mb-0">Have an account?</span> <span><a href="/">Login</a></span></div>
                     </div>
 
-                    <form class="needs-validation" novalidate="" action="/sign-up" method="POST">
+                    <form class="needs-validation" novalidate="" action="/sign-up" method="POST" onsubmit="disableSubmitBtn(event)">
                       <div class="row gx-2">
                         <div class="mb-3 col-sm-6">
                           <input class="form-control" type="text" name="first_name" autocomplete="on" id="validationCustom01" placeholder="First Name" required />
@@ -34,7 +34,7 @@
                       </div>
 
                       <div class="mb-3">
-                        <input class="form-control" type="email" name="email" autocomplete="on" id="validationCustom02" placeholder="Email address" required />
+                        <input class="form-control" type="email" name="email" autocomplete="off" id="validationCustom02" placeholder="Email address" required />
                         <div class="invalid-feedback">Type Email.</div>
                       </div>
                       
@@ -56,9 +56,19 @@
                       </div>
 
                       <div class="mb-3">
-                        <button class="btn btn-primary d-block w-100 mt-3" type="submit" name="submit">Register</button>
+                        <button class="btn btn-primary d-block w-100 mt-3" type="submit" name="submit" id="registerBtn">Register</button>
                       </div>
                     </form>
+
+                    <script>
+                      function disableSubmitBtn(event) {
+                        const btn = document.getElementById('registerBtn');
+                        btn.disabled = true;
+                        btn.innerText = 'Registering...';
+                        // Allow form to submit naturally
+                        return true;
+                      }
+                    </script>
 
                     <div class="position-relative mt-4">
                       <hr />

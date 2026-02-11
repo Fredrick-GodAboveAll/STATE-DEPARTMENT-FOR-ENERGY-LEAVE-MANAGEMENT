@@ -365,7 +365,7 @@
           </div>
           <div class="card-body px-0 pt-0">
             <table class="table table-sm mb-0 overflow-hidden data-table fs-10" 
-              data-datatables='{"responsive":true,"pagingType":"simple","lengthChange":true,"pageLength":10,"searching":true,"bDeferRender":true,"serverSide":false,"language":{"info":"_START_ to _END_ of _TOTAL_ employees","search":"Search employees:","searchPlaceholder":"Search by name, payroll..."},"order":[[1,"asc"]],"columnDefs":[{"orderable":false,"targets":[0,11]}]}'>
+              data-datatables='{"responsive":true,"pagingType":"simple","lengthChange":true,"pageLength":10,"searching":true,"bDeferRender":true,"serverSide":false,"language":{"info":"_START_ to _END_ of _TOTAL_ employees","search":"Search employees:","searchPlaceholder":"Search by name, payroll..."},"order":[[1,"asc"]],"columnDefs":[{"orderable":false,"targets":[0,14]}]}'>
               <thead class="bg-200">
                 <tr>
                   <th class="text-900 no-sort white-space-nowrap" data-orderable="false">
@@ -381,12 +381,11 @@
                   <th class="text-900 sort white-space-nowrap">Designation</th>
                   <th class="text-900 sort white-space-nowrap">Job Group</th>
                   <th class="text-900 sort white-space-nowrap">Status</th>
-                  
-                  <!-- NEW: Department Column -->
-                  <th class="text-900 sort white-space-nowrap">Department</th>
-                  
                   <th class="text-900 sort white-space-nowrap">Retirement Date</th>
                   <th class="text-900 sort white-space-nowrap">Employment Status</th>
+                  <th class="text-900 sort white-space-nowrap">Date of Birth</th>
+                  <th class="text-900 sort white-space-nowrap">Department</th>
+                  <th class="text-900 sort white-space-nowrap">Disability</th>
                   <th class="text-900 sort white-space-nowrap">Actions</th>
                 </tr>
               </thead>
@@ -446,14 +445,28 @@
                       empStatusClass = 'badge-subtle-primary';
                     }
                     
-                    // NEW: Department badge
+                    // NEW: Department badge - display NA if not assigned
                     let deptBadgeClass = 'badge-subtle-warning';
                     let deptIcon = 'fa-question-circle';
-                    let deptText = employee.department_name || 'Unassigned';
+                    let deptText = 'NA';
                     
-                    if (employee.department_name) {
+                    if (employee.department_id && employee.department_id !== 'NA' && employee.department_name) {
                       deptBadgeClass = 'badge-subtle-info';
                       deptIcon = 'fa-building';
+                      deptText = employee.department_name;
+                    }
+                    
+                    // NEW: Disability badge - Direct display of "yes"/"no"
+                    let disabilityText = '-';
+                    let disabilityBadgeClass = 'badge-subtle-secondary';
+                    
+                    const disabilityValue = employee.disability;
+                    if (disabilityValue === 'yes') {
+                      disabilityText = 'yes';
+                      disabilityBadgeClass = 'badge-subtle-info';
+                    } else if (disabilityValue === 'no') {
+                      disabilityText = 'no';
+                      disabilityBadgeClass = 'badge-subtle-success';
                     }
                   %>
                   <tr class="btn-reveal-trigger">
@@ -497,21 +510,26 @@
                         <span class="ms-1 fas <%= statusIcon %>" data-fa-transform="shrink-2"></span>
                       </span>
                     </td>
-                    
-                    <!-- NEW: Department Column Data -->
-                    <td class="align-middle white-space-nowrap">
-                      <span class="badge <%= deptBadgeClass %> rounded-pill d-inline-flex align-items-center">
-                        <span class="fas <%= deptIcon %> me-1" data-fa-transform="shrink-2"></span>
-                        <%= deptText %>
-                      </span>
-                    </td>
-                    
                     <td class="align-middle white-space-nowrap">
                       <%= retirementDisplay %>
                     </td>
                     <td class="align-middle white-space-nowrap">
                       <span class="badge <%= empStatusClass %> rounded-pill">
                         <%= empStatusText %>
+                      </span>
+                    </td>
+                    <td class="align-middle white-space-nowrap">
+                      <%= employee.date_of_birth || '-' %>
+                    </td>
+                    <td class="align-middle white-space-nowrap">
+                      <span class="badge <%= deptBadgeClass %> rounded-pill d-inline-flex align-items-center">
+                        <span class="fas <%= deptIcon %> me-1" data-fa-transform="shrink-2"></span>
+                        <%= deptText %>
+                      </span>
+                    </td>
+                    <td class="align-middle white-space-nowrap">
+                      <span class="badge <%= disabilityBadgeClass %> rounded-pill">
+                        <%= disabilityText %>
                       </span>
                     </td>
                     <td class="align-middle white-space-nowrap text-end">
@@ -531,7 +549,7 @@
                   <% }); %>
                 <% } else { %>
                   <tr>
-                    <td colspan="13" class="text-center py-5">
+                    <td colspan="15" class="text-center py-5">
                       <div class="text-muted">
                         <span class="fas fa-users fa-3x mb-3"></span>
                         <h5 class="mb-1">No employees found</h5>

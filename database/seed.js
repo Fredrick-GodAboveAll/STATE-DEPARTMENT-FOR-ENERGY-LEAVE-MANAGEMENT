@@ -18,6 +18,7 @@ class DatabaseSeeder {
             await this.seedLeaveTypes();
             await this.seedDepartments();  // NEW: Add departments
             await this.seedEmployees();
+            await this.seedLeaveApplications();
             
             console.log('✅ Database seeding completed');
         } catch (error) {
@@ -30,34 +31,9 @@ class DatabaseSeeder {
 
     async seedUsers() {
         try {
-            // Check if users table has data
-            const existing = await connection.get('SELECT COUNT(*) as count FROM users');
-            
-            if (existing.count > 0) {
-                console.log('⚠️ Users table already has data, skipping user seeding');
-                return;
-            }
-            
-            console.log('👤 Seeding sample users...');
-            
-            const users = [
-                {
-                    first_name: 'Admin',
-                    last_name: 'User',
-                    email: 'admin@example.com',
-                    password: '$2b$10$YourHashedPasswordHere' // Use bcrypt hash in real app
-                }
-            ];
-            
-            for (const user of users) {
-                await connection.execute(
-                    `INSERT INTO users (first_name, last_name, email, password, last_login) 
-                     VALUES (?, ?, ?, ?, ?)`,
-                    [user.first_name, user.last_name, user.email, user.password, new Date().toISOString()]
-                );
-            }
-            
-            console.log('✅ Seeded 1 user');
+            // Skip user seeding - allow users to register themselves
+            console.log('⏭️ Skipping user seeding - register new users via sign-up');
+            return;
         } catch (error) {
             console.log('⏭️ Users table not ready for seeding yet:', error.message);
         }
@@ -113,11 +89,56 @@ class DatabaseSeeder {
             
             const leaveTypes = [
                 {
-                    leave_name: 'Test',
+                    leave_name: 'Annual Leave',
                     color: 'primary',
-                    entitled_days: 1,
+                    entitled_days: 21,
                     gender_restriction: 'All',
-                    description: 'this is a test leave type',
+                    description: 'Annual leave with pay',
+                    carry_forward_days: null,
+                    status: 'Active'
+                },
+                {
+                    leave_name: 'Sick Leave',
+                    color: 'danger',
+                    entitled_days: 14,
+                    gender_restriction: 'All',
+                    description: 'Sick leave with pay',
+                    carry_forward_days: null,
+                    status: 'Active'
+                },
+                {
+                    leave_name: 'Maternity Leave',
+                    color: 'success',
+                    entitled_days: 90,
+                    gender_restriction: 'Female',
+                    description: 'Maternity leave',
+                    carry_forward_days: null,
+                    status: 'Active'
+                },
+                {
+                    leave_name: 'Paternity Leave',
+                    color: 'warning',
+                    entitled_days: 7,
+                    gender_restriction: 'Male',
+                    description: 'Paternity leave',
+                    carry_forward_days: null,
+                    status: 'Active'
+                },
+                {
+                    leave_name: 'Casual Leave',
+                    color: 'info',
+                    entitled_days: 7,
+                    gender_restriction: 'All',
+                    description: 'Casual leave',
+                    carry_forward_days: null,
+                    status: 'Active'
+                },
+                {
+                    leave_name: 'Bereavement Leave',
+                    color: 'secondary',
+                    entitled_days: 3,
+                    gender_restriction: 'All',
+                    description: 'Bereavement leave',
                     carry_forward_days: null,
                     status: 'Active'
                 }
@@ -151,9 +172,27 @@ class DatabaseSeeder {
             
             const departments = [
                 {
-                    name: 'Test Department',
-                    code: 'TD',
-                    description: 'this is just a test',
+                    name: 'Human Resource',
+                    code: 'HR',
+                    description: 'Human Resources Department',
+                    status: 'Active'
+                },
+                {
+                    name: 'Information Technology',
+                    code: 'IT',
+                    description: 'Information Technology Department',
+                    status: 'Active'
+                },
+                {
+                    name: 'Finance',
+                    code: 'FIN',
+                    description: 'Finance Department',
+                    status: 'Active'
+                },
+                {
+                    name: 'Operations',
+                    code: 'OPS',
+                    description: 'Operations Department',
                     status: 'Active'
                 }
             ];
@@ -181,40 +220,183 @@ class DatabaseSeeder {
                 return;
             }
             
-            console.log('👥 Seeding sample employees...');
+            console.log('👥 Seeding sample employees (no departments - NULL)...');
             
             const employees = [
                 {
-                    payroll_number: '111',
-                    full_name: 'Test staff',
-                    id_number: '111111111',
+                    payroll_number: 'EMP001',
+                    full_name: 'John Mwangi',
+                    id_number: '12345678',
                     gender: 'M',
-                    age: 60,
-                    designation: 'Manager',
-                    job_group: 'JG2',
-                    status: 'Active',
-                    retirement_date: '2070-12-31',
+                    age: 46,
+                    designation: 'Senior Finance Officer',
+                    job_group: 'A',
+                    status: '0',
+                    retirement_date: 'NA',
                     employment_status: 'Permanent',
-                    date_of_birth: '2000-05-15',
-                    disability: 'None'
+                    date_of_birth: '1978-03-15',
+                    disability: 'no',
+                    department_id: 1  // Human Resource
+                },
+                {
+                    payroll_number: 'EMP002',
+                    full_name: 'Sarah Wanjiku',
+                    id_number: '23456789',
+                    gender: 'F',
+                    age: 39,
+                    designation: 'Human Resources Manager',
+                    job_group: 'B',
+                    status: '0',
+                    retirement_date: 'NA',
+                    employment_status: 'Permanent',
+                    date_of_birth: '1985-06-22',
+                    disability: 'yes',
+                    department_id: 2  // Information Technology
+                },
+                {
+                    payroll_number: '10003',
+                    full_name: 'Peter Omondi Kipchoge',
+                    id_number: '34567890',
+                    gender: 'M',
+                    age: 42,
+                    designation: 'Operations Supervisor',
+                    job_group: 'A',
+                    status: '0',
+                    retirement_date: 'NA',
+                    employment_status: 'Contract',
+                    date_of_birth: '1982-11-08',
+                    disability: 'no',
+                    department_id: 4  // Operations
+                },
+                {
+                    payroll_number: '10004',
+                    full_name: 'Alice Njeri Muthoni',
+                    id_number: '45678901',
+                    gender: 'F',
+                    age: 34,
+                    designation: 'Accounts Officer',
+                    job_group: 'B',
+                    status: '0',
+                    retirement_date: 'NA',
+                    employment_status: 'Permanent',
+                    date_of_birth: '1990-01-30',
+                    disability: 'no',
+                    department_id: 3  // Finance
+                },
+                {
+                    payroll_number: '10005',
+                    full_name: 'Michael Kiplagat Bor',
+                    id_number: '56789012',
+                    gender: 'M',
+                    age: 49,
+                    designation: 'Deputy Director',
+                    job_group: 'A',
+                    status: '0',
+                    retirement_date: 'NA',
+                    employment_status: 'Permanent',
+                    date_of_birth: '1975-09-12',
+                    disability: 'no',
+                    department_id: 1  // Human Resource
                 }
             ];
             
             for (const emp of employees) {
                 await connection.execute(
-                    `INSERT INTO employees 
-                    (payroll_number, full_name, id_number, gender, age, designation, job_group, 
-                     status, retirement_date, employment_status, date_of_birth, disability) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    `INSERT INTO employees (payroll_number, full_name, id_number, gender, age, designation, job_group, status, retirement_date, employment_status, date_of_birth, disability, department_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [emp.payroll_number, emp.full_name, emp.id_number, emp.gender, emp.age, 
                      emp.designation, emp.job_group, emp.status, emp.retirement_date, 
-                     emp.employment_status, emp.date_of_birth, emp.disability]
+                     emp.employment_status, emp.date_of_birth, emp.disability, emp.department_id]
                 );
             }
             
-            console.log(`✅ Seeded ${employees.length} employees`);
+            console.log(`✅ Seeded ${employees.length} employees (all without departments)`);
         } catch (error) {
             console.log('⏭️ Employees table not ready for seeding yet:', error.message);
+        }
+    }
+
+    async seedLeaveApplications() {
+        try {
+            console.log('📋 Seeding sample leave applications...');
+            
+            // Clear existing data to ensure clean seeding
+            await connection.execute('DELETE FROM leave_applications');
+            
+            // Get existing employee and leave type IDs
+            const employees = await connection.all('SELECT id, payroll_number, full_name FROM employees LIMIT 5');
+            const leaveTypes = await connection.all('SELECT id, leave_name FROM leave_types LIMIT 5');
+            
+            if (employees.length === 0 || leaveTypes.length === 0) {
+                console.log('⏭️ No employees or leave types found, skipping leave application seeding');
+                return;
+            }
+            
+            const leaveApplications = [
+                {
+                    ref_no: 'LA/001/2026',
+                    employee_id: employees[0].id,
+                    leave_type_id: leaveTypes[0].id,
+                    start_date: '2026-02-01',
+                    end_date: '2026-02-14',
+                    back_on: '2026-02-15',
+                    duration_days: 14,
+                    applied_on: '2026-01-10',
+                    letter_date: '2026-01-15',
+                    status: 'Pending',
+                    reason: null
+                },
+                {
+                    ref_no: 'LA/002/2026',
+                    employee_id: employees.length > 1 ? employees[1].id : employees[0].id,
+                    leave_type_id: leaveTypes.length > 1 ? leaveTypes[1].id : leaveTypes[0].id,
+                    start_date: '2026-01-20',
+                    end_date: '2026-01-24',
+                    back_on: '2026-01-25',
+                    duration_days: 5,
+                    applied_on: '2026-01-19',
+                    letter_date: '2026-01-20',
+                    status: 'Approved',
+                    reason: null
+                },
+                {
+                    ref_no: 'LA/003/2026',
+                    employee_id: employees.length > 2 ? employees[2].id : employees[0].id,
+                    leave_type_id: leaveTypes[0].id,
+                    start_date: '2026-03-01',
+                    end_date: '2026-03-05',
+                    back_on: '2026-03-06',
+                    duration_days: 5,
+                    applied_on: '2026-02-20',
+                    letter_date: '2026-02-25',
+                    status: 'Approved',
+                    reason: 'Family emergency'
+                },
+                {
+                    ref_no: 'LA/004/2026',
+                    employee_id: employees.length > 3 ? employees[3].id : employees[0].id,
+                    leave_type_id: leaveTypes.length > 2 ? leaveTypes[2].id : leaveTypes[0].id,
+                    start_date: '2026-04-01',
+                    end_date: '2026-04-10',
+                    back_on: '2026-04-11',
+                    duration_days: 10,
+                    applied_on: '2026-03-15',
+                    letter_date: '2026-03-20',
+                    status: 'Pending',
+                    reason: null
+                }
+            ];
+            
+            for (const app of leaveApplications) {
+                await connection.execute(
+                    `INSERT INTO leave_applications (ref_no, employee_id, leave_type_id, start_date, end_date, back_on, duration_days, applied_on, letter_date, status, reason) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [app.ref_no, app.employee_id, app.leave_type_id, app.start_date, app.end_date, app.back_on, 
+                     app.duration_days, app.applied_on, app.letter_date, app.status, app.reason]
+                );
+            }
+            
+            console.log(`✅ Seeded ${leaveApplications.length} leave applications`);
+        } catch (error) {
+            console.log('⏭️ Leave applications table not ready for seeding yet:', error.message);
         }
     }
 }
